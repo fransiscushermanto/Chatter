@@ -1,6 +1,5 @@
 import React from "react";
 import { useForm, useFormContext } from "react-hook-form";
-import { DevTool } from "react-hook-form-devtools";
 
 export function Form({ defaultValues, children, onSubmit }) {
   const methods = useForm({ defaultValues });
