@@ -1,0 +1,33 @@
+.oauth-completedata {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.oauth-completedata .wrapper-form-oauth {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.oauth-completedata .wrapper-form-oauth form h1 {
+  margin-bottom: 20px;
+}
+
+.oauth-completedata .wrapper-form-oauth .btnsubmit-wrapper {
+  margin: 0px;
+}
+
+.btnsubmit-wrapper {
+  width: 100%;
+}
+
+.btnsubmit-wrapper .btn {
+  float: right;
+  width: 40%;
+}

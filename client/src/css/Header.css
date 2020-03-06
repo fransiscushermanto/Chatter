@@ -1,0 +1,11 @@
+.navbar-brand {
+  position: relative;
+  left: 5%;
+  font-size: 50px !important;
+  font-weight: 700;
+}
+
+.navbar-wrapper {
+  position: absolute;
+  width: 100%;
+}

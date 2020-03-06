@@ -1,0 +1,45 @@
+#root .top-wrapper {
+  height: 100vh;
+  position: relative;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-x: hidden;
+}
+
+.container {
+  height: 100%;
+}
+
+* {
+  font-family: "Muli", sans-serif;
+}
+
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  border: 1px solid rgba(194, 189, 189, 0.3);
+  -webkit-text-fill-color: black;
+  -webkit-box-shadow: 0 0 0px 1000px rgba(194, 189, 189, 0.3) inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+textarea:hover,
+input:hover,
+textarea:active,
+input:active,
+textarea:focus,
+input:focus,
+button:focus,
+button:active,
+button:hover,
+label:focus,
+.btn:active,
+.btn.active {
+  outline: 0px !important;
+  -webkit-appearance: none;
+  box-shadow: none !important;
+}
