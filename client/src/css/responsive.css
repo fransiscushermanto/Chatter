@@ -5,22 +5,32 @@
 
   .title p {
     min-width: 358px;
+    max-width: 400px;
   }
 
-  .authuser.row .col {
+  .authuser {
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
   }
 
-  .authuser.row .col form {
-    margin-bottom: 20px;
-    max-width: 510px;
-    min-width: 450px;
+  .authuser .row {
+    width: 100%;
   }
+
+  /* .authuser .row .col .wrapper-auth {
+    min-width: 450px;
+    max-width: 450px;
+  }
+
+  .authuser .row .col form {
+    margin-bottom: 20px;
+    max-width: 340px;
+    min-width: 340px;
+  } */
 }
 
-@media (max-width: 990px) {
+@media (max-width: 992px) {
   #root .top-wrapper {
     height: 100% !important;
   }
@@ -34,18 +44,42 @@
     width: 100%;
   }
 
-  .authuser.row .col form {
+  .authuser .row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .authuser .row .col form {
     margin-bottom: 20px;
     max-width: 510px;
     min-width: 450px;
   }
 
-  .authuser.title p br:nth-child(1) {
+  .authuser .row .col .title p {
+    min-width: 360px;
+    max-width: 360px;
+  }
+
+  .authuser .title p br:nth-child(1) {
     display: none;
   }
 
-  .authuser.title p {
-    font-size: 40px;
+  .authuser .row .col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .authuser .row .col .wrapper-auth {
+    min-width: 500px;
+    max-width: 500px;
+  }
+
+  .authuser .row .col form {
+    margin-bottom: 20px;
+    min-width: 400px;
+    max-width: 400px;
   }
 }
 
@@ -54,8 +88,9 @@
     position: unset;
     width: 100%;
   }
-  .authuser.title p {
-    font-size: 30px;
+
+  .authuser .row {
+    width: 100%;
   }
 
   .navbar-wrapper {
@@ -63,17 +98,38 @@
     width: 100%;
   }
 
-  .authuser.row .col form {
+  .authuser .row .col .title p {
+    min-width: 300px;
+    max-width: 300px;
+  }
+
+  .authuser .row .col .wrapper-auth {
+    min-width: 400px;
+    max-width: 400px;
+  }
+
+  .authuser .row .col form {
     margin-bottom: 20px;
-    max-width: 510px;
-    min-width: 450px;
+    min-width: 320px;
+    max-width: 320px;
   }
 }
 
 @media all and (max-width: 500px) and (min-width: 200px) {
-  .authuser.row .col form {
+  .authuser .row .col .title p {
+    min-width: 300px;
+    max-width: 300px;
+    font-size: 40px;
+  }
+
+  .authuser .row .col .wrapper-auth {
+    min-width: 350px;
+    max-width: 350px;
+  }
+
+  .authuser .row .col form {
     margin-bottom: 20px;
-    min-width: 370px;
-    max-width: 370px;
+    min-width: 270px;
+    max-width: 270px;
   }
 }

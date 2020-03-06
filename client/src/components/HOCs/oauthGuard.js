@@ -37,12 +37,16 @@ export default OriginalComponent => {
     };
 
     useEffect(() => {
-      decodeData();
+      if (jwtToken !== null) {
+        decodeData();
+      }
     }, []);
 
     useEffect(() => {
       if (decodedJWT.user !== "") {
         checkAuth();
+      } else {
+        history.push("/signin");
       }
     }, [decodedJWT]);
 
