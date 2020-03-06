@@ -41,6 +41,7 @@ if (process.env.NODE_ENV !== "test") {
     res.sendFile(index);
   });
 }
+console.log(path.join(__dirname, "client", "build", "index.html"));
 
 //Routes
 app.use("/users", require("./server/routes/users"));
