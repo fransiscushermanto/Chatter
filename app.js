@@ -8,12 +8,9 @@ const morgan = require("morgan");
 const mongoose = require("mongoose");
 
 const connectionString = "mongodb://localhost/chatter";
-console.log("DBNAME", process.env.DB_NAME, "PASS", process.env.DB_PASSWORD);
-const connectionStringProd =
-  "mongodb://heroku_m6lk3rww:hh9dj5ls5mc6aucqn1ku9ffi2n@ds145146.mlab.com:45146/heroku_m6lk3rww";
-console.log(connectionStringProd);
+
 if (process.env.NODE_ENV !== "test") {
-  mongoose.connect(connectionStringProd, {
+  mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
   });
