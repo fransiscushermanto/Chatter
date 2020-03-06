@@ -37,11 +37,10 @@ app.use(express.static(__dirname));
 app.use(express.static(path.join(__dirname, "client", "build")));
 if (process.env.NODE_ENV !== "test") {
   app.get("*", function(req, res) {
-    const index = path.join(process.cwd(), "client", "build", "index.html");
+    const index = path.join(__dirname, "client", "build", "index.html");
     res.sendFile(index);
   });
 }
-console.log(path.join("client", "build", "index.html"));
 
 //Routes
 app.use("/users", require("./server/routes/users"));
