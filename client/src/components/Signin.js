@@ -51,7 +51,7 @@ let SignIn = props => {
         <div className="col">
           <div className="title">
             <p>
-              Please Register<br></br> To Access <br></br>
+              Please Login<br></br> To Access <br></br>
               <span className="dynamic-text">
                 Don't have an account ? <Link to="/signup">Sign Up</Link>
               </span>
