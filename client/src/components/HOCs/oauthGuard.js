@@ -13,42 +13,39 @@ export default OriginalComponent => {
     const authType = useSelector(state => state.auth.authType);
     const decodedJWT = useSelector(state => state.decode);
 
-    const checkAuth = () => {
-      if (decodedJWT.method === "google") {
-        if (decodedJWT.user.google.status === "on") {
-          history.push("/home");
-        }
-      } else {
-        console.log(decodedJWT.user.facebook.status);
-        if (decodedJWT.user.facebook.status === "on") {
-          console.log(authType);
-          window.location.href = "home";
-        }
-      }
-
-      if (!isAuth && !jwtToken && !authType && authType !== "oauth") {
-        console.log("Please sign in");
-        history.push("/signin");
-      }
-    };
-
-    const decodeData = async () => {
-      await dispatch(actions.decodeJWT(jwtToken));
-    };
-
     useEffect(() => {
+      const decodeData = async () => {
+        await dispatch(actions.decodeJWT(jwtToken));
+      };
+
       if (jwtToken !== null) {
         decodeData();
       }
-    }, []);
+    }, [dispatch, jwtToken]);
 
     useEffect(() => {
+      const checkAuth = () => {
+        if (decodedJWT.method === "google") {
+          if (decodedJWT.user.google.status === "on") {
+            history.push("/home");
+          }
+        } else {
+          if (decodedJWT.user.facebook.status === "on") {
+            window.location.href = "home";
+          }
+        }
+
+        if (!isAuth && !jwtToken && !authType && authType !== "oauth") {
+          history.push("/signin");
+        }
+      };
+
       if (decodedJWT.user !== "") {
         checkAuth();
       } else {
         history.push("/signin");
       }
-    }, [decodedJWT]);
+    }, [decodedJWT, authType, history, isAuth, jwtToken]);
 
     return <OriginalComponent props={useSelector(state => state.auth)} />;
   };

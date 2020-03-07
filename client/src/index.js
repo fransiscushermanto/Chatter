@@ -10,6 +10,7 @@ import reducers from "./reducers";
 import * as serviceWorker from "./serviceWorker";
 import authGuard from "./components/HOCs/authGuard";
 import oauthGuard from "./components/HOCs/oauthGuard";
+import pageAuthGuard from "./components/HOCs/pageAuthGuard";
 import Home from "./components/Home";
 import SignUp from "./components/Signup";
 import SignIn from "./components/Signin";
@@ -22,8 +23,9 @@ import axios from "./instance";
 
 const jwtToken = localStorage.getItem("JWT_TOKEN");
 const authType = localStorage.getItem("AUTH_TYPE");
+document.cookie = "Set-Cookie;HttpOnly;Secure;SameSite=Strict";
 axios.defaults.headers.common["Authorization"] = jwtToken;
-
+axios.defaults.headers.common["Set-Cookie"] = "HttpOnly;Secure;SameSite=Strict";
 ReactDOM.render(
   <Provider
     store={createStore(
@@ -42,8 +44,8 @@ ReactDOM.render(
       <App history={useHistory}>
         <Route exact path="/" component={authGuard(Home)} />
         <Route exact path="/home" component={authGuard(Home)} />
-        <Route exact path="/signup" component={SignUp} />
-        <Route exact path="/signin" component={SignIn} />
+        <Route exact path="/signup" component={pageAuthGuard(SignUp)} />
+        <Route exact path="/signin" component={pageAuthGuard(SignIn)} />
         <Route
           exact
           path="/personalData"

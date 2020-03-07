@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 export const Input = ({ name, defaultValues, required, register, style }) => {
-  console.log(typeof style);
   return (
     <fieldset>
       <div style={style} className="form-group wrapper">
@@ -19,7 +18,8 @@ export const Input = ({ name, defaultValues, required, register, style }) => {
 Input.propTypes = {
   name: PropTypes.string.isRequired,
   defaultValue: PropTypes.string,
-  required: PropTypes.func
+  required: PropTypes.bool,
+  register: PropTypes.func
 };
 
 export const AuthInput = ({

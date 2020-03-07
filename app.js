@@ -26,7 +26,6 @@ if (process.env.NODE_ENV !== "test") {
 }
 
 const app = express();
-const http = require("http").createServer(app);
 
 //Middlewares
 app.use(morgan("dev"));
@@ -46,4 +45,4 @@ if (process.env.NODE_ENV !== "test") {
 app.use("/users", require("./server/routes/users"));
 app.use("/auth", require("./server/routes/auth"));
 
-module.exports = http;
+module.exports = app;

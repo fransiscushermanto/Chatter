@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import GoogleLogin from "react-google-login";
 import FacebookLogin from "react-facebook-login/dist/facebook-login-render-props";
@@ -20,7 +20,7 @@ let SignIn = props => {
     password: yup.string().required("This field is required")
   });
 
-  const { register, errors, handleSubmit, watch } = useForm({
+  const { register, errors, handleSubmit } = useForm({
     validationSchema: schema
   });
   const { history } = props;
@@ -28,24 +28,9 @@ let SignIn = props => {
   const dispatch = useDispatch();
   const onSubmit = async formData => {
     await dispatch(actions.signIn(formData));
+
     if (!errorMessage) {
       history.push("/home");
-    }
-  };
-  const checkUserMethod = () => {
-    console.log("current ", localStorage.getItem("AUTH_TYPE"));
-    const data = localStorage.getItem("AUTH_TYPE");
-    if (!errorMessage && data === "") {
-      console.log(data, "Pushing");
-      history.push("/home");
-    }
-
-    if (data === "signup") {
-      dispatch(actions.resetState());
-    }
-
-    if (!errorMessage && data === "oauth") {
-      history.push("/personalData");
     }
   };
 
@@ -58,8 +43,29 @@ let SignIn = props => {
   };
 
   useEffect(() => {
+    const checkUserMethod = () => {
+      const data = localStorage.getItem("AUTH_TYPE");
+      if (!errorMessage && data === "") {
+        console.log(data, "Pushing");
+        history.push("/home");
+      }
+
+      if (data === "signup") {
+        dispatch(actions.resetState());
+      }
+
+      if (data === "local") {
+        dispatch(actions.resetState());
+        history.push("/home");
+      }
+
+      if (!errorMessage && data === "oauth") {
+        history.push("/personalData");
+      }
+    };
+
     checkUserMethod();
-  }, []);
+  }, [history, dispatch, errorMessage]);
 
   return (
     <div className="authuser">
@@ -91,6 +97,7 @@ let SignIn = props => {
                   type="email"
                   id="email"
                   placeholder="Email"
+                  autoComplete="username"
                   style={
                     errors.email || errorMessage
                       ? errorMessage !== "Invalid"
@@ -217,4 +224,4 @@ let SignIn = props => {
   );
 };
 
-export default SignIn;
+export default withRouter(SignIn);

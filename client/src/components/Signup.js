@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import GoogleLogin from "react-google-login";
 import FacebookLogin from "react-facebook-login/dist/facebook-login-render-props";
@@ -30,13 +30,11 @@ let SignUp = props => {
         "Password length must be at least 6 include uppercase, lowercase, number "
       )
   });
-  const { register, errors, handleSubmit, watch } = useForm({
+  const { register, errors, handleSubmit } = useForm({
     validationSchema: schema
   });
   const { history } = props;
-  const waitTime = 500;
   const dispatch = useDispatch();
-
   const errorMessage = useSelector(state => state.auth.errorMessage);
 
   useEffect(() => {
@@ -58,7 +56,7 @@ let SignUp = props => {
     };
 
     checkUserMethod();
-  }, []);
+  }, [history, dispatch, errorMessage]);
   const onSubmit = async formData => {
     await dispatch(actions.signUp(formData));
     if (errorMessage) {
@@ -137,6 +135,7 @@ let SignUp = props => {
                   placeholder="Email"
                   required={true}
                   register={register}
+                  autoComplete="username"
                   style={
                     errors.email || errorMessage
                       ? errorMessage !== "Invalid"
@@ -257,4 +256,4 @@ let SignUp = props => {
   );
 };
 
-export default SignUp;
+export default withRouter(SignUp);

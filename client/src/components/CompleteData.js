@@ -19,7 +19,7 @@ let CompleteData = () => {
       .matches(/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/g, "Invalid")
   });
 
-  const { register, errors, handleSubmit, watch } = useForm({
+  const { register, errors, handleSubmit } = useForm({
     validationSchema: schema
   });
   const dispatch = useDispatch();
@@ -40,20 +40,16 @@ let CompleteData = () => {
     setSubmitData(user);
     setExecute(true);
   };
-  const decode = async data => {
-    await dispatch(actions.decodeJWT(data));
-  };
-
-  const updateData = async () => {
-    await dispatch(actions.updateData(submitData));
-    history.push("/home");
-  };
 
   useEffect(() => {
+    const decode = async data => {
+      await dispatch(actions.decodeJWT(data));
+    };
+
     if (token) {
       decode(token);
     }
-  }, []);
+  }, [token, dispatch]);
 
   useEffect(() => {
     if (jwtDataUser !== "") {
@@ -68,10 +64,15 @@ let CompleteData = () => {
   }, [jwtMethod, jwtDataUser]);
 
   useEffect(() => {
+    const updateData = async () => {
+      await dispatch(actions.updateData(submitData));
+      history.push("/home");
+    };
+
     if (execute) {
       updateData();
     }
-  }, [execute]);
+  }, [execute, submitData, dispatch, history]);
 
   return (
     <div className="oauth-completedata">

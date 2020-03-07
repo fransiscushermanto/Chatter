@@ -17,7 +17,6 @@ export default (state = DEFAULT_STATE, action) => {
   switch (action.type) {
     case AUTH_SIGN_UP:
       console.log("[AuthReducer] got an AUTH_SIGN_UP action");
-      console.log(action);
       return {
         ...state,
         token: action.payload,

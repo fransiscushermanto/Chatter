@@ -1,6 +1,8 @@
 const app = require("./app");
 const port = process.env.PORT || 8550;
-const io = require("socket.io")(app);
+const httpTemp = require("http");
+const http = httpTemp.createServer(app);
+const io = require("socket.io")(http);
 
 io.on("connection", socket => {
   socket.on("disconnect", () => {
@@ -8,6 +10,6 @@ io.on("connection", socket => {
   });
 });
 
-app.listen(port, () => {
+http.listen(port, () => {
   console.log(`Product server listening on port ${port}`);
 });

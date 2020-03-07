@@ -20,7 +20,6 @@ module.exports = {
     if (exist) {
       return res.status(403).send({ error: "Email is already exist" });
     }
-    console.log("EXIST", exist);
     const newUser = new User({
       method: "local",
       local: {
@@ -33,7 +32,6 @@ module.exports = {
       }
     });
     await newUser.save();
-    console.log("NEW USER", newUser);
     const token = signToken(newUser);
 
     res.status(200).json({ token });

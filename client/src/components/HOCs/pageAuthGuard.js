@@ -13,11 +13,7 @@ export default OriginalComponent => {
     const authType = useSelector(state => state.auth.authType);
 
     useEffect(() => {
-      const decodeData = async () => {
-        await dispatch(actions.decodeJWT(jwtToken));
-      };
-
-      const checkAuth = async () => {
+      const checkAuth = () => {
         if (isAuth && jwtToken) {
           if (
             localStorage.getItem("AUTH_TYPE") === "" ||
@@ -27,25 +23,20 @@ export default OriginalComponent => {
           } else {
             history.push("/home");
           }
-
-          return;
-        } else if (localStorage.getItem("AUTH_TYPE") === "signup") {
-          history.push("/signup");
-          return;
-        } else if (localStorage.getItem("AUTH_TYPE") === "signin") {
-          history.push("/signin");
-          return;
-        } else if (!isAuth && !jwtToken) {
-          history.push("/signin");
           return;
         }
       };
 
+      const decodeData = async () => {
+        await dispatch(actions.decodeJWT(jwtToken));
+      };
+
       checkAuth();
+
       if (jwtToken !== null) {
         decodeData();
       }
-    }, [jwtToken, dispatch, history, isAuth]);
+    }, [jwtToken, isAuth, history, dispatch]);
 
     useEffect(() => {
       const checkOAuth = data => {
@@ -54,7 +45,7 @@ export default OriginalComponent => {
         }
       };
       checkOAuth(authType);
-    }, [authType, history]);
+    }, [authType, history, isAuth, jwtToken]);
 
     return <OriginalComponent props={useSelector(state => state.auth)} />;
   };
