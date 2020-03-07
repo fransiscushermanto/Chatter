@@ -116,9 +116,13 @@
 }
 
 @media all and (max-width: 500px) and (min-width: 200px) {
+  .register {
+    margin-top: 70px;
+  }
+
   .authuser .row .col .title p {
-    min-width: 300px;
     max-width: 300px;
+    min-width: 300px;
     font-size: 40px;
   }
 

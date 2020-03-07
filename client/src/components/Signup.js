@@ -1,18 +1,40 @@
-import React from "react";
-import { reduxForm, Field } from "redux-form";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import GoogleLogin from "react-google-login";
 import FacebookLogin from "react-facebook-login/dist/facebook-login-render-props";
+import { useForm } from "react-hook-form";
+import * as yup from "yup";
 
 import * as actions from "../actions";
-import CustomInput from "./CustomInput";
+import { AuthInput as Field } from "./ReactHookForm";
 
 import "../css/Authuser.css";
 
 let SignUp = props => {
-  const { handleSubmit, history } = props;
-
+  const schema = yup.object().shape({
+    fullname: yup
+      .string()
+      .required("This field is required")
+      .min(3, "Name too short!")
+      .matches(/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/g, "Invalid"),
+    email: yup
+      .string()
+      .email("Email is invalid")
+      .required("This field is required"),
+    password: yup
+      .string()
+      .required("This field is required")
+      .matches(
+        /^(?=.*\d)(?=.*[A-Z])(?=.*[a-z]).{6,}$/,
+        "Password length must be at least 6 include uppercase, lowercase, number "
+      )
+  });
+  const { register, errors, handleSubmit, watch } = useForm({
+    validationSchema: schema
+  });
+  const { history } = props;
+  const waitTime = 500;
   const dispatch = useDispatch();
 
   const errorMessage = useSelector(state => state.auth.errorMessage);
@@ -37,8 +59,9 @@ let SignUp = props => {
       history.push("/personalData");
     }
   };
+
   return (
-    <div className="authuser">
+    <div className="authuser register">
       <div className="row">
         <div className="col">
           <div className="title">
@@ -60,8 +83,15 @@ let SignUp = props => {
                   type="text"
                   id="fullname"
                   placeholder="Full Name"
-                  component={CustomInput}
+                  required={true}
+                  register={register}
+                  style={errors.fullname ? { border: "1px red solid" } : null}
                 />
+                {errors.fullname ? (
+                  <div>
+                    <p style={{ color: "red" }}>{errors.fullname.message}</p>
+                  </div>
+                ) : null}
               </fieldset>
               <fieldset>
                 <Field
@@ -69,8 +99,15 @@ let SignUp = props => {
                   type="email"
                   id="email"
                   placeholder="Email"
-                  component={CustomInput}
+                  required={true}
+                  register={register}
+                  style={errors.email ? { border: "1px red solid" } : null}
                 />
+                {errors.email ? (
+                  <div>
+                    <p style={{ color: "red" }}>{errors.email.message}</p>
+                  </div>
+                ) : null}
               </fieldset>
               <fieldset>
                 <Field
@@ -78,8 +115,18 @@ let SignUp = props => {
                   type="password"
                   id="password"
                   placeholder="Password"
-                  component={CustomInput}
+                  autoComplete="current-password"
+                  style={errors.password ? { border: "1px red solid" } : null}
+                  required={true}
+                  register={register}
                 />
+                {errors.password ? (
+                  <div>
+                    <p style={{ color: "red", marginBottom: "0px" }}>
+                      {errors.password.message}
+                    </p>
+                  </div>
+                ) : null}
               </fieldset>
               <div className="btnsubmit-wrapper">
                 <button className="btn btn-primary" type="submit">
@@ -161,7 +208,5 @@ let SignUp = props => {
     </div>
   );
 };
-
-SignUp = reduxForm({ form: "signup" })(SignUp);
 
 export default SignUp;

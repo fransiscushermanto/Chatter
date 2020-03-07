@@ -9,6 +9,12 @@
   transition: all ease 1s;
 }
 
+.error-message {
+  width: 100%;
+  padding: 10px;
+  color: white;
+}
+
 .title {
   display: flex;
   align-items: center;

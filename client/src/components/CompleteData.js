@@ -1,16 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useForm, FormContext } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useHistory } from "react-router-dom";
+import * as yup from "yup";
 
-import { Form, Input } from "./ReactHookForm";
+import { Input } from "./ReactHookForm";
 import * as actions from "../actions";
 
 import "../css/CompleteData.css";
 import "../css/Authuser.css";
 
 let CompleteData = () => {
-  const methods = useForm();
+  const schema = yup.object().shape({
+    fullname: yup
+      .string()
+      .required("This field is required")
+      .min(3, "Name too short!")
+      .matches(/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/g, "Invalid")
+  });
+
+  const { register, errors, handleSubmit, watch } = useForm({
+    validationSchema: schema
+  });
   const dispatch = useDispatch();
   const history = useHistory();
 
@@ -29,7 +40,6 @@ let CompleteData = () => {
     setSubmitData(user);
     setExecute(true);
   };
-
   const decode = async data => {
     await dispatch(actions.decodeJWT(data));
   };
@@ -66,41 +76,30 @@ let CompleteData = () => {
   return (
     <div className="oauth-completedata">
       {jwtDataUser ? (
-        jwtMethod === "google" ? (
-          statusUser === "off" ? (
-            <div className="wrapper-form-oauth">
-              <FormContext {...methods}>
-                <Form onSubmit={onSubmit}>
-                  <h1>Let me call you?</h1>
-                  <Input
-                    name="fullname"
-                    defaultValues={submitData ? submitData.fullname : null}
-                  />
-                  <div className="btnsubmit-wrapper">
-                    <button className="btn btn-primary" type="submit">
-                      Done
-                    </button>
-                  </div>
-                </Form>
-              </FormContext>
-            </div>
-          ) : null
-        ) : statusUser === "off" ? (
+        statusUser === "off" ? (
           <div className="wrapper-form-oauth">
-            <FormContext {...methods}>
-              <Form onSubmit={onSubmit}>
-                <h1>Let me call you?</h1>
-                <Input
-                  name="fullname"
-                  defaultValues={submitData ? submitData.fullname : null}
-                />
-                <div className="btnsubmit-wrapper">
-                  <button className="btn btn-primary" type="submit">
-                    Done
-                  </button>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <h1>Let me call you?</h1>
+              <Input
+                name="fullname"
+                defaultValues={submitData ? submitData.fullname : null}
+                required={true}
+                register={register}
+                style={errors.fullname ? { border: "1px red solid" } : null}
+              />
+              {errors.fullname ? (
+                <div>
+                  <p style={{ color: "red", marginBottom: "0px" }}>
+                    {errors.fullname.message}
+                  </p>
                 </div>
-              </Form>
-            </FormContext>
+              ) : null}
+              <div className="btnsubmit-wrapper">
+                <button className="btn btn-primary" type="submit">
+                  Done
+                </button>
+              </div>
+            </form>
           </div>
         ) : null
       ) : null}

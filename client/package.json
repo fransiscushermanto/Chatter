@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^7.2.1",
     "axios": "^0.19.2",
     "bootstrap": "^4.4.1",
+    "lodash.debounce": "^4.0.8",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
     "react-facebook-login": "^4.1.1",
@@ -18,7 +19,9 @@
     "react-scripts": "3.4.0",
     "redux": "^4.0.5",
     "redux-form": "^8.3.0",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "validatorjs": "^3.18.1",
+    "yup": "^0.28.3"
   },
   "scripts": {
     "start": "react-scripts start",

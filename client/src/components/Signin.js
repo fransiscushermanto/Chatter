@@ -1,17 +1,29 @@
 import React, { useEffect } from "react";
-import { reduxForm, Field } from "redux-form";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import GoogleLogin from "react-google-login";
 import FacebookLogin from "react-facebook-login/dist/facebook-login-render-props";
+import { useForm } from "react-hook-form";
+import * as yup from "yup";
 
 import * as actions from "../actions";
-import CustomInput from "./CustomInput";
+import { AuthInput as Field } from "./ReactHookForm";
 
 import "../css/Authuser.css";
 
 let SignIn = props => {
-  const { handleSubmit, history } = props;
+  const schema = yup.object().shape({
+    email: yup
+      .string()
+      .email("Email is invalid")
+      .required("This field is required"),
+    password: yup.string().required("This field is required")
+  });
+
+  const { register, errors, handleSubmit, watch } = useForm({
+    validationSchema: schema
+  });
+  const { history } = props;
   const errorMessage = useSelector(state => state.auth.errorMessage);
   const authType = useSelector(state => state.auth.authType);
   const dispatch = useDispatch();
@@ -41,7 +53,6 @@ let SignIn = props => {
   };
 
   useEffect(() => {
-    console.log(authType);
     checkUserMethod(authType);
   }, [authType]);
 
@@ -68,8 +79,23 @@ let SignIn = props => {
                   type="email"
                   id="email"
                   placeholder="Email"
-                  component={CustomInput}
+                  style={
+                    errors.email || errorMessage
+                      ? { border: "1px red solid" }
+                      : null
+                  }
+                  required={true}
+                  register={register}
                 />
+                {errorMessage ? (
+                  <div>
+                    <p style={{ color: "red" }}>{errorMessage}</p>
+                  </div>
+                ) : errors.email ? (
+                  <div>
+                    <p style={{ color: "red" }}>{errors.email.message}</p>
+                  </div>
+                ) : null}
               </fieldset>
               <fieldset>
                 <Field
@@ -77,10 +103,32 @@ let SignIn = props => {
                   type="password"
                   id="password"
                   placeholder="Password"
-                  component={CustomInput}
+                  autoComplete="current-password"
+                  style={
+                    errors.password || errorMessage
+                      ? { border: "1px red solid" }
+                      : null
+                  }
+                  required={true}
+                  register={register}
                 />
+                {errorMessage ? (
+                  <div>
+                    <p style={{ color: "red", marginBottom: "0px" }}>
+                      {errorMessage}
+                    </p>
+                  </div>
+                ) : errors.password ? (
+                  <div>
+                    <p style={{ color: "red", marginBottom: "0px" }}>
+                      {errors.password.message}
+                    </p>
+                  </div>
+                ) : null}
               </fieldset>
+
               <div className="btnsubmit-wrapper">
+                <Link to="/resetPassword">Forgot Password?</Link>
                 <button className="btn btn-primary" type="submit">
                   Login
                 </button>
@@ -160,7 +208,5 @@ let SignIn = props => {
     </div>
   );
 };
-
-SignIn = reduxForm({ form: "signup" })(SignIn);
 
 export default SignIn;

@@ -1,47 +1,60 @@
 import React from "react";
-import { useForm, useFormContext } from "react-hook-form";
-
-export function Form({ defaultValues, children, onSubmit }) {
-  const methods = useForm({ defaultValues });
-  const { handleSubmit } = methods;
-
+import PropTypes from "prop-types";
+export const Input = ({ name, defaultValues, required, register, style }) => {
+  console.log(typeof style);
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      {Array.isArray(children)
-        ? children.map(child => {
-            return child.props.name
-              ? React.createElement(child.type, {
-                  ...{
-                    ...child.props,
-                    register: methods.register,
-                    key: child.props.name
-                  }
-                })
-              : child;
-          })
-        : children}
-    </form>
+    <fieldset>
+      <div style={style} className="form-group wrapper">
+        <input
+          name={name}
+          className="input-field form-control"
+          defaultValue={defaultValues}
+          ref={register({ required })}
+        />
+      </div>
+    </fieldset>
   );
-}
+};
 
-export function Input({ register, name, defaultValues, ...rest }) {
-  const {
-    formState: { dirty }
-  } = useFormContext();
-  return React.useMemo(
-    () => (
-      <fieldset>
-        <div className="form-group wrapper">
-          <input
-            name={name}
-            className="input-field form-control"
-            defaultValue={defaultValues}
-            ref={register}
-            {...rest}
-          />
-        </div>
-      </fieldset>
-    ),
-    [dirty, register, name, defaultValues, rest]
+Input.propTypes = {
+  name: PropTypes.string.isRequired,
+  defaultValue: PropTypes.string,
+  required: PropTypes.func
+};
+
+export const AuthInput = ({
+  name,
+  defaultValues,
+  required,
+  register,
+  style,
+  type,
+  id,
+  autoComplete,
+  placeholder
+}) => {
+  return (
+    <div style={style} className="form-group wrapper">
+      <input
+        name={name}
+        id={id}
+        className="input-field form-control"
+        placeholder={placeholder}
+        type={type}
+        defaultValue={defaultValues}
+        ref={register({ required })}
+        autoComplete={autoComplete}
+      />
+    </div>
   );
-}
+};
+
+AuthInput.propTypes = {
+  name: PropTypes.string,
+  id: PropTypes.string,
+  placeholder: PropTypes.string,
+  type: PropTypes.string.isRequired,
+  register: PropTypes.func.isRequired,
+  required: PropTypes.bool,
+  autoComplete: PropTypes.string
+};
