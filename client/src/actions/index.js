@@ -25,8 +25,10 @@ export const signUp = data => {
     } catch (error) {
       dispatch({
         type: AUTH_ERROR,
-        payload: "Email is already in used"
+        payload: "Email is already in used",
+        authType: "signup"
       });
+      localStorage.setItem("AUTH_TYPE", "signup");
       console.log("err: ", error);
     }
   };
@@ -49,8 +51,10 @@ export const signIn = data => {
     } catch (error) {
       dispatch({
         type: AUTH_ERROR,
-        payload: "Email or password is invalid"
+        payload: "Email or password is invalid",
+        authType: "signin"
       });
+      localStorage.setItem("AUTH_TYPE", "signin");
       console.log("err:", error);
     }
   };
@@ -147,15 +151,33 @@ export const decodeJWT = data => {
 
 export const updateData = data => {
   return async dispatch => {
-    console.log("[ActionCreator] updateData dispatch");
-    const res = await axios.post("/users/update", data);
-    console.log(res);
+    try {
+      console.log("[ActionCreator] updateData dispatch");
+      const res = await axios.post("/users/update", data);
+      console.log(res);
+      dispatch({
+        type: OAUTH_SIGN_UP,
+        payload: res.data.token,
+        authType: ""
+      });
+      localStorage.setItem("JWT_TOKEN", res.data.token);
+      localStorage.setItem("AUTH_TYPE", "");
+    } catch (error) {
+      dispatch({
+        type: AUTH_ERROR,
+        payload: "Server error"
+      });
+      console.log("err:", error);
+    }
+  };
+};
+
+export const resetState = data => {
+  return dispatch => {
+    console.log("[ActionCreator] resetError dispatch");
     dispatch({
-      type: OAUTH_SIGN_UP,
-      payload: res.data.token,
-      authType: ""
+      type: AUTH_ERROR,
+      payload: ""
     });
-    localStorage.setItem("JWT_TOKEN", res.data.token);
-    localStorage.setItem("AUTH_TYPE", "");
   };
 };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import GoogleLogin from "react-google-login";
@@ -20,7 +20,7 @@ let SignUp = props => {
       .matches(/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/g, "Invalid"),
     email: yup
       .string()
-      .email("Email is invalid")
+      .email("Email is Invalid")
       .required("This field is required"),
     password: yup
       .string()
@@ -38,9 +38,32 @@ let SignUp = props => {
   const dispatch = useDispatch();
 
   const errorMessage = useSelector(state => state.auth.errorMessage);
+
+  useEffect(() => {
+    const checkUserMethod = () => {
+      console.log("current signup", localStorage.getItem("AUTH_TYPE"));
+      const data = localStorage.getItem("AUTH_TYPE");
+      if (!errorMessage && data === "") {
+        console.log(data, "Pushing");
+        history.push("/home");
+      }
+
+      if (data === "signin") {
+        dispatch(actions.resetState());
+      }
+
+      if (!errorMessage && data === "oauth") {
+        history.push("/personalData");
+      }
+    };
+
+    checkUserMethod();
+  }, []);
   const onSubmit = async formData => {
-    console.log("formData", formData);
     await dispatch(actions.signUp(formData));
+    if (errorMessage) {
+      history.push("/signup");
+    }
     if (!errorMessage) {
       history.push("/home");
     }
@@ -77,6 +100,13 @@ let SignUp = props => {
           <div className="wrapper-auth">
             <form onSubmit={handleSubmit(onSubmit)}>
               <p className="title">Register</p>
+              {errorMessage ? (
+                errorMessage !== "Invalid" ? (
+                  <div style={{ width: "100%" }}>
+                    <p className="bg-danger error-message">{errorMessage}</p>
+                  </div>
+                ) : null
+              ) : null}
               <fieldset>
                 <Field
                   name="fullname"
@@ -85,7 +115,13 @@ let SignUp = props => {
                   placeholder="Full Name"
                   required={true}
                   register={register}
-                  style={errors.fullname ? { border: "1px red solid" } : null}
+                  style={
+                    errors.fullname || errorMessage
+                      ? errorMessage !== "Invalid" || errors.fullname
+                        ? { border: "1px red solid" }
+                        : null
+                      : null
+                  }
                 />
                 {errors.fullname ? (
                   <div>
@@ -101,7 +137,13 @@ let SignUp = props => {
                   placeholder="Email"
                   required={true}
                   register={register}
-                  style={errors.email ? { border: "1px red solid" } : null}
+                  style={
+                    errors.email || errorMessage
+                      ? errorMessage !== "Invalid"
+                        ? { border: "1px red solid" }
+                        : null
+                      : null
+                  }
                 />
                 {errors.email ? (
                   <div>
@@ -116,7 +158,13 @@ let SignUp = props => {
                   id="password"
                   placeholder="Password"
                   autoComplete="current-password"
-                  style={errors.password ? { border: "1px red solid" } : null}
+                  style={
+                    errors.password || errorMessage
+                      ? errorMessage !== "Invalid"
+                        ? { border: "1px red solid" }
+                        : null
+                      : null
+                  }
                   required={true}
                   register={register}
                 />

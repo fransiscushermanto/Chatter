@@ -20,8 +20,11 @@ export default OriginalComponent => {
 
     const checkAuth = async () => {
       if (!isAuth && !jwtToken) {
-        console.log("Please sign in");
-        history.push("/signin");
+        if (localStorage.getItem("AUTH_TYPE") === "signup") {
+          history.push("/signup");
+        } else {
+          history.push("/signin");
+        }
       }
     };
 
@@ -30,7 +33,7 @@ export default OriginalComponent => {
     };
 
     useEffect(() => {
-      console.log(jwtToken);
+      console.log(localStorage.getItem("AUTH_TYPE"));
       checkAuth();
       if (jwtToken !== null) {
         decodeData();

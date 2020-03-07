@@ -15,7 +15,7 @@ let SignIn = props => {
   const schema = yup.object().shape({
     email: yup
       .string()
-      .email("Email is invalid")
+      .email("Email is Invalid")
       .required("This field is required"),
     password: yup.string().required("This field is required")
   });
@@ -25,7 +25,6 @@ let SignIn = props => {
   });
   const { history } = props;
   const errorMessage = useSelector(state => state.auth.errorMessage);
-  const authType = useSelector(state => state.auth.authType);
   const dispatch = useDispatch();
   const onSubmit = async formData => {
     await dispatch(actions.signIn(formData));
@@ -33,10 +32,16 @@ let SignIn = props => {
       history.push("/home");
     }
   };
-  const checkUserMethod = data => {
+  const checkUserMethod = () => {
+    console.log("current ", localStorage.getItem("AUTH_TYPE"));
+    const data = localStorage.getItem("AUTH_TYPE");
     if (!errorMessage && data === "") {
       console.log(data, "Pushing");
       history.push("/home");
+    }
+
+    if (data === "signup") {
+      dispatch(actions.resetState());
     }
 
     if (!errorMessage && data === "oauth") {
@@ -53,8 +58,8 @@ let SignIn = props => {
   };
 
   useEffect(() => {
-    checkUserMethod(authType);
-  }, [authType]);
+    checkUserMethod();
+  }, []);
 
   return (
     <div className="authuser">
@@ -73,6 +78,13 @@ let SignIn = props => {
           <div className="wrapper-auth">
             <form onSubmit={handleSubmit(onSubmit)}>
               <p className="title">Login</p>
+              {errorMessage ? (
+                errorMessage !== "Invalid" ? (
+                  <div style={{ width: "100%" }}>
+                    <p className="bg-danger error-message">{errorMessage}</p>
+                  </div>
+                ) : null
+              ) : null}
               <fieldset>
                 <Field
                   name="email"
@@ -81,19 +93,19 @@ let SignIn = props => {
                   placeholder="Email"
                   style={
                     errors.email || errorMessage
-                      ? { border: "1px red solid" }
+                      ? errorMessage !== "Invalid"
+                        ? { border: "1px red solid" }
+                        : null
                       : null
                   }
                   required={true}
                   register={register}
                 />
-                {errorMessage ? (
+                {errors.email ? (
                   <div>
-                    <p style={{ color: "red" }}>{errorMessage}</p>
-                  </div>
-                ) : errors.email ? (
-                  <div>
-                    <p style={{ color: "red" }}>{errors.email.message}</p>
+                    <p style={{ color: "red", marginBottom: "10px" }}>
+                      {errors.email.message}
+                    </p>
                   </div>
                 ) : null}
               </fieldset>
@@ -106,19 +118,15 @@ let SignIn = props => {
                   autoComplete="current-password"
                   style={
                     errors.password || errorMessage
-                      ? { border: "1px red solid" }
+                      ? errorMessage !== "Invalid"
+                        ? { border: "1px red solid" }
+                        : null
                       : null
                   }
                   required={true}
                   register={register}
                 />
-                {errorMessage ? (
-                  <div>
-                    <p style={{ color: "red", marginBottom: "0px" }}>
-                      {errorMessage}
-                    </p>
-                  </div>
-                ) : errors.password ? (
+                {errors.password ? (
                   <div>
                     <p style={{ color: "red", marginBottom: "0px" }}>
                       {errors.password.message}
