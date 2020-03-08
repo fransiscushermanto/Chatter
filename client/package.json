@@ -10,6 +10,7 @@
     "bootstrap": "^4.4.1",
     "lodash.debounce": "^4.0.8",
     "react": "^16.13.0",
+    "react-avatar": "^3.9.2",
     "react-dom": "^16.13.0",
     "react-facebook-login": "^4.1.1",
     "react-google-login": "^5.1.1",

@@ -17,17 +17,6 @@
   .authuser .row {
     width: 100%;
   }
-
-  /* .authuser .row .col .wrapper-auth {
-    min-width: 450px;
-    max-width: 450px;
-  }
-
-  .authuser .row .col form {
-    margin-bottom: 20px;
-    max-width: 340px;
-    min-width: 340px;
-  } */
 }
 
 @media (max-width: 992px) {
@@ -116,6 +105,14 @@
 }
 
 @media all and (max-width: 500px) and (min-width: 200px) {
+  .navbar-brand {
+    font-size: 45px !important;
+  }
+
+  .navbar-brand span {
+    font-size: 16px !important;
+  }
+
   .register {
     margin-top: 70px;
   }

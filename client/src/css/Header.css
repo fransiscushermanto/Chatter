@@ -9,3 +9,68 @@
   position: absolute;
   width: 100%;
 }
+
+.navbar-wrapper .main-nav .nav {
+  position: relative;
+}
+
+.profile-avatar {
+  cursor: pointer;
+}
+
+.profile-nav-wrapper {
+  position: absolute;
+  display: flex;
+  justify-content: flex-end;
+
+  height: fit-content;
+  max-width: 400px;
+  min-width: 400px;
+
+  top: 110%;
+  left: auto;
+  right: 0%;
+}
+
+.profile-nav {
+  width: 300px;
+  max-width: 300px;
+  min-width: 300px;
+
+  margin-top: 10px;
+
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0);
+  border-radius: 5px;
+  box-shadow: 0px 1px 3px;
+
+  transition: all ease-in 1s;
+}
+
+.profile-nav .nav .nav-item {
+  width: 100%;
+}
+
+.profile-nav .nav .nav-profile-item {
+  padding: 5px;
+}
+
+.profile-nav .nav .nav-item-separator {
+  height: 1px;
+  width: 100%;
+
+  border: none;
+  border-bottom: 1px solid #e6e8eb;
+
+  margin: 0px;
+}
+
+.profile-nav .nav .nav-profile-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.profile-nav .nav .nav-item .header-profile-nav {
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+}
