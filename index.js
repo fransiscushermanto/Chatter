@@ -3,7 +3,14 @@ const port = process.env.PORT || 8550;
 const https = require("https").createServer(app);
 const httpTemp = require("http");
 const http = httpTemp.createServer(app);
-const io = require("socket.io")(http);
+
+const io = require("socket.io");
+
+if (process.env.NODE_ENV !== "test") {
+  io(https);
+} else {
+  io(http);
+}
 
 io.on("connection", socket => {
   socket.on("disconnect", () => {
