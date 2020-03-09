@@ -4,19 +4,21 @@ const https = require("https").createServer(app);
 const httpTemp = require("http");
 const http = httpTemp.createServer(app);
 
-const io = require("socket.io");
-
 if (process.env.NODE_ENV !== "test") {
-  io(https);
-} else {
-  io(http);
-}
-
-io.on("connection", socket => {
-  socket.on("disconnect", () => {
-    console.log("Disconnected");
+  const io = require("socket.io")(https);
+  io.on("connection", socket => {
+    socket.on("disconnect", () => {
+      console.log("Disconnected");
+    });
   });
-});
+} else {
+  const io = require("socket.io")(http);
+  io.on("connection", socket => {
+    socket.on("disconnect", () => {
+      console.log("Disconnected");
+    });
+  });
+}
 
 if (process.env.NODE_ENV !== "test") {
   https.listen(port, () => {
