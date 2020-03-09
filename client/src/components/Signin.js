@@ -43,6 +43,11 @@ let SignIn = props => {
   };
 
   useEffect(() => {
+    document.getElementsByClassName("app-wrapper")[0].style.cssText =
+      "overflow: auto";
+  }, []);
+
+  useEffect(() => {
     const checkUserMethod = () => {
       const data = localStorage.getItem("AUTH_TYPE");
       if (!errorMessage && data === "") {

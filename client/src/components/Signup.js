@@ -38,6 +38,11 @@ let SignUp = props => {
   const errorMessage = useSelector(state => state.auth.errorMessage);
 
   useEffect(() => {
+    document.getElementsByClassName("app-wrapper")[0].style.cssText =
+      "overflow: auto";
+  }, []);
+
+  useEffect(() => {
     const checkUserMethod = () => {
       console.log("current signup", localStorage.getItem("AUTH_TYPE"));
       const data = localStorage.getItem("AUTH_TYPE");

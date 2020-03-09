@@ -24,6 +24,10 @@
     height: 100% !important;
   }
 
+  .container {
+    height: 100% !important;
+  }
+
   .authuser {
     margin-top: 30px;
   }
@@ -37,6 +41,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-bottom: 30px;
   }
 
   .authuser .row .col form {
@@ -73,6 +78,10 @@
 }
 
 @media all and (max-width: 540px) and (min-width: 500px) {
+  .container {
+    height: 100%;
+  }
+
   .navbar-wrapper {
     position: unset;
     width: 100%;
@@ -105,6 +114,10 @@
 }
 
 @media all and (max-width: 500px) and (min-width: 200px) {
+  .container {
+    height: 100% !important;
+  }
+
   .navbar-brand {
     font-size: 45px !important;
   }
@@ -115,6 +128,10 @@
 
   .register {
     margin-top: 70px;
+  }
+
+  .authuser .row {
+    margin-bottom: 30px;
   }
 
   .authuser .row .col .title p {
