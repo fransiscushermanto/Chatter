@@ -157,6 +157,7 @@ let SignIn = props => {
                   autoLoad={false}
                   textButton="Facebook"
                   fields="name, email, picture"
+                  disableMobileRedirect={true}
                   callback={responseFacebook}
                   render={renderProps => (
                     <button

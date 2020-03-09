@@ -187,6 +187,7 @@ let SignUp = props => {
                 <FacebookLogin
                   appId={process.env.REACT_APP_FACEBOOK_CLIENT_ID}
                   autoLoad={false}
+                  disableMobileRedirect={true}
                   textButton="Facebook"
                   fields="name, email, picture"
                   callback={responseFacebook}

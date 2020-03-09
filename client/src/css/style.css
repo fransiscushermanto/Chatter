@@ -1,6 +1,7 @@
 #root .top-wrapper {
   height: 100vh;
   position: relative;
+  overflow: hidden;
 }
 
 body {
@@ -8,6 +9,13 @@ body {
   flex-direction: column;
   height: 100vh;
   overflow-x: hidden;
+}
+
+.app-wrapper {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .container {

@@ -1,13 +1,87 @@
 .main-wrapper {
-  padding: 10px;
-  margin: 0px !important;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .main-wrapper .wrapper {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  overflow: hidden;
 }
 
 .main-wrapper .wrapper .row {
   width: 100%;
+  height: 100%;
+  overflow: hidden;
+
+  padding: 0px 90px 30px 90px;
+}
+
+.main-wrapper .wrapper .row .sider {
+  flex: 30%;
+  height: 100%;
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-right: 0px;
+}
+
+.sider .search-bar {
+  display: flex;
+  padding: 10px;
+
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.sider .search-bar .inner-search-bar {
+  display: flex;
+  width: 100%;
+
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+
+  background: rgba(194, 189, 189, 0.3);
+}
+
+.sider .search-bar .inner-search-bar .search-icon {
+  flex: 10%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sider .search-bar .inner-search-bar .search-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.sider .search-icon svg path {
+  fill: rgba(0, 0, 0, 0.1);
+}
+
+.sider .search-bar .inner-search-bar .search-bar-wrapper {
+  padding: 0px 15px 0px 0px;
+  flex: 90%;
+}
+
+.sider .search-bar .inner-search-bar .search-bar-wrapper input {
+  border: none;
+  background-color: transparent;
+}
+
+.sider .pane-side {
+  overflow-y: auto;
+}
+
+.sider .pane-side .inner-pane-side {
+  vertical-align: baseline;
+}
+
+.main-wrapper .wrapper .row .main-page {
+  flex: 70%;
+  height: 100%;
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }

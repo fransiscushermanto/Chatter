@@ -8,7 +8,7 @@ const App = props => {
   return (
     <div className="top-wrapper">
       <Header props={props}></Header>
-      <div>{props.children}</div>
+      <div className="app-wrapper">{props.children}</div>
     </div>
   );
 };
