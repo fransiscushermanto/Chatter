@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, useHistory } from "react-router-dom";
 import { Provider } from "react-redux";
 import { applyMiddleware, createStore } from "redux";
 import reduxThunk from "redux-thunk";
+import HttpsRedirect from "react-https-redirect";
 
 import App from "./components/App";
 import reducers from "./reducers";
@@ -40,19 +41,21 @@ ReactDOM.render(
       applyMiddleware(reduxThunk)
     )}
   >
-    <Router>
-      <App history={useHistory}>
-        <Route exact path="/" component={authGuard(Home)} />
-        <Route exact path="/home" component={authGuard(Home)} />
-        <Route exact path="/signup" component={pageAuthGuard(SignUp)} />
-        <Route exact path="/signin" component={pageAuthGuard(SignIn)} />
-        <Route
-          exact
-          path="/personalData"
-          component={oauthGuard(CompleteData)}
-        />
-      </App>
-    </Router>
+    <HttpsRedirect>
+      <Router>
+        <App history={useHistory}>
+          <Route exact path="/" component={authGuard(Home)} />
+          <Route exact path="/home" component={authGuard(Home)} />
+          <Route exact path="/signup" component={pageAuthGuard(SignUp)} />
+          <Route exact path="/signin" component={pageAuthGuard(SignIn)} />
+          <Route
+            exact
+            path="/personalData"
+            component={oauthGuard(CompleteData)}
+          />
+        </App>
+      </Router>
+    </HttpsRedirect>
   </Provider>,
   document.getElementById("root")
 );
