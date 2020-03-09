@@ -40,6 +40,18 @@ if (process.env.NODE_ENV !== "test") {
     res.sendFile(index);
   });
 }
+app.use(function(req, res, next) {
+  var sslUrl;
+
+  if (
+    process.env.NODE_ENV !== "test" &&
+    req.headers["x-forwarded-proto"] !== "https"
+  ) {
+    sslUrl = [`https://${window.location.host}`, req.url].join("");
+    return res.redirect(sslUrl);
+  }
+  return next();
+});
 
 //Routes
 app.use("/users", require("./server/routes/users"));
