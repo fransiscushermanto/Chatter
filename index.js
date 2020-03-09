@@ -1,31 +1,15 @@
 const app = require("./app");
 const port = process.env.PORT || 8550;
-const https = require("https").createServer(app);
 const httpTemp = require("http");
 const http = httpTemp.createServer(app);
+const io = require("socket.io")(http);
 
-if (process.env.NODE_ENV !== "test") {
-  const io = require("socket.io")(https);
-  io.on("connection", socket => {
-    socket.on("disconnect", () => {
-      console.log("Disconnected");
-    });
+io.on("connection", socket => {
+  socket.on("disconnect", () => {
+    console.log("Disconnected");
   });
-} else {
-  const io = require("socket.io")(http);
-  io.on("connection", socket => {
-    socket.on("disconnect", () => {
-      console.log("Disconnected");
-    });
-  });
-}
+});
 
-if (process.env.NODE_ENV !== "test") {
-  https.listen(port, () => {
-    console.log(`Product server listening on port ${port}`);
-  });
-} else {
-  http.listen(port, () => {
-    console.log(`Product server listening on port ${port}`);
-  });
-}
+http.listen(port, () => {
+  console.log(`Product server listening on port ${port}`);
+});
