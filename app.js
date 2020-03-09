@@ -41,14 +41,11 @@ if (process.env.NODE_ENV !== "test") {
   });
 }
 app.use(function(req, res, next) {
-  var sslUrl;
-
   if (
     process.env.NODE_ENV !== "test" &&
     req.headers["x-forwarded-proto"] !== "https"
   ) {
-    sslUrl = [`https://${window.location.host}`, req.url].join("");
-    return res.redirect(sslUrl);
+    return res.redirect("https://" + req.headers.host + req.url);
   }
   return next();
 });
