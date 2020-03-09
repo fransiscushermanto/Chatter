@@ -89,6 +89,7 @@ const Header = props => {
 
   useEffect(() => {
     const decodedata = async data => {
+      console.log(data);
       await dispatch(actions.decodeJWT(data));
     };
 

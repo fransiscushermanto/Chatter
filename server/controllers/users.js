@@ -5,10 +5,10 @@ signToken = user => {
   return JWT.sign(
     {
       sub: user,
-      iat: new Date().getTime(),
-      exp: new Date().getTime() + 1
+      iat: Date.now()
     },
-    process.env.JWT_SECRET
+    process.env.JWT_SECRET,
+    { expiresIn: "1h" }
   );
 };
 
