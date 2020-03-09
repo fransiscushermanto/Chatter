@@ -1,7 +1,15 @@
 import React from "react";
-
+import "../css/Home.css";
 const Home = () => {
-  return <div>Chatting Room</div>;
+  return (
+    <div className="container main-wrapper">
+      <div className="wrapper">
+        <div className="row">
+          <div>Chatting Room</div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Home;

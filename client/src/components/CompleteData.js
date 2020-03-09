@@ -75,35 +75,37 @@ let CompleteData = () => {
   }, [execute, submitData, dispatch, history]);
 
   return (
-    <div className="oauth-completedata">
-      {jwtDataUser ? (
-        statusUser === "off" ? (
-          <div className="wrapper-form-oauth">
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <h1>Let me call you?</h1>
-              <Input
-                name="fullname"
-                defaultValues={submitData ? submitData.fullname : null}
-                required={true}
-                register={register}
-                style={errors.fullname ? { border: "1px red solid" } : null}
-              />
-              {errors.fullname ? (
-                <div>
-                  <p style={{ color: "red", marginBottom: "0px" }}>
-                    {errors.fullname.message}
-                  </p>
+    <div className="container">
+      <div className="oauth-completedata">
+        {jwtDataUser ? (
+          statusUser === "off" ? (
+            <div className="wrapper-form-oauth">
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <h1>Let me call you?</h1>
+                <Input
+                  name="fullname"
+                  defaultValues={submitData ? submitData.fullname : null}
+                  required={true}
+                  register={register}
+                  style={errors.fullname ? { border: "1px red solid" } : null}
+                />
+                {errors.fullname ? (
+                  <div>
+                    <p style={{ color: "red", marginBottom: "0px" }}>
+                      {errors.fullname.message}
+                    </p>
+                  </div>
+                ) : null}
+                <div className="btnsubmit-wrapper">
+                  <button className="btn btn-primary" type="submit">
+                    Done
+                  </button>
                 </div>
-              ) : null}
-              <div className="btnsubmit-wrapper">
-                <button className="btn btn-primary" type="submit">
-                  Done
-                </button>
-              </div>
-            </form>
-          </div>
-        ) : null
-      ) : null}
+              </form>
+            </div>
+          ) : null
+        ) : null}
+      </div>
     </div>
   );
 };

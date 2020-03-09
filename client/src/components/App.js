@@ -4,10 +4,11 @@ import Header from "./Header";
 
 import "../css/responsive.css";
 const App = props => {
+  console.log(props.children);
   return (
     <div className="top-wrapper">
       <Header props={props}></Header>
-      <div className="container">{props.children}</div>
+      <div>{props.children}</div>
     </div>
   );
 };

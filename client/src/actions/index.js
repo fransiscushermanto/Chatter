@@ -75,7 +75,6 @@ export const signOut = data => {
 export const oauthFacebook = data => {
   return async dispatch => {
     try {
-      console.log(data);
       const res = await axios.post("/users/oauth/facebook", {
         access_token: data
       });
@@ -85,7 +84,6 @@ export const oauthFacebook = data => {
       );
 
       const dataStatus = jwtData.sub.facebook.status === "on" ? "" : "oauth";
-      console.log(dataStatus);
       dispatch({
         type: OAUTH_SIGN_UP,
         payload: res.data.token,
@@ -115,9 +113,7 @@ export const oauthGoogle = data => {
         res.data.token,
         process.env.REACT_APP_JWT_SECRET
       );
-
       const dataStatus = jwtData.sub.google.status === "on" ? "" : "oauth";
-
       dispatch({
         type: OAUTH_SIGN_UP,
         payload: res.data.token,
@@ -125,7 +121,7 @@ export const oauthGoogle = data => {
       });
 
       localStorage.setItem("JWT_TOKEN", res.data.token);
-      localStorage.setItem("AUTH_TYPE", "oauth");
+      localStorage.setItem("AUTH_TYPE", dataStatus);
       axios.defaults.headers.common["Authorization"] = res.data.token;
     } catch (error) {
       dispatch({
