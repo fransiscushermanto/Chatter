@@ -96,7 +96,6 @@ const HomeHeader = props => {
       element.style.position = "unset";
       const brandLogo = document.getElementById("brand-logo");
       brandLogo.setAttribute("style", "font-size: 30px !important");
-      console.log(brandLogo);
       decodedata(jwtToken);
     }
   }, [isAuth, authType, dispatch, jwtToken]);

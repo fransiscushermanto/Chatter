@@ -1,0 +1,25 @@
+.chat-room {
+  overflow: hidden;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-room .header {
+  width: 100%;
+  padding: 10px 20px;
+}
+
+.chat-room .header .header-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.chat-room .header .header-wrapper .inner-header-displayInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+
+  padding: 0px 10px;
+}

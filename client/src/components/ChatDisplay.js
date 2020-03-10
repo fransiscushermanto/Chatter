@@ -1,81 +1,32 @@
 import React from "react";
-import Avatar from "react-avatar";
+import PropTypes from "prop-types";
 
+import Avatar from "./CustomAvatar";
 import "../css/ChatDisplay.css";
-const ChatDisplay = () => {
-  const color = [
-    "#FF6633",
-    "#FFB399",
-    "#FF33FF",
-    "#FFFF99",
-    "#00B3E6",
-    "#E6B333",
-    "#3366E6",
-    "#999966",
-    "#99FF99",
-    "#B34D4D",
-    "#80B300",
-    "#809900",
-    "#E6B3B3",
-    "#6680B3",
-    "#66991A",
-    "#FF99E6",
-    "#CCFF1A",
-    "#FF1A66",
-    "#E6331A",
-    "#33FFCC",
-    "#66994D",
-    "#B366CC",
-    "#4D8000",
-    "#B33300",
-    "#CC80CC",
-    "#66664D",
-    "#991AFF",
-    "#E666FF",
-    "#4DB3FF",
-    "#1AB399",
-    "#E666B3",
-    "#33991A",
-    "#CC9999",
-    "#B3B31A",
-    "#00E680",
-    "#4D8066",
-    "#809980",
-    "#E6FF80",
-    "#1AFF33",
-    "#999933",
-    "#FF3380",
-    "#CCCC00",
-    "#66E64D",
-    "#4D80CC",
-    "#9900B3",
-    "#E64D66",
-    "#4DB380",
-    "#FF4D4D",
-    "#99E6E6",
-    "#6666FF"
-  ];
+const ChatDisplay = props => {
+  const { onClick, displayName, chat, data } = props;
 
   return (
-    <div className="cxroom">
-      <Avatar
-        round="50px"
-        size="40px"
-        color={Avatar.getRandomColor("sitebase", color)}
-        name="Sample"
-        className="profile-avatar"
-        style={{ marginRight: "10px" }}
-      />
+    <div className="cxroom" onClick={() => onClick(data)}>
+      <Avatar size="40px" displayName={displayName} />
       <div className="displayer">
         <div className="display-name">
-          <span>Sample</span>
+          <span>{displayName}</span>
         </div>
         <div className="display-chat">
-          <span>Sample chat</span>
+          <div className="chat-item">
+            <span>{chat}</span>
+          </div>
         </div>
       </div>
     </div>
   );
+};
+
+ChatDisplay.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  displayName: PropTypes.string.isRequired,
+  chat: PropTypes.string.isRequired
 };
 
 export default ChatDisplay;

@@ -1,11 +1,96 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useSelector, useDispatch } from "react-redux";
 
 import Header from "./Home-Header";
 import ChatDisplay from "./ChatDisplay";
+import ChatRoom from "./ChatRoom";
+import * as actions from "../actions";
 
 import "../css/Home.css";
 import "../css/responsive.css";
 const Home = props => {
+  const dispatch = useDispatch();
+
+  const dataUser = useSelector(state => state.decode.user);
+  const jwtToken = useSelector(state => state.auth.token);
+
+  const [showChatRoom, setShowChatRoom] = useState(false);
+  const [chatItem, setChatItem] = useState({
+    sender: {
+      displayName: "",
+      chat: [""]
+    },
+    receiver: {
+      displayName: "",
+      chat: [""]
+    }
+  });
+  const currentChatData = useRef();
+
+  const chat = [
+    { displayName: "Nathan Benedict Lotandy", chat: "Hello !" },
+    {
+      displayName: "Felix Herbert",
+      chat:
+        "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eos, sit!"
+    },
+    {
+      displayName: "Briliant Yasa Tjunaidi",
+      chat:
+        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Harum quas nihil in doloremque a placeat eaque autem quod cumque nam."
+    }
+  ];
+
+  const onClickDisplayChat = e => {
+    console.log(e);
+    currentChatData.current = e;
+    let user;
+    if (dataUser.method === "facebook") {
+      user = dataUser.facebook;
+    } else if (dataUser.method === "google") {
+      user = dataUser.google;
+    } else {
+      user = dataUser.local;
+    }
+    const data = {
+      sender: {
+        displayName: e.displayName,
+        chat: [e.chat]
+      },
+      receiver: {
+        displayName: user.fullname,
+        chat: [""]
+      }
+    };
+    setChatItem(data);
+    setShowChatRoom(!showChatRoom);
+  };
+  const renderChatHistory = () => {
+    return chat.map(data => {
+      return (
+        <ChatDisplay
+          key={data.displayName}
+          onClick={onClickDisplayChat}
+          displayName={data.displayName}
+          chat={data.chat}
+          data={data}
+        />
+      );
+    });
+  };
+
+  useEffect(() => {
+    if (showChatRoom == false && currentChatData.current !== undefined) {
+      setShowChatRoom(true);
+    }
+  }, [showChatRoom]);
+
+  useEffect(() => {
+    if (jwtToken) {
+      dispatch(actions.decodeJWT(jwtToken));
+    }
+  }, [dispatch, jwtToken]);
+
   return (
     <div className="main-wrapper">
       <div className="wrapper">
@@ -42,23 +127,17 @@ const Home = props => {
               </div>
             </div>
             <div className="pane-side">
-              <div className="inner-pane-side">
-                <ChatDisplay />
-                <ChatDisplay />
-                <ChatDisplay />
-                <ChatDisplay />
-                <ChatDisplay />
-                <ChatDisplay />
-                <ChatDisplay />
-                <ChatDisplay />
-                <ChatDisplay />
-                <ChatDisplay />
-                <ChatDisplay />
-                <ChatDisplay />
-              </div>
+              <div className="inner-pane-side">{renderChatHistory()}</div>
             </div>
           </div>
-          <div className="main-page">Main</div>
+          <div className="main-page">
+            {showChatRoom ? (
+              <ChatRoom
+                displayName={chatItem.sender.displayName}
+                senderChat={chatItem.sender.chat}
+              />
+            ) : null}
+          </div>
         </div>
       </div>
     </div>
