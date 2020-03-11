@@ -37,6 +37,7 @@
   padding: 15px;
 
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(194, 189, 189, 0.16);
 }
 
 .sider .search-bar .inner-search-bar {
@@ -45,8 +46,7 @@
 
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 20px;
-
-  background: rgba(194, 189, 189, 0.3);
+  background: white;
 }
 
 .sider .search-bar .inner-search-bar .search-icon {
@@ -169,6 +169,27 @@
   }
 
   .cxroom .display-chat .chat-item {
+    max-width: 190px;
+  }
+
+  .main-wrapper .wrapper .row .main-page {
+    min-width: 382px;
+  }
+
+  .chat-room .header .header-wrapper .inner-header-displayInfo {
+    padding: 0px;
+  }
+
+  .chat-room
+    .header
+    .header-wrapper
+    .inner-header-displayInfo
+    .displayName-wrapper,
+  .chat-room
+    .header
+    .header-wrapper
+    .inner-header-displayInfo
+    .displayStatus-wrapper {
     max-width: 190px;
   }
 }

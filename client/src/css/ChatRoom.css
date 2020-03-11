@@ -9,6 +9,8 @@
 .chat-room .header {
   width: 100%;
   padding: 10px 20px;
+  background: rgba(194, 189, 189, 0.16);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .chat-room .header .header-wrapper {
@@ -22,4 +24,58 @@
   flex-direction: column;
 
   padding: 0px 10px;
+}
+
+.chat-room
+  .header
+  .header-wrapper
+  .inner-header-displayInfo
+  .displayName-wrapper,
+.chat-room
+  .header
+  .header-wrapper
+  .inner-header-displayInfo
+  .displayStatus-wrapper {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.chat-room .footer {
+  margin-top: auto;
+  width: 100%;
+}
+
+.chat-room .footer .footer-wrapper {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 12px 10px;
+
+  background: rgba(194, 189, 189, 0.16);
+}
+
+.chat-room .footer .footer-wrapper .input-message-bar {
+  flex: 1;
+  width: 100%;
+  padding: 0px 5px;
+}
+
+.chat-room .footer .footer-wrapper .input-message-bar input {
+  border-radius: 20px;
+}
+
+.chat-room .footer .footer-wrapper .icon-wrapper {
+  cursor: pointer;
+
+  padding: 0px 10px;
+  width: fit-content;
+}
+
+.chat-room .footer .footer-wrapper .icon-wrapper svg {
+  width: 25px;
+}
+
+.chat-room .footer .footer-wrapper .icon-wrapper svg path {
+  fill: rgba(0, 0, 0, 0.4);
 }
