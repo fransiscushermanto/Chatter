@@ -16,11 +16,11 @@ const Home = props => {
 
   const [showChatRoom, setShowChatRoom] = useState(false);
   const [chatItem, setChatItem] = useState({
-    sender: {
+    in: {
       displayName: "",
       chat: [""]
     },
-    receiver: {
+    out: {
       displayName: "",
       chat: [""]
     }
@@ -28,16 +28,18 @@ const Home = props => {
   const currentChatData = useRef();
 
   const chat = [
-    { displayName: "Nathan Benedict Lotandy", chat: "Hello !" },
+    { displayName: "Nathan Benedict Lotandy", chat: ["Hello !", "Welcome !"] },
     {
       displayName: "Felix Herbert",
-      chat:
+      chat: [
         "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eos, sit!"
+      ]
     },
     {
       displayName: "Briliant Yasa Tjunaidi",
-      chat:
+      chat: [
         "Lorem ipsum dolor sit amet consectetur adipisicing elit. Harum quas nihil in doloremque a placeat eaque autem quod cumque nam."
+      ]
     }
   ];
 
@@ -53,13 +55,13 @@ const Home = props => {
       user = dataUser.local;
     }
     const data = {
-      sender: {
+      in: {
         displayName: e.displayName,
-        chat: [e.chat]
+        chat: e.chat
       },
-      receiver: {
+      out: {
         displayName: user.fullname,
-        chat: [""]
+        chat: ["Yo Man", "What's up"]
       }
     };
     setChatItem(data);
@@ -133,8 +135,9 @@ const Home = props => {
           <div className="main-page">
             {showChatRoom ? (
               <ChatRoom
-                displayName={chatItem.sender.displayName}
-                senderChat={chatItem.sender.chat}
+                displayName={chatItem.in.displayName}
+                chatIn={chatItem.in.chat}
+                chatOut={chatItem.out.chat}
               />
             ) : null}
           </div>

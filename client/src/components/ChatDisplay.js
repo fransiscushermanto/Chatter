@@ -5,7 +5,6 @@ import Avatar from "./CustomAvatar";
 import "../css/ChatDisplay.css";
 const ChatDisplay = props => {
   const { onClick, displayName, chat, data } = props;
-
   return (
     <div className="cxroom" onClick={() => onClick(data)}>
       <Avatar size="40px" displayName={displayName} />
@@ -15,7 +14,7 @@ const ChatDisplay = props => {
         </div>
         <div className="display-chat">
           <div className="chat-item">
-            <span>{chat}</span>
+            <span>{chat[chat.length - 1]}</span>
           </div>
         </div>
       </div>
@@ -26,7 +25,7 @@ const ChatDisplay = props => {
 ChatDisplay.propTypes = {
   onClick: PropTypes.func.isRequired,
   displayName: PropTypes.string.isRequired,
-  chat: PropTypes.string.isRequired
+  chat: PropTypes.array.isRequired
 };
 
 export default ChatDisplay;

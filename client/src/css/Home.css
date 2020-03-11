@@ -155,13 +155,13 @@
 @media (max-width: 1441px) {
   .main-wrapper .wrapper .row {
     padding: 0px !important;
+    overflow-x: scroll;
   }
 }
 
 @media screen and (max-width: 648px) {
   .main-wrapper .wrapper .row {
     padding: 0px !important;
-    overflow-x: scroll;
   }
 
   .sider .search-bar {

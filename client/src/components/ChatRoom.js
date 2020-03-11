@@ -3,7 +3,29 @@ import Avatar from "./CustomAvatar";
 
 import "../css/ChatRoom.css";
 const ChatRoom = props => {
-  const { displayName, senderChat: chat } = props;
+  const { displayName, chatIn, chatOut } = props;
+  const renderChatIn = () => {
+    return chatIn.map((item, index) => {
+      return (
+        <div key={index} className="comp-messageIn m-wrapper">
+          <span key={index} className="messageIn">
+            {item}
+          </span>
+        </div>
+      );
+    });
+  };
+
+  const renderChatOut = () => {
+    return chatOut.map((item, index) => {
+      return (
+        <div key={index} className="comp-messageOut m-wrapper">
+          <span className="messageOut">{item}</span>
+        </div>
+      );
+    });
+  };
+
   return (
     <div className="chat-room">
       <div className="header">
@@ -27,7 +49,10 @@ const ChatRoom = props => {
         </div>
       </div>
       <div className="main-chat-room">
-        <div className="chat-display-wrapper">{chat}</div>
+        <div className="chat-display-wrapper">
+          {renderChatIn()}
+          {renderChatOut()}
+        </div>
       </div>
       <div className="footer">
         <div className="footer-wrapper">
@@ -37,7 +62,7 @@ const ChatRoom = props => {
               focusable="false"
               data-prefix="far"
               data-icon="smile"
-              class="svg-inline--fa fa-smile fa-w-16"
+              className="svg-inline--fa fa-smile fa-w-16"
               role="img"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 496 512"
@@ -63,7 +88,7 @@ const ChatRoom = props => {
               focusable="false"
               data-prefix="fas"
               data-icon="paper-plane"
-              class="svg-inline--fa fa-paper-plane fa-w-16"
+              className="svg-inline--fa fa-paper-plane fa-w-16"
               role="img"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 512 512"
