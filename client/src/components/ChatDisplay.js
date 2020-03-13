@@ -10,11 +10,15 @@ const ChatDisplay = props => {
       <Avatar size="40px" displayName={displayName} />
       <div className="displayer">
         <div className="display-name">
-          <span>{displayName}</span>
+          <div className="inner-displayName">
+            <span>{displayName}</span>
+          </div>
         </div>
         <div className="display-chat">
           <div className="chat-item">
-            <span>{chat[chat.length - 1]}</span>
+            <span>
+              {chat.length > 0 ? chat[chat.length - 1].message : null}
+            </span>
           </div>
         </div>
       </div>

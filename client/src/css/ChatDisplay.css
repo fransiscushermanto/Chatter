@@ -16,6 +16,18 @@
   width: 100%;
 }
 
+.cxroom .display-name {
+  display: flex;
+  width: 100%;
+}
+
+.cxroom .display-name .inner-displayName {
+  max-width: 290px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 .cxroom .display-chat {
   display: flex;
   width: 100%;
@@ -26,4 +38,6 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   max-width: 290px;
+
+  color: rgba(0, 0, 0, 0.7);
 }

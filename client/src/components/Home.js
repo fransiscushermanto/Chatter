@@ -1,79 +1,137 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useRouteMatch, Switch, Route } from "react-router-dom";
+import io from "socket.io-client";
 
 import Header from "./Home-Header";
 import ChatDisplay from "./ChatDisplay";
 import ChatRoom from "./ChatRoom";
+import AddFriend from "./AddFriend";
 import * as actions from "../actions";
 
 import "../css/Home.css";
 import "../css/responsive.css";
 const Home = props => {
+  const socketUrl = `${process.env.REACT_APP_SOCKET_URL ||
+    window.location.origin}`;
+
+  let { path } = useRouteMatch();
+  const socketRef = useRef();
   const dispatch = useDispatch();
 
   const dataUser = useSelector(state => state.decode.user);
   const jwtToken = useSelector(state => state.auth.token);
 
   const [showChatRoom, setShowChatRoom] = useState(false);
-  const [chatItem, setChatItem] = useState({
-    in: {
-      displayName: "",
-      chat: [""]
-    },
-    out: {
-      displayName: "",
-      chat: [""]
-    }
-  });
-  const currentChatData = useRef();
 
   const chat = [
-    { displayName: "Nathan Benedict Lotandy", chat: ["Hello !", "Welcome !"] },
     {
-      displayName: "Felix Herbert",
+      friendName: "Bot",
       chat: [
-        "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eos, sit!"
+        { message: "Welcome to Chatter Bot!", read: true, status: "in" },
+        { message: "Hello Bot, I'm Fransiscus", read: true, status: "out" },
+        { message: "Hello Bot, I'm Fransiscus", read: true, status: "out" },
+        { message: "Hello Fransiscus", read: true, status: "in" },
+        { message: "Don't rush!", read: true, status: "in" },
+        {
+          message:
+            "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Aliquam mollitia magni natus sint doloribus non dicta excepturi aspernatur illo magnam sit, accusamus, rem voluptatum dolore ipsa, accusantium beatae asperiores impedit sequi blanditiis unde! Assumenda fugit eligendi mollitia ea minima cumque iure non sint, suscipit eaque quam aliquam, corporis sed! Officia incidunt aut non nesciunt beatae. Laboriosam sunt sint aspernatur, quaerat ad eum minima accusamus, est repudiandae tempora adipisci atque, earum pariatur? Veritatis sunt iusto, pariatur perspiciatis autem consectetur debitis eum adipisci at impedit facilis? Cum quam mollitia suscipit ipsum voluptatum officia, assumenda harum at quis doloremque voluptas exercitationem veniam veritatis!",
+          read: true,
+          status: "out"
+        },
+        { message: "Stop spamming!", read: true, status: "in" }
       ]
     },
     {
-      displayName: "Briliant Yasa Tjunaidi",
+      friendName: "Nathan Benedict Lotandy",
       chat: [
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Harum quas nihil in doloremque a placeat eaque autem quod cumque nam."
+        {
+          message: "Fransiscus Pinjam Handphone la lalalalala",
+          read: true,
+          status: "in"
+        }
+      ]
+    },
+    {
+      friendName: "Samuel Rio Andres Nainggolan",
+      chat: [
+        { message: "Welcome to Chatter Bot!", read: true, status: "in" },
+        { message: "Hello Bot, I'm Fransiscus", read: true, status: "out" },
+        { message: "Hello Bot, I'm Fransiscus", read: true, status: "out" },
+        { message: "Hello Fransiscus", read: true, status: "in" },
+        { message: "Don't rush!", read: true, status: "in" },
+        {
+          message:
+            "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Aliquam mollitia magni natus sint doloribus non dicta excepturi aspernatur illo magnam sit, accusamus, rem voluptatum dolore ipsa, accusantium beatae asperiores impedit sequi blanditiis unde! Assumenda fugit eligendi mollitia ea minima cumque iure non sint, suscipit eaque quam aliquam, corporis sed! Officia incidunt aut non nesciunt beatae. Laboriosam sunt sint aspernatur, quaerat ad eum minima accusamus, est repudiandae tempora adipisci atque, earum pariatur? Veritatis sunt iusto, pariatur perspiciatis autem consectetur debitis eum adipisci at impedit facilis? Cum quam mollitia suscipit ipsum voluptatum officia, assumenda harum at quis doloremque voluptas exercitationem veniam veritatis!",
+          read: true,
+          status: "out"
+        },
+        { message: "Stop spamming!", read: true, status: "in" }
       ]
     }
   ];
+  const [chatHistory, setChatHistory] = useState([]);
+
+  const [chatItem, setChatItem] = useState({
+    friendName: "",
+    chat: []
+  });
+
+  const currentChatData = useRef();
 
   const onClickDisplayChat = e => {
     console.log(e);
     currentChatData.current = e;
-    let user;
-    if (dataUser.method === "facebook") {
-      user = dataUser.facebook;
-    } else if (dataUser.method === "google") {
-      user = dataUser.google;
-    } else {
-      user = dataUser.local;
-    }
+    const name = e.friendName;
+    const chat = e.chat;
+
     const data = {
-      in: {
-        displayName: e.displayName,
-        chat: e.chat
-      },
-      out: {
-        displayName: user.fullname,
-        chat: ["Yo Man", "What's up"]
-      }
+      friendName: name,
+      chat
     };
+    socketRef.current.emit("join", { name });
     setChatItem(data);
     setShowChatRoom(!showChatRoom);
   };
+
+  useEffect(() => {
+    socketRef.current = io.connect(socketUrl);
+    return () => {
+      socketRef.current = io.connect(socketUrl);
+    };
+  }, [socketUrl]);
+
+  const onSendChat = e => {
+    socketRef.current.emit("SEND_MESSAGE", {
+      message: e.message,
+      status: "out"
+    });
+  };
+
+  useEffect(() => {
+    socketRef.current.on("RECEIVE_MESSAGE", data => {
+      setChatItem({
+        ...chatItem,
+        chat: [...chatItem.chat, data]
+      });
+    });
+  }, [chatItem]);
+
+  useEffect(() => {
+    const fetchMessage = () => {
+      setChatHistory([...chatHistory, ...chat]);
+    };
+    fetchMessage();
+    console.log(path);
+  }, []);
+
   const renderChatHistory = () => {
-    return chat.map(data => {
+    return chatHistory.map(data => {
       return (
         <ChatDisplay
-          key={data.displayName}
+          key={data.friendName}
           onClick={onClickDisplayChat}
-          displayName={data.displayName}
+          displayName={data.friendName}
           chat={data.chat}
           data={data}
         />
@@ -135,16 +193,27 @@ const Home = props => {
           <div className="main-page">
             {showChatRoom ? (
               <ChatRoom
-                displayName={chatItem.in.displayName}
-                chatIn={chatItem.in.chat}
-                chatOut={chatItem.out.chat}
+                displayName={chatItem.friendName}
+                chat={chatItem.chat}
+                onSubmit={onSendChat}
               />
             ) : null}
           </div>
         </div>
+        <Switch>
+          <Route path={`${path}/:subPage`} component={AddFriend} />
+        </Switch>
       </div>
     </div>
   );
 };
 
 export default Home;
+// let user;
+// if (dataUser.method === "facebook") {
+//   user = dataUser.facebook;
+// } else if (dataUser.method === "google") {
+//   user = dataUser.google;
+// } else {
+//   user = dataUser.local;
+// }

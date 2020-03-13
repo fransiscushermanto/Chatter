@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useRouteMatch } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import Avatar from "react-avatar";
 import "../css/Home-Header.css";
@@ -7,6 +7,7 @@ import * as actions from "../actions";
 
 const HomeHeader = props => {
   const dispatch = useDispatch();
+  let { url } = useRouteMatch();
   const isAuth = useSelector(state => state.auth.isAuthenticated);
   const authType = useSelector(state => state.auth.authType);
   const jwtToken = useSelector(state => state.auth.token);
@@ -28,59 +29,6 @@ const HomeHeader = props => {
   useEffect(() => {
     detectOnBlur(wrapperRef);
   }, [wrapperRef, open]);
-
-  const color = [
-    "#FF6633",
-    "#FFB399",
-    "#FF33FF",
-    "#FFFF99",
-    "#00B3E6",
-    "#E6B333",
-    "#3366E6",
-    "#999966",
-    "#99FF99",
-    "#B34D4D",
-    "#80B300",
-    "#809900",
-    "#E6B3B3",
-    "#6680B3",
-    "#66991A",
-    "#FF99E6",
-    "#CCFF1A",
-    "#FF1A66",
-    "#E6331A",
-    "#33FFCC",
-    "#66994D",
-    "#B366CC",
-    "#4D8000",
-    "#B33300",
-    "#CC80CC",
-    "#66664D",
-    "#991AFF",
-    "#E666FF",
-    "#4DB3FF",
-    "#1AB399",
-    "#E666B3",
-    "#33991A",
-    "#CC9999",
-    "#B3B31A",
-    "#00E680",
-    "#4D8066",
-    "#809980",
-    "#E6FF80",
-    "#1AFF33",
-    "#999933",
-    "#FF3380",
-    "#CCCC00",
-    "#66E64D",
-    "#4D80CC",
-    "#9900B3",
-    "#E64D66",
-    "#4DB380",
-    "#FF4D4D",
-    "#99E6E6",
-    "#6666FF"
-  ];
 
   const signOut = () => {
     dispatch(actions.signOut());
@@ -122,11 +70,11 @@ const HomeHeader = props => {
     <Avatar
       round="50px"
       size={size}
-      color={Avatar.getRandomColor("sitebase", color)}
       name={setInitialProfilePicture()}
       className="profile-avatar"
       style={{ marginRight: "10px" }}
       onClick={() => handleClick()}
+      maxInitials={2}
     />
   );
 
@@ -151,19 +99,41 @@ const HomeHeader = props => {
                   <Avatar
                     round="50px"
                     size="35px"
-                    color={Avatar.getRandomColor("sitebase", color)}
                     name={setInitialProfilePicture()}
                     className="profile-avatar"
                     style={{ marginRight: "10px" }}
+                    maxInitials={2}
                   />
                 </Link>
-                <span>{fullname}</span>
+                <div className="displayName">
+                  <div className="inner-displayName">
+                    <span>{fullname}</span>
+                  </div>
+                </div>
               </div>
             </li>
             <hr className="nav-item-separator" />
             <li className="nav-item nav-profile-item">
+              <Link
+                className="nav-link"
+                to={`${url}/addFriend`}
+                onClick={() => handleClick()}
+              >
+                <i
+                  className="fas fa-user-plus"
+                  style={{ marginRight: "10px" }}
+                ></i>
+                Add Friend
+              </Link>
+            </li>
+            <hr className="nav-item-separator" />
+            <li className="nav-item nav-profile-item">
               <Link className="nav-link" to="/signout" onClick={signOut}>
-                Sign Out
+                <i
+                  className="fas fa-power-off"
+                  style={{ marginRight: "10px" }}
+                ></i>
+                <span>Sign Out</span>
               </Link>
             </li>
           </ul>

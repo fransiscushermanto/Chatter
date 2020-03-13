@@ -38,9 +38,12 @@
 .profile-nav .nav .nav-item {
   width: 100%;
 }
-
 .profile-nav .nav .nav-profile-item {
   padding: 5px;
+}
+
+.profile-nav .nav .nav-profile-item .nav-link {
+  color: black;
 }
 
 .profile-nav .nav .nav-item-separator {
@@ -58,7 +61,19 @@
 }
 
 .profile-nav .nav .nav-item .header-profile-nav {
-  padding: 0.5rem 1rem;
+  padding: 20px 20px;
   display: flex;
   align-items: center;
+}
+
+.header-profile-nav .displayName {
+  width: 100%;
+  display: flex;
+}
+
+.header-profile-nav .displayName .inner-displayName {
+  max-width: 220px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }

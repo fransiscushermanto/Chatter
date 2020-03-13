@@ -45,7 +45,7 @@ ReactDOM.render(
       <Router>
         <App history={useHistory}>
           <Route exact path="/" component={authGuard(Home)} />
-          <Route exact path="/home" component={authGuard(Home)} />
+          <Route path="/home" component={authGuard(Home)} />
           <Route exact path="/signup" component={pageAuthGuard(SignUp)} />
           <Route exact path="/signin" component={pageAuthGuard(SignIn)} />
           <Route

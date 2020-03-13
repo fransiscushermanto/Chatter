@@ -28,7 +28,7 @@
 
   height: 100%;
   background-color: white;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--thin-black-background);
   border-right: 0px;
 }
 
@@ -36,7 +36,7 @@
   display: flex;
   padding: 15px;
 
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid var(--thin-black-background);
   background: rgba(194, 189, 189, 0.16);
 }
 
@@ -44,7 +44,7 @@
   display: flex;
   width: 100%;
 
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--thin-black-background);
   border-radius: 20px;
   background: white;
 }
@@ -62,7 +62,7 @@
 }
 
 .sider .search-icon svg path {
-  fill: rgba(0, 0, 0, 0.1);
+  fill: var(--thin-black-background);
 }
 
 .sider .search-bar .inner-search-bar .search-bar-wrapper {
@@ -88,7 +88,7 @@
   height: 100%;
   min-width: 470px;
   background-color: white;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--thin-black-background);
 
   overflow: hidden;
 }

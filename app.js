@@ -52,6 +52,6 @@ app.use(function(req, res, next) {
 
 //Routes
 app.use("/users", require("./server/routes/users"));
-app.use("/auth", require("./server/routes/auth"));
+app.use("/chats", require("./server/routes/chats"));
 
 module.exports = app;
