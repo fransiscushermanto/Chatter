@@ -20,6 +20,7 @@ import CompleteData from "./components/CompleteData";
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "../node_modules/bootstrap/dist/css/bootstrap.css";
 import "../src/css/style.css";
+import "../src/css/iOS.css";
 import axios from "./instance";
 
 const jwtToken = localStorage.getItem("JWT_TOKEN");
