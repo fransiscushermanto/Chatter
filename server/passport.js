@@ -18,7 +18,6 @@ passport.use(
     async (payload, done) => {
       try {
         const user = await User.findById(payload.sub);
-        console.log(user, process.env.JWT_SECRET);
         if (!user) {
           return done(null, false);
         }

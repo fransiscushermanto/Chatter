@@ -1,35 +1,81 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 
 import ResultAddFriend from "./ResultAddFriend";
+import * as actions from "../actions";
 import "../css/AddFriend.css";
-const AddFriend = () => {
+const AddFriend = ({ dataUser }) => {
+  const dispatch = useDispatch();
   const { register, handleSubmit } = useForm();
+  const findResult = useSelector(state => state.load.data);
+  const onSubmit = async data => {
+    if (data !== "") {
+      data["user_id"] = dataUser._id;
+    }
+
+    await dispatch(actions.findFriend(data));
+  };
+
+  const renderResult = () => {
+    let method;
+    if (findResult.data) {
+      if (findResult.data.length > 0) {
+        return findResult.data.map(user => {
+          if (user.method === "local") {
+            method = user.local;
+          } else if (user.method === "facebook") {
+            method = user.facebook;
+          } else {
+            method = user.google;
+          }
+          return (
+            <ResultAddFriend
+              key={user._id}
+              displayName={method.fullname}
+              data={method}
+            />
+          );
+        });
+      } else {
+        return <span>There is no result, Try to type other names</span>;
+      }
+    } else {
+      return <span>There is no result, Let's find your new friend</span>;
+    }
+  };
+
+  useEffect(() => {
+    onSubmit("");
+  }, []);
 
   return (
     <div className="addFriend-comp-wrapper">
       <div className="inner-addFriend-comp-wrapper">
         <div className="closebutton">
-          <Link to={"/home"}>
-            <div class="close-container">
+          <div className="close-container">
+            <Link to={"/home"}>
               <div className="wrapperbutton">
-                <div class="leftright"></div>
-                <div class="rightleft"></div>
+                <div className="leftright"></div>
+                <div className="rightleft"></div>
               </div>
-              <label class="close">close</label>
-            </div>
-          </Link>
+              <label className="close">close</label>
+            </Link>
+          </div>
         </div>
         <div className="main-addFriend">
           <div className="searchBar">
-            <form autoComplete="off">
+            <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
               <div className="searchPane">
                 <input
                   type="text"
+                  id="fullname"
+                  name="fullname"
                   autoComplete="off"
                   className="searchFriend form-control"
                   placeholder="Search for new friend"
+                  ref={register}
                 />
               </div>
               <button className="search-button" type="submit">
@@ -38,7 +84,7 @@ const AddFriend = () => {
                   focusable="false"
                   data-prefix="fas"
                   data-icon="search"
-                  class="svg-inline--fa fa-search fa-w-16"
+                  className="svg-inline--fa fa-search fa-w-16"
                   role="img"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 512 512"
@@ -56,30 +102,15 @@ const AddFriend = () => {
               <h1>Result :</h1>
             </div>
             <div className="result-field-wrapper">
-              <div className="inner-result-field">
-                <ResultAddFriend displayName="Bot" />
-                <ResultAddFriend displayName="Nathan Benedict" />
-                <ResultAddFriend displayName="Vincent" />
-                <ResultAddFriend displayName="Jeslin" />
-                <ResultAddFriend displayName="Vanessa" />
-                <ResultAddFriend displayName="Timot" />
-                <ResultAddFriend displayName="Kevin" />
-                <ResultAddFriend displayName="Kevin Allen" />
-                <ResultAddFriend displayName="Alvin" />
-                <ResultAddFriend displayName="Octa" />
-                <ResultAddFriend displayName="Samuel Rio Andreas Nainggolan" />
-                <ResultAddFriend displayName="" />
-                <ResultAddFriend displayName="" />
-                <ResultAddFriend displayName="" />
-                <ResultAddFriend displayName="" />
-                <ResultAddFriend displayName="" />
-                <ResultAddFriend displayName="" />
-                <ResultAddFriend displayName="" />
-                <ResultAddFriend displayName="" />
-                <ResultAddFriend displayName="" />
-                <ResultAddFriend displayName="" />
-                <ResultAddFriend displayName="" />
-                {/* <span>There is no result</span> */}
+              <div
+                className="inner-result-field"
+                style={
+                  findResult
+                    ? null
+                    : { alignItems: "center", justifyContent: "center" }
+                }
+              >
+                {renderResult()}
               </div>
             </div>
           </div>

@@ -5,7 +5,8 @@ import {
   AUTH_ERROR,
   AUTH_SIGN_OUT,
   OAUTH_SIGN_UP,
-  GET_DECODE_DATA
+  GET_DECODE_DATA,
+  GET_USERS_DATA
 } from "../actions/types";
 
 export const signUp = data => {
@@ -164,6 +165,24 @@ export const updateData = data => {
         payload: "Server error"
       });
       console.log("err:", error);
+    }
+  };
+};
+
+export const findFriend = data => {
+  return async dispatch => {
+    try {
+      console.log("[ActionCreator] findFriend dispatch");
+      const res = await axios.post("/users/findFriend", data);
+      dispatch({
+        type: GET_USERS_DATA,
+        payload: res.data
+      });
+    } catch (error) {
+      dispatch({
+        type: GET_USERS_DATA,
+        payload: ""
+      });
     }
   };
 };

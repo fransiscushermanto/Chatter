@@ -79,8 +79,21 @@ module.exports = {
     const token = signToken(req.user);
     res.status(200).json({ token });
   },
-  getUserSecret: async (req, res, next) => {
-    const userData = req.user;
-    res.status(200).json({ userData, message: "SECRET" });
+  getFriend: async (req, res, next) => {
+    var name = req.body.fullname;
+    var user_id = req.body.user_id;
+    var criteria = {
+      $or: [
+        { "local.fullname": { $regex: ".*" + name + ".*", $options: "i" } },
+        { "facebook.fullname": { $regex: ".*" + name + ".*", $options: "i" } },
+        { "google.fullname": { $regex: ".*" + name + ".*", $options: "i" } }
+      ]
+    };
+    const query = User.find(criteria).limit(20);
+    const data = await query
+      .where("_id")
+      .ne(user_id)
+      .exec();
+    res.status(200).json({ data, message: "SECRET" });
   }
 };

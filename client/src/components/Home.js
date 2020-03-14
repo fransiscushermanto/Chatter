@@ -201,7 +201,9 @@ const Home = props => {
           </div>
         </div>
         <Switch>
-          <Route path={`${path}/:subPage`} component={AddFriend} />
+          <Route path={`${path}/:subPage`}>
+            <AddFriend dataUser={dataUser} />
+          </Route>
         </Switch>
       </div>
     </div>

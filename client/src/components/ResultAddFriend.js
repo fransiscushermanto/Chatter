@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 
 import CustomAvatar from "./CustomAvatar";
-const ResultAddFriend = ({ displayName }) => {
+const ResultAddFriend = ({ displayName, data }) => {
   return (
     <div className="result-wrapper">
       <div className="inner-result-wrapper">
@@ -17,7 +17,7 @@ const ResultAddFriend = ({ displayName }) => {
           </div>
           <div className="action-button-wrapper">
             <button className="addFriend-icon-button">
-              <i class="fas fa-user-plus"></i>
+              <i className="fas fa-user-plus"></i>
             </button>
           </div>
         </div>

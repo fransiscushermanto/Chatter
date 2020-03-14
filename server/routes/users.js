@@ -37,6 +37,12 @@ router
   .route("/oauth/facebook")
   .post(passportFacebook, UsersController.facebookOAuth);
 
-router.route("/userSecret").get(passportJWT, UsersController.getUserSecret);
+router
+  .route("/findFriend")
+  .post(
+    validateBody(schemas.searchScehma),
+    passportJWT,
+    UsersController.getFriend
+  );
 
 module.exports = router;

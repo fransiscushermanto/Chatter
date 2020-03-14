@@ -5,7 +5,6 @@ module.exports = {
     return (req, res, next) => {
       const result = Joi.validate(req.body, schema);
 
-      console.log(result.error);
       if (result.error) {
         return res.status(400).json(result.error);
       }
@@ -46,6 +45,10 @@ module.exports = {
       verified: Joi.string(),
       status: Joi.string(),
       method: Joi.string()
+    }),
+    searchScehma: Joi.object().keys({
+      fullname: Joi.string().required(),
+      user_id: Joi.string()
     })
   }
 };
