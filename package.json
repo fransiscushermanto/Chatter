@@ -22,6 +22,7 @@
     "express-favicon": "^2.0.1",
     "express-promise-router": "^3.0.3",
     "favicon": "0.0.2",
+    "ios-webkit-debug-proxy": "0.0.3",
     "joi": "^14.3.1",
     "json-stringify-safe": "^5.0.1",
     "jsonwebtoken": "^8.5.1",
