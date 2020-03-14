@@ -1,6 +1,10 @@
 .cxroom {
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
   padding: 15px 20px;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
   align-items: center;
   width: 100%;
   cursor: pointer;
@@ -11,12 +15,19 @@
 }
 
 .cxroom .displayer {
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
   flex-direction: column;
   width: 100%;
 }
 
 .cxroom .display-name {
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
   width: 100%;
 }
@@ -25,10 +36,13 @@
   max-width: 290px;
   overflow: hidden;
   white-space: nowrap;
+  -o-text-overflow: ellipsis;
   text-overflow: ellipsis;
 }
 
 .cxroom .display-chat {
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
   width: 100%;
 }
@@ -36,6 +50,7 @@
 .cxroom .display-chat .chat-item {
   overflow: hidden;
   white-space: nowrap;
+  -o-text-overflow: ellipsis;
   text-overflow: ellipsis;
   max-width: 290px;
 
