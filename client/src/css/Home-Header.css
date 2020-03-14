@@ -51,12 +51,19 @@
 .profile-nav .nav .nav-item {
   width: 100%;
 }
+
 .profile-nav .nav .nav-profile-item {
   padding: 5px;
 }
 
 .profile-nav .nav .nav-profile-item .nav-link {
   color: black;
+  display: flex;
+  align-items: center;
+}
+
+.profile-nav .nav .nav-profile-item .nav-link svg {
+  width: 20px;
 }
 
 .profile-nav .nav .nav-item-separator {
