@@ -81,6 +81,9 @@
 
 .sider .pane-side .inner-pane-side {
   vertical-align: baseline;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .main-wrapper .wrapper .row .main-page {

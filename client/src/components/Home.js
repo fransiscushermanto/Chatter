@@ -12,18 +12,6 @@ import * as actions from "../actions";
 import "../css/Home.css";
 import "../css/responsive.css";
 const Home = props => {
-  const socketUrl = `${process.env.REACT_APP_SOCKET_URL ||
-    window.location.origin}`;
-
-  let { path } = useRouteMatch();
-  const socketRef = useRef();
-  const dispatch = useDispatch();
-
-  const dataUser = useSelector(state => state.decode.user);
-  const jwtToken = useSelector(state => state.auth.token);
-
-  const [showChatRoom, setShowChatRoom] = useState(false);
-
   const chat = [
     {
       friendName: "Bot",
@@ -70,14 +58,63 @@ const Home = props => {
       ]
     }
   ];
-  const [chatHistory, setChatHistory] = useState([]);
 
+  const socketUrl = `${process.env.REACT_APP_SOCKET_URL ||
+    window.location.origin}`;
+
+  let { path } = useRouteMatch();
+  const socketRef = useRef();
+  const dispatch = useDispatch();
+
+  const dataUser = useSelector(state => state.decode.user);
+  const jwtToken = useSelector(state => state.auth.token);
+
+  const [searchValue, setSearchValue] = useState("");
+  const [searchResult, setSearchResult] = useState([]);
+  const [showChatRoom, setShowChatRoom] = useState(false);
+  const [chatHistory, setChatHistory] = useState([]);
   const [chatItem, setChatItem] = useState({
     friendName: "",
     chat: []
   });
 
   const currentChatData = useRef();
+
+  const renderChatHistory = () => {
+    console.log(searchResult);
+    console.log(searchValue);
+    if (searchResult.length > 0) {
+      return searchResult.map(data => {
+        return (
+          <ChatDisplay
+            key={data.friendName}
+            onClick={onClickDisplayChat}
+            displayName={data.friendName}
+            chat={data.chat}
+            data={data}
+          />
+        );
+      });
+    } else if (searchValue !== "" && searchResult.length === 0) {
+      return (
+        <span style={{ textAlign: "center", width: "100%", marginTop: "50px" }}>
+          Theres is no result for "{searchValue}"
+        </span>
+      );
+    } else {
+      return chatHistory.map(data => {
+        return (
+          <ChatDisplay
+            key={data.friendName}
+            onClick={onClickDisplayChat}
+            displayName={data.friendName}
+            chat={data.chat}
+            data={data}
+          />
+        );
+      });
+    }
+  };
 
   const onClickDisplayChat = e => {
     console.log(e);
@@ -94,19 +131,30 @@ const Home = props => {
     setShowChatRoom(!showChatRoom);
   };
 
-  useEffect(() => {
-    socketRef.current = io.connect(socketUrl);
-    return () => {
-      socketRef.current = io.connect(socketUrl);
-    };
-  }, [socketUrl]);
-
   const onSendChat = e => {
     socketRef.current.emit("SEND_MESSAGE", {
       message: e.message,
       status: "out"
     });
   };
+
+  const handleChange = e => {
+    setSearchValue(e.target.value);
+  };
+
+  useEffect(() => {
+    const results = chatHistory.filter(chat =>
+      chat.friendName.toLowerCase().includes(searchValue.toLowerCase())
+    );
+    setSearchResult(results);
+  }, [searchValue]);
+
+  useEffect(() => {
+    socketRef.current = io.connect(socketUrl);
+    return () => {
+      socketRef.current = io.connect(socketUrl);
+    };
+  }, [socketUrl]);
 
   useEffect(() => {
     socketRef.current.on("RECEIVE_MESSAGE", data => {
@@ -124,20 +172,6 @@ const Home = props => {
     fetchMessage();
     console.log(path);
   }, []);
-
-  const renderChatHistory = () => {
-    return chatHistory.map(data => {
-      return (
-        <ChatDisplay
-          key={data.friendName}
-          onClick={onClickDisplayChat}
-          displayName={data.friendName}
-          chat={data.chat}
-          data={data}
-        />
-      );
-    });
-  };
 
   useEffect(() => {
     if (showChatRoom == false && currentChatData.current !== undefined) {
@@ -182,6 +216,8 @@ const Home = props => {
                     type="search"
                     autoComplete="off"
                     placeholder="Search or start new chat"
+                    value={searchValue}
+                    onChange={handleChange}
                   />
                 </div>
               </div>
