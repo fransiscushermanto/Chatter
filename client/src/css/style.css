@@ -9,6 +9,11 @@
   --thin-black-background: rgba(0, 0, 0, 0.1);
 }
 
+#root {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -33,10 +38,12 @@ body {
   -ms-flex-direction: column;
   flex-direction: column;
   overflow: hidden;
+  height: 100%;
 }
 
 .container {
   height: 100vh;
+  overflow: hidden;
 }
 
 * {

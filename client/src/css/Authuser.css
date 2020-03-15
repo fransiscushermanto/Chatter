@@ -18,6 +18,12 @@
   transition: all ease 1s;
 }
 
+.authuser .row .col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .error-message {
   width: 100%;
   padding: 10px;

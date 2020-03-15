@@ -38,7 +38,7 @@ let SignUp = props => {
   const errorMessage = useSelector(state => state.auth.errorMessage);
 
   useEffect(() => {
-    document.getElementsByClassName("app-wrapper")[0].style.cssText =
+    document.getElementsByClassName("top-wrapper")[0].style.cssText =
       "overflow: auto";
   }, []);
 

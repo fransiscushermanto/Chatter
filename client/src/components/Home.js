@@ -171,6 +171,8 @@ const Home = props => {
     };
     fetchMessage();
     console.log(path);
+    document.getElementsByClassName("app-wrapper")[0].style.cssText =
+      "margin: 0px";
   }, []);
 
   useEffect(() => {

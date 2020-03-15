@@ -22,6 +22,7 @@
 
   .authuser .row {
     width: 100%;
+    height: 100%;
   }
 }
 
@@ -34,10 +35,6 @@
     height: 100% !important;
   }
 
-  .authuser {
-    margin-top: 30px;
-  }
-
   .navbar-wrapper {
     position: unset;
     width: 100%;
@@ -46,9 +43,6 @@
   .authuser .row {
     display: -webkit-box;
     display: flex;
-    flex-direction: column;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
     align-items: center;
     -webkit-box-align: center;
     margin-bottom: 30px;
@@ -77,6 +71,7 @@
     -webkit-box-direction: normal;
     align-items: center;
     -webkit-box-align: center;
+    flex: 1;
   }
 
   .authuser .row .col .wrapper-auth {
@@ -94,6 +89,10 @@
 @media all and (max-width: 540px) and (min-width: 500px) {
   .container {
     height: 100%;
+  }
+
+  .app-wrapper {
+    margin-top: 30px;
   }
 
   .navbar-wrapper {
@@ -141,7 +140,7 @@
   }
 
   .register {
-    margin-top: 70px;
+    margin-top: 5px;
   }
 
   .authuser .row {
