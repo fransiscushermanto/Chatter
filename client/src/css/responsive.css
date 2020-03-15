@@ -73,7 +73,6 @@
   }
 
   .authuser .row .col {
-    display: flex;
     display: -webkit-box;
     display: -ms-flexbox !important;
     -webkit-box-orient: vertical;
