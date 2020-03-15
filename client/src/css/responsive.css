@@ -44,8 +44,8 @@
   }
 
   .authuser .row {
-    display: flex;
     display: -webkit-box;
+    display: flex;
     flex-direction: column;
     -webkit-box-orient: vertical;
     -webkit-box-direction: normal;
@@ -70,8 +70,8 @@
   }
 
   .authuser .row .col {
-    display: flex;
     display: -webkit-box;
+    display: flex;
     flex-direction: column;
     -webkit-box-orient: vertical;
     -webkit-box-direction: normal;
