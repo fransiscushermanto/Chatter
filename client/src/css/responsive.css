@@ -50,10 +50,12 @@
     display: flex !important;
     display: -ms-flexbox !important;
     display: -webkit-box !important;
+
     flex-direction: column !important;
+    -ms-flex-direction: column !important;
     -webkit-box-orient: vertical !important;
     -webkit-box-direction: normal !important;
-    -ms-flex-direction: column !important;
+
     align-items: center !important;
     -ms-flex-align: center !important;
     -webkit-box-align: center !important;
@@ -78,9 +80,11 @@
   .authuser .row .col {
     display: flex !important;
     display: -webkit-box !important;
+
     flex-direction: column;
     -webkit-box-orient: vertical;
     -webkit-box-direction: normal;
+
     align-items: center;
     -webkit-box-align: center;
   }
