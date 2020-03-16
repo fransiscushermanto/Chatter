@@ -78,10 +78,11 @@
 
   overflow-y: scroll;
 }
+
 .chat-room .main-chat-room .chat-display-wrapper .m-wrapper {
   width: 100%;
   padding: 0px 20px;
-  height: fit-content;
+  height: auto;
 }
 
 .inner-m-wrapper {
@@ -90,7 +91,7 @@
   width: fit-content;
   max-width: 550px;
   padding: 10px 20px;
-  height: fit-content;
+  height: auto;
 }
 
 .chat-room
