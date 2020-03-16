@@ -42,7 +42,7 @@ router
   .post(
     validateBody(schemas.searchScehma),
     passportJWT,
-    UsersController.getFriend
+    UsersController.getUserData
   );
 
 module.exports = router;

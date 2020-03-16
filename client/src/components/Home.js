@@ -7,7 +7,6 @@ import Header from "./Home-Header";
 import ChatDisplay from "./ChatDisplay";
 import ChatRoom from "./ChatRoom";
 import AddFriend from "./AddFriend";
-import * as actions from "../actions";
 
 import "../css/Home.css";
 import "../css/responsive.css";
@@ -64,10 +63,6 @@ const Home = props => {
 
   let { path } = useRouteMatch();
   const socketRef = useRef();
-  const dispatch = useDispatch();
-
-  const dataUser = useSelector(state => state.decode.user);
-  const jwtToken = useSelector(state => state.auth.token);
 
   const [searchValue, setSearchValue] = useState("");
   const [searchResult, setSearchResult] = useState([]);
@@ -81,8 +76,6 @@ const Home = props => {
   const currentChatData = useRef();
 
   const renderChatHistory = () => {
-    console.log(searchResult);
-    console.log(searchValue);
     if (searchResult.length > 0) {
       return searchResult.map(data => {
         return (
@@ -183,7 +176,6 @@ const Home = props => {
       setChatHistory([...chatHistory, ...chat]);
     };
     fetchMessage();
-    console.log(path);
     document.getElementsByClassName("app-wrapper")[0].style.cssText =
       "margin: 0px";
   }, []);
@@ -193,12 +185,6 @@ const Home = props => {
       setShowChatRoom(true);
     }
   }, [showChatRoom]);
-
-  useEffect(() => {
-    if (jwtToken) {
-      dispatch(actions.decodeJWT(jwtToken));
-    }
-  }, [dispatch, jwtToken]);
 
   return (
     <div className="main-wrapper">
@@ -252,8 +238,8 @@ const Home = props => {
           </div>
         </div>
         <Switch>
-          <Route path={`${path}/:subPage`}>
-            <AddFriend dataUser={dataUser} />
+          <Route path={`${path}/addFriend`}>
+            <AddFriend />
           </Route>
         </Switch>
       </div>

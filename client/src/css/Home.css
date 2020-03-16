@@ -106,6 +106,7 @@
 
 .sider .pane-side {
   overflow-y: auto;
+  width: 100%;
 }
 
 .sider .pane-side .inner-pane-side {
@@ -200,6 +201,8 @@
     -webkit-box-flex: 40%;
     -ms-flex: 40%;
     flex: 40%;
+
+    min-width: 321px;
   }
   .cxroom .display-chat .chat-item {
     max-width: 230px;

@@ -6,7 +6,8 @@ import {
   AUTH_SIGN_OUT,
   OAUTH_SIGN_UP,
   GET_DECODE_DATA,
-  GET_USERS_DATA
+  GET_USERS_DATA,
+  UPDATE_TOKEN
 } from "../actions/types";
 
 export const signUp = data => {
@@ -177,6 +178,10 @@ export const findFriend = data => {
       dispatch({
         type: GET_USERS_DATA,
         payload: res.data
+      });
+      dispatch({
+        type: UPDATE_TOKEN,
+        payload: res.data.token
       });
     } catch (error) {
       dispatch({

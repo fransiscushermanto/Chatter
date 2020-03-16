@@ -2,7 +2,11 @@ import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 
 import CustomAvatar from "./CustomAvatar";
-const ResultAddFriend = ({ displayName, data }) => {
+const ResultAddFriend = ({ displayName, data, dataUser }) => {
+  const onAddFriend = () => {
+    console.log("Friend:", data._id, "User:", dataUser._id);
+  };
+
   return (
     <div className="result-wrapper">
       <div className="inner-result-wrapper">
@@ -16,7 +20,10 @@ const ResultAddFriend = ({ displayName, data }) => {
             </div>
           </div>
           <div className="action-button-wrapper">
-            <button className="addFriend-icon-button">
+            <button
+              className="addFriend-icon-button"
+              onClick={() => onAddFriend()}
+            >
               <svg
                 style={{ width: "20px" }}
                 aria-hidden="true"

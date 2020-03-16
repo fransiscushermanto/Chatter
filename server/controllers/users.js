@@ -79,7 +79,7 @@ module.exports = {
     const token = signToken(req.user);
     res.status(200).json({ token });
   },
-  getFriend: async (req, res, next) => {
+  getUserData: async (req, res, next) => {
     var name = req.body.fullname;
     var user_id = req.body.user_id;
     var criteria = {
@@ -94,6 +94,7 @@ module.exports = {
       .where("_id")
       .ne(user_id)
       .exec();
-    res.status(200).json({ data, message: "SECRET" });
+    const token = signToken(req.body.user);
+    res.status(200).json({ data, token });
   }
 };

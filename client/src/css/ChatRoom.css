@@ -118,19 +118,9 @@
   border-radius: 20px;
   border-top-right-radius: 0px;
   margin-bottom: 2px;
-}
 
-.chat-room .main-chat-room .chat-display-wrapper .comp-messageOut {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-  -ms-flex-direction: row;
-  flex-direction: row;
-  -webkit-box-pack: end;
-  -ms-flex-pack: end;
-  justify-content: flex-end;
+  position: relative;
+  float: right;
 }
 
 .chat-room .footer {

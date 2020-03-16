@@ -1,17 +1,37 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, memo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useHistory, withRouter } from "react-router-dom";
 
 import ResultAddFriend from "./ResultAddFriend";
 import * as actions from "../actions";
 import "../css/AddFriend.css";
-const AddFriend = ({ dataUser }) => {
+const AddFriend = props => {
   const dispatch = useDispatch();
   const { register, handleSubmit } = useForm();
+  const { history } = props;
   const findResult = useSelector(state => state.load.data);
+  const jwtToken = useSelector(state => state.auth.token);
+  const upJwtToken = useRef(jwtToken);
+  const dataUser = useSelector(state => state.decode.user);
+
+  useEffect(() => {
+    console.log("currentToken", upJwtToken.current);
+    console.log("jwtToken", jwtToken);
+    if (jwtToken) {
+      dispatch(actions.decodeJWT(jwtToken));
+      if (upJwtToken.current !== jwtToken) {
+        console.log("REF");
+
+        history.push("/addFriend");
+        console.log(history);
+        upJwtToken.current = jwtToken;
+      }
+    }
+  }, [dispatch, jwtToken]);
   const onSubmit = async data => {
     if (data !== "") {
+      data["user"] = dataUser;
       data["user_id"] = dataUser._id;
     }
 
@@ -34,7 +54,8 @@ const AddFriend = ({ dataUser }) => {
             <ResultAddFriend
               key={user._id}
               displayName={method.fullname}
-              data={method}
+              data={user}
+              dataUser={dataUser}
             />
           );
         });
@@ -120,4 +141,4 @@ const AddFriend = ({ dataUser }) => {
   );
 };
 
-export default AddFriend;
+export default withRouter(AddFriend);

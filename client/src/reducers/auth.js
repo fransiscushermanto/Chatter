@@ -3,7 +3,8 @@ import {
   AUTH_SIGN_IN,
   AUTH_SIGN_UP,
   AUTH_SIGN_OUT,
-  OAUTH_SIGN_UP
+  OAUTH_SIGN_UP,
+  UPDATE_TOKEN
 } from "../actions/types";
 
 const DEFAULT_STATE = {
@@ -48,6 +49,15 @@ export default (state = DEFAULT_STATE, action) => {
         isAuthenticated: true,
         errorMessage: "",
         authType: action.authType
+      };
+    case UPDATE_TOKEN:
+      console.log("[AuthReducer] got an UPDATE_TOKEN action");
+      return {
+        ...state,
+        token: action.payload,
+        isAuthenticated: true,
+        errorMessage: "",
+        authType: ""
       };
     case AUTH_ERROR:
       console.log("[AuthReducer] got an AUTH_ERROR action");

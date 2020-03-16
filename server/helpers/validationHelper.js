@@ -48,7 +48,8 @@ module.exports = {
     }),
     searchScehma: Joi.object().keys({
       fullname: Joi.string().required(),
-      user_id: Joi.string()
+      user_id: Joi.string().required(),
+      user: Joi.object().required()
     })
   }
 };
