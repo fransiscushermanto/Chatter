@@ -78,8 +78,8 @@ const ChatRoom = props => {
             <div className="displayName-wrapper">
               <span>{displayName}</span>
             </div>
-            <div className="displayStatus-wrappe">
-              <span>Last Seen 7 hours ago</span>
+            <div className="displayStatus-wrapper">
+              <span>Last seen 7 hours ago</span>
             </div>
           </div>
           <div className="inner-header-button">

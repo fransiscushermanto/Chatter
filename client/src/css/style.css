@@ -2,16 +2,13 @@
   height: 100vh;
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 :root {
   --textbox-grey: rgba(194, 189, 189, 0.3);
   --thin-black-background: rgba(0, 0, 0, 0.1);
-}
-
-#root {
-  height: 100%;
-  overflow: hidden;
 }
 
 body {
@@ -56,6 +53,7 @@ textarea:-webkit-autofill,
 select:-webkit-autofill {
   border: 1px solid rgba(194, 189, 189, 0.3);
   -webkit-text-fill-color: black;
+  box-shadow: 0 0 0px 1000px rgba(194, 189, 189, 0.3) inset;
   -webkit-box-shadow: 0 0 0px 1000px rgba(194, 189, 189, 0.3) inset;
   -webkit-transition: background-color 5000s ease-in-out 0s;
   transition: background-color 5000s ease-in-out 0s;

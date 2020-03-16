@@ -97,9 +97,22 @@ const Home = props => {
       });
     } else if (searchValue !== "" && searchResult.length === 0) {
       return (
-        <span style={{ textAlign: "center", width: "100%", marginTop: "50px" }}>
-          Theres is no result for "{searchValue}"
-        </span>
+        <div
+          className="search-errorWrapper"
+          style={{ height: "100%", display: "flex" }}
+        >
+          <span
+            style={{
+              textAlign: "center",
+              width: "100%",
+              marginTop: "50px",
+              minWidth: "321px",
+              maxWidth: "321px"
+            }}
+          >
+            Theres is no result for "{searchValue}"
+          </span>
+        </div>
       );
     } else {
       return chatHistory.map(data => {

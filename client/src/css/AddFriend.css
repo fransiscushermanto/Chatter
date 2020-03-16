@@ -344,4 +344,8 @@ label.close {
   .close-container {
     margin-right: 20px;
   }
+  .addFriend-comp-wrapper .inner-addFriend-comp-wrapper .main-addFriend {
+    height: 500px;
+    max-height: 500px;
+  }
 }

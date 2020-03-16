@@ -44,19 +44,12 @@
   padding: 0px 10px;
 }
 
-.chat-room .header .header-wrapper .inner-header-button {
+.inner-header-displayInfo .displayStatus-wrapper {
+  font-weight: 200;
 }
 
-.chat-room
-  .header
-  .header-wrapper
-  .inner-header-displayInfo
-  .displayName-wrapper,
-.chat-room
-  .header
-  .header-wrapper
-  .inner-header-displayInfo
-  .displayStatus-wrapper {
+.inner-header-displayInfo .displayName-wrapper,
+.inner-header-displayInfo .displayStatus-wrapper {
   overflow: hidden;
   white-space: nowrap;
   -o-text-overflow: ellipsis;
