@@ -66,12 +66,14 @@ const Home = props => {
   const dispatch = useDispatch();
 
   const socketRef = useRef();
+  const listFriend = useSelector(state => state.friend.data);
   const jwtToken = useSelector(state => state.auth.token);
   const dataUser = useSelector(state => state.decode.user);
   const [showChatHistory, setShowChatHistory] = useState(true);
   const [searchValue, setSearchValue] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [showChatRoom, setShowChatRoom] = useState(false);
+  const [friendList, setFriendList] = useState([]);
   const [chatHistory, setChatHistory] = useState([]);
   const [chatItem, setChatItem] = useState({
     friendName: "",
@@ -79,6 +81,14 @@ const Home = props => {
   });
 
   const currentChatData = useRef();
+
+  const loadFriend = () => {
+    const loadFriendData = {
+      user_id: dataUser._id,
+      user: dataUser
+    };
+    dispatch(actions.getCurrentFriend(loadFriendData));
+  };
 
   const renderChatHistory = () => {
     if (searchResult.length > 0) {
@@ -165,6 +175,18 @@ const Home = props => {
     }
   };
 
+  const fetchFriend = () => {
+    var array = [];
+    if (listFriend !== "") {
+      if (listFriend.friends.length > 0) {
+        listFriend.friends.map(friend => {
+          array.push(friend.my_friend);
+        });
+        setFriendList([...array]);
+      }
+    }
+  };
+
   useEffect(() => {
     const results = chatHistory.filter(chat =>
       chat.friendName.toLowerCase().includes(searchValue.toLowerCase())
@@ -197,7 +219,14 @@ const Home = props => {
     fetchMessage();
     document.getElementsByClassName("app-wrapper")[0].style.cssText =
       "margin: 0px";
+    socketRef.current.on("LOAD_FRIEND", () => {
+      loadFriend();
+    });
   }, []);
+
+  useEffect(() => {
+    fetchFriend();
+  }, [listFriend]);
 
   useEffect(() => {
     if (showChatRoom == false && currentChatData.current !== undefined) {
@@ -252,7 +281,7 @@ const Home = props => {
             </div>
             <div className="pane-side">
               <div className="inner-pane-side">
-                {showChatHistory ? renderChatHistory() : null}
+                {showChatHistory ? renderChatHistory() : renderFriendList()}
               </div>
             </div>
             <div className="taskbar-side">
@@ -314,7 +343,13 @@ const Home = props => {
         </div>
         <Switch>
           <Route path={`${path}/addFriend`}>
-            {socket && <AddFriend dataUser={dataUser} socket={socket} />}
+            {socket && (
+              <AddFriend
+                dataUser={dataUser}
+                loadFriend={loadFriend}
+                socket={socket}
+              />
+            )}
           </Route>
         </Switch>
       </div>

@@ -6,7 +6,7 @@ import { Link, withRouter } from "react-router-dom";
 import ResultAddFriend from "./ResultAddFriend";
 import * as actions from "../actions";
 import "../css/AddFriend.css";
-const AddFriend = ({ dataUser, socket }) => {
+const AddFriend = ({ dataUser, socket, loadFriend }) => {
   const dispatch = useDispatch();
   const { register, handleSubmit } = useForm();
   const findResult = useSelector(state => state.user.data);
@@ -19,14 +19,6 @@ const AddFriend = ({ dataUser, socket }) => {
 
     await dispatch(actions.findFriend(data));
     socket.emit("GET_FRIEND");
-  };
-
-  const loadFriend = () => {
-    const loadFriendData = {
-      user_id: dataUser._id,
-      user: dataUser
-    };
-    dispatch(actions.getCurrentFriend(loadFriendData));
   };
 
   const checkFriend = id => {

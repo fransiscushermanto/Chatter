@@ -137,7 +137,6 @@ export const oauthGoogle = data => {
 
 export const decodeJWT = data => {
   return async dispatch => {
-    console.log(data);
     const res = await jwt.verify(data, process.env.REACT_APP_JWT_SECRET);
     const method = res.sub === null ? "" : res.sub.method;
     dispatch({

@@ -133,7 +133,10 @@ module.exports = {
       {
         $project: {
           friend_id: {
-            $toObjectId: "$friend_id"
+            $convert: {
+              input: "$friend_id",
+              to: "objectId"
+            }
           },
           user_id: {
             $toString: "$user_id"
@@ -149,7 +152,7 @@ module.exports = {
         }
       }
     ]);
-
+    console.log(friends);
     const token = signToken(req.body.user);
     res.status(200).json({ friends, token });
   }
