@@ -1,34 +1,16 @@
-import React, { useEffect, useRef, memo } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
-import { Link, useHistory, withRouter } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 
 import ResultAddFriend from "./ResultAddFriend";
 import * as actions from "../actions";
 import "../css/AddFriend.css";
-const AddFriend = props => {
+const AddFriend = ({ dataUser, socket }) => {
   const dispatch = useDispatch();
   const { register, handleSubmit } = useForm();
-  const { history } = props;
-  const findResult = useSelector(state => state.load.data);
-  const jwtToken = useSelector(state => state.auth.token);
-  const upJwtToken = useRef(jwtToken);
-  const dataUser = useSelector(state => state.decode.user);
-
-  useEffect(() => {
-    console.log("currentToken", upJwtToken.current);
-    console.log("jwtToken", jwtToken);
-    if (jwtToken) {
-      dispatch(actions.decodeJWT(jwtToken));
-      if (upJwtToken.current !== jwtToken) {
-        console.log("REF");
-
-        history.push("/addFriend");
-        console.log(history);
-        upJwtToken.current = jwtToken;
-      }
-    }
-  }, [dispatch, jwtToken]);
+  const findResult = useSelector(state => state.user.data);
+  const listFriend = useSelector(state => state.friend.data);
   const onSubmit = async data => {
     if (data !== "") {
       data["user"] = dataUser;
@@ -36,6 +18,19 @@ const AddFriend = props => {
     }
 
     await dispatch(actions.findFriend(data));
+    socket.emit("GET_FRIEND");
+  };
+
+  const loadFriend = () => {
+    const loadFriendData = {
+      user_id: dataUser._id,
+      user: dataUser
+    };
+    dispatch(actions.getCurrentFriend(loadFriendData));
+  };
+
+  const checkFriend = id => {
+    return listFriend.friends.filter(data => data.friend_id === id);
   };
 
   const renderResult = () => {
@@ -50,12 +45,15 @@ const AddFriend = props => {
           } else {
             method = user.google;
           }
+          //console.log(checkFriend(user._id));
           return (
             <ResultAddFriend
               key={user._id}
               displayName={method.fullname}
               data={user}
               dataUser={dataUser}
+              socket={socket}
+              checkFriend={checkFriend}
             />
           );
         });
@@ -66,6 +64,17 @@ const AddFriend = props => {
       return <span>There is no result, Let's find your new friend</span>;
     }
   };
+
+  useEffect(() => {
+    socket.on("LOAD_FRIEND", () => {
+      loadFriend();
+    });
+  }, []);
+
+  useEffect(() => {
+    if (listFriend.friends) {
+    }
+  }, [listFriend]);
 
   useEffect(() => {
     onSubmit("");
@@ -131,7 +140,7 @@ const AddFriend = props => {
                     : { alignItems: "center", justifyContent: "center" }
                 }
               >
-                {renderResult()}
+                {findResult ? renderResult() : null}
               </div>
             </div>
           </div>

@@ -1,5 +1,6 @@
 const JWT = require("jsonwebtoken");
 const User = require("../models/user");
+const Friend = require("../models/friend");
 
 signToken = user => {
   return JWT.sign(
@@ -96,5 +97,60 @@ module.exports = {
       .exec();
     const token = signToken(req.body.user);
     res.status(200).json({ data, token });
+  },
+  updateToken: async (req, res, next) => {
+    const user = req.body.user;
+    const token = signToken(user);
+    res.status(200).json({ token });
+  },
+  addFriend: async (req, res, next) => {
+    const { friendId, userId, user } = req.body;
+
+    const existFriend = await Friend.findOne({
+      $and: [{ user_id: userId }, { friend_id: friendId }]
+    });
+
+    if (existFriend) {
+      const token = signToken(user);
+      return res.status(400).json({ existFriend, token });
+    }
+
+    const newFriend = new Friend({
+      user_id: userId,
+      friend_id: friendId,
+      status: "friend"
+    });
+    await newFriend.save();
+    const token = signToken(user);
+    res.status(200).json({ token });
+  },
+  getCurrentFriend: async (req, res, next) => {
+    var user_id = req.body.user_id;
+    console.log(user_id);
+    // const friends = await Friend.find({ user_id: user_id }).exec();
+    const friends = await Friend.aggregate([
+      { $match: { user_id: user_id } },
+      {
+        $project: {
+          friend_id: {
+            $toObjectId: "$friend_id"
+          },
+          user_id: {
+            $toString: "$user_id"
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "friend_id",
+          foreignField: "_id",
+          as: "my_friend"
+        }
+      }
+    ]);
+
+    const token = signToken(req.body.user);
+    res.status(200).json({ friends, token });
   }
 };

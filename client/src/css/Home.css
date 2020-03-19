@@ -47,6 +47,10 @@
   border-right: 0px;
 }
 
+.sider {
+  position: relative;
+}
+
 .sider .search-bar {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -121,6 +125,42 @@
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+}
+
+.sider .taskbar-side {
+  width: 100%;
+  position: absolute;
+  bottom: 0%;
+}
+
+.sider .taskbar-side .inner-taskbar {
+  width: 100%;
+  display: flex;
+}
+
+.sider .taskbar-side .inner-taskbar .taskbar-btn {
+  flex: 1;
+
+  background-color: white;
+  border: none;
+  border-top: 1px solid var(--thin-black-background);
+
+  padding: 10px;
+}
+
+.sider .taskbar-side .inner-taskbar .taskbar-btn:nth-child(1) {
+  border-right: 1px solid var(--thin-black-background);
+}
+
+.sider .taskbar-side .inner-taskbar .taskbar-btn svg {
+  width: 30px;
+
+  cursor: pointer;
+  pointer-events: none;
+}
+
+.sider .taskbar-side .inner-taskbar .taskbar-btn svg path {
+  fill: rgba(0, 0, 0, 0.5);
 }
 
 .main-wrapper .wrapper .row .main-page {

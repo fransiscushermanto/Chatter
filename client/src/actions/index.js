@@ -7,7 +7,7 @@ import {
   OAUTH_SIGN_UP,
   GET_DECODE_DATA,
   GET_USERS_DATA,
-  UPDATE_TOKEN
+  GET_LIST_FRIEND
 } from "../actions/types";
 
 export const signUp = data => {
@@ -137,6 +137,7 @@ export const oauthGoogle = data => {
 
 export const decodeJWT = data => {
   return async dispatch => {
+    console.log(data);
     const res = await jwt.verify(data, process.env.REACT_APP_JWT_SECRET);
     const method = res.sub === null ? "" : res.sub.method;
     dispatch({
@@ -170,19 +171,25 @@ export const updateData = data => {
   };
 };
 
+export const resetState = data => {
+  return dispatch => {
+    console.log("[ActionCreator] resetError dispatch");
+    dispatch({
+      type: AUTH_ERROR,
+      payload: ""
+    });
+  };
+};
+
 export const findFriend = data => {
   return async dispatch => {
     try {
-      console.log("[ActionCreator] findFriend dispatch");
       const res = await axios.post("/users/findFriend", data);
       dispatch({
         type: GET_USERS_DATA,
         payload: res.data
       });
-      dispatch({
-        type: UPDATE_TOKEN,
-        payload: res.data.token
-      });
+      localStorage.setItem("JWT_TOKEN", res.data.token);
     } catch (error) {
       dispatch({
         type: GET_USERS_DATA,
@@ -192,12 +199,35 @@ export const findFriend = data => {
   };
 };
 
-export const resetState = data => {
-  return dispatch => {
-    console.log("[ActionCreator] resetError dispatch");
-    dispatch({
-      type: AUTH_ERROR,
-      payload: ""
-    });
+export const addFriend = data => {
+  return async dispatch => {
+    try {
+      const res = await axios.post("/users/addFriend", data);
+      localStorage.setItem("JWT_TOKEN", res.data.token);
+    } catch (error) {
+      dispatch({
+        type: AUTH_ERROR,
+        payload: "Failed to add Friend due to server error"
+      });
+    }
+  };
+};
+
+export const getCurrentFriend = data => {
+  return async dispatch => {
+    try {
+      const res = await axios.post("/users/currentFriend", data);
+      console.log(res);
+      dispatch({
+        type: GET_LIST_FRIEND,
+        payload: res.data
+      });
+      localStorage.setItem("JWT_TOKEN", res.data.token);
+    } catch (error) {
+      dispatch({
+        type: AUTH_ERROR,
+        payload: "Failed to load Friend"
+      });
+    }
   };
 };

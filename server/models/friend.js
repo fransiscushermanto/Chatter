@@ -2,10 +2,10 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const friendSchema = new Schema({
-  id_senderFriendReq: {
+  user_id: {
     type: String
   },
-  id_receiverFriendReq: {
+  friend_id: {
     type: String
   },
   status: {

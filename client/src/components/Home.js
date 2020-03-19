@@ -7,6 +7,7 @@ import Header from "./Home-Header";
 import ChatDisplay from "./ChatDisplay";
 import ChatRoom from "./ChatRoom";
 import AddFriend from "./AddFriend";
+import * as actions from "../actions";
 
 import "../css/Home.css";
 import "../css/responsive.css";
@@ -62,8 +63,12 @@ const Home = props => {
     window.location.origin}`;
 
   let { path } = useRouteMatch();
-  const socketRef = useRef();
+  const dispatch = useDispatch();
 
+  const socketRef = useRef();
+  const jwtToken = useSelector(state => state.auth.token);
+  const dataUser = useSelector(state => state.decode.user);
+  const [showChatHistory, setShowChatHistory] = useState(true);
   const [searchValue, setSearchValue] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [showChatRoom, setShowChatRoom] = useState(false);
@@ -122,6 +127,8 @@ const Home = props => {
     }
   };
 
+  const renderFriendList = () => {};
+
   const onClickDisplayChat = e => {
     console.log(e);
     currentChatData.current = e;
@@ -148,6 +155,16 @@ const Home = props => {
     setSearchValue(e.target.value);
   };
 
+  const switchPane = e => {
+    var id = e.target.id;
+    var charId = id.split("-");
+    if (charId[0] === "chat") {
+      setShowChatHistory(true);
+    } else if (charId[0] === "friend") {
+      setShowChatHistory(false);
+    }
+  };
+
   useEffect(() => {
     const results = chatHistory.filter(chat =>
       chat.friendName.toLowerCase().includes(searchValue.toLowerCase())
@@ -161,6 +178,8 @@ const Home = props => {
       socketRef.current = io.connect(socketUrl);
     };
   }, [socketUrl]);
+
+  const socket = socketRef.current;
 
   useEffect(() => {
     socketRef.current.on("RECEIVE_MESSAGE", data => {
@@ -185,6 +204,12 @@ const Home = props => {
       setShowChatRoom(true);
     }
   }, [showChatRoom]);
+
+  useEffect(() => {
+    if (jwtToken) {
+      dispatch(actions.decodeJWT(jwtToken));
+    }
+  }, [dispatch, jwtToken]);
 
   return (
     <div className="main-wrapper">
@@ -216,7 +241,9 @@ const Home = props => {
                     className="form-control"
                     type="search"
                     autoComplete="off"
-                    placeholder="Search or start new chat"
+                    placeholder={
+                      showChatHistory ? "Search chat" : "Search friend"
+                    }
                     value={searchValue}
                     onChange={handleChange}
                   />
@@ -224,7 +251,55 @@ const Home = props => {
               </div>
             </div>
             <div className="pane-side">
-              <div className="inner-pane-side">{renderChatHistory()}</div>
+              <div className="inner-pane-side">
+                {showChatHistory ? renderChatHistory() : null}
+              </div>
+            </div>
+            <div className="taskbar-side">
+              <div className="inner-taskbar">
+                <button
+                  id="chat-btn"
+                  className="taskbar-btn chat"
+                  onClick={switchPane}
+                >
+                  <svg
+                    aria-hidden="true"
+                    focusable="false"
+                    data-prefix="fas"
+                    data-icon="comment"
+                    className="svg-inline--fa fa-comment fa-w-16"
+                    role="img"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 512 512"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M256 32C114.6 32 0 125.1 0 240c0 49.6 21.4 95 57 130.7C44.5 421.1 2.7 466 2.2 466.5c-2.2 2.3-2.8 5.7-1.5 8.7S4.8 480 8 480c66.3 0 116-31.8 140.6-51.4 32.7 12.3 69 19.4 107.4 19.4 141.4 0 256-93.1 256-208S397.4 32 256 32z"
+                    ></path>
+                  </svg>
+                </button>
+                <button
+                  id="friend-btn"
+                  className="taskbar-btn friend"
+                  onClick={switchPane}
+                >
+                  <svg
+                    aria-hidden="true"
+                    focusable="false"
+                    data-prefix="fas"
+                    data-icon="user-friends"
+                    className="svg-inline--fa fa-user-friends fa-w-20"
+                    role="img"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 640 512"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M192 256c61.9 0 112-50.1 112-112S253.9 32 192 32 80 82.1 80 144s50.1 112 112 112zm76.8 32h-8.3c-20.8 10-43.9 16-68.5 16s-47.6-6-68.5-16h-8.3C51.6 288 0 339.6 0 403.2V432c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48v-28.8c0-63.6-51.6-115.2-115.2-115.2zM480 256c53 0 96-43 96-96s-43-96-96-96-96 43-96 96 43 96 96 96zm48 32h-3.8c-13.9 4.8-28.6 8-44.2 8s-30.3-3.2-44.2-8H432c-20.4 0-39.2 5.9-55.7 15.4 24.4 26.3 39.7 61.2 39.7 99.8v38.4c0 2.2-.5 4.3-.6 6.4H592c26.5 0 48-21.5 48-48 0-61.9-50.1-112-112-112z"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
           <div className="main-page">
@@ -239,7 +314,7 @@ const Home = props => {
         </div>
         <Switch>
           <Route path={`${path}/addFriend`}>
-            <AddFriend />
+            {socket && <AddFriend dataUser={dataUser} socket={socket} />}
           </Route>
         </Switch>
       </div>

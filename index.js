@@ -9,8 +9,13 @@ io.on("connection", socket => {
   socket.on("disconnect", () => {
     console.log("Disconnected");
   });
+
   socket.on("SEND_MESSAGE", data => {
     io.emit("RECEIVE_MESSAGE", data);
+  });
+
+  socket.on("GET_FRIEND", () => {
+    io.emit("LOAD_FRIEND");
   });
 
   socket.on("join", ({ name, room }, callback) => {});

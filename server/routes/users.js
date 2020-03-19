@@ -45,4 +45,9 @@ router
     UsersController.getUserData
   );
 
+router.route("/addFriend").post(passportJWT, UsersController.addFriend);
+router
+  .route("/currentFriend")
+  .post(passportJWT, UsersController.getCurrentFriend);
+
 module.exports = router;

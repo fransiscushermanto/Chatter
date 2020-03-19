@@ -319,8 +319,13 @@ label.close {
   padding: 0px;
 }
 
-.user-info-wrapper .action-button-wrapper .addFriend-icon-button i {
+.user-info-wrapper .action-button-wrapper .addFriend-icon-button svg {
   color: rgba(0, 0, 0, 0.8);
+  width: 20px;
+}
+
+.user-info-wrapper .action-button-wrapper .addFriend-icon-button:disabled svg {
+  color: rgb(15, 157, 88);
 }
 
 @media (max-width: 950px) {
