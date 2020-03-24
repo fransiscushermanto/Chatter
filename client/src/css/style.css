@@ -9,6 +9,7 @@
 :root {
   --textbox-grey: rgba(194, 189, 189, 0.3);
   --thin-black-background: rgba(0, 0, 0, 0.1);
+  --wrapper-background: rgba(0, 0, 0, 0.4);
 }
 
 body {

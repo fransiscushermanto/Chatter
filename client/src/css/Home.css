@@ -145,7 +145,7 @@
   border: none;
   border-top: 1px solid var(--thin-black-background);
 
-  padding: 10px;
+  padding: 19px 10px;
 }
 
 .sider .taskbar-side .inner-taskbar .taskbar-btn:nth-child(1) {

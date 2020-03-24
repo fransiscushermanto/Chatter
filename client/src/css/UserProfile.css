@@ -1,0 +1,120 @@
+.userProfile-container {
+  width: 100%;
+  height: 100vh;
+  position: absolute;
+
+  background-color: var(--wrapper-background);
+}
+
+.userProfile-container .userProfile-wrapper {
+  width: 100%;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.userProfile-container .userProfile-wrapper .closebutton {
+  position: absolute;
+  top: 0%;
+  right: 0%;
+}
+
+.userProfile-container .userProfile-wrapper .inner-userProfile-wrapper {
+  display: flex;
+  align-items: center;
+
+  background-color: rgb(255, 255, 255);
+  max-width: 500px;
+  min-width: 500px;
+  padding: 50px;
+
+  border-radius: 30px;
+}
+
+.inner-userProfile-wrapper .profileDetail-wrapper {
+  flex: 1;
+  margin-left: 10px;
+}
+
+.inner-userProfile-wrapper .profileDetail-wrapper .displayName-wrapper {
+  width: 100%;
+  padding: 10px 0px;
+}
+
+.inner-userProfile-wrapper
+  .profileDetail-wrapper
+  .displayName-wrapper
+  .displayName-field {
+  font-size: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--thin-black-background);
+}
+
+.inner-userProfile-wrapper .profileDetail-wrapper .btnaction-wrapper {
+  width: 100%;
+}
+
+.inner-userProfile-wrapper .profileDetail-wrapper .btnaction-wrapper button {
+  background: transparent;
+  border: none;
+  width: auto;
+  height: auto;
+
+  position: relative;
+}
+
+.inner-userProfile-wrapper
+  .profileDetail-wrapper
+  .btnaction-wrapper
+  button
+  .tooltip-text {
+  position: absolute;
+  display: none;
+  top: 110%;
+  left: 40%;
+  width: 100px;
+  color: #551199;
+  z-index: 1;
+  background-color: var(--textbox-grey);
+  border-top-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  transition: all ease 0.3s;
+}
+
+.inner-userProfile-wrapper
+  .profileDetail-wrapper
+  .btnaction-wrapper
+  button:hover
+  .tooltip-text {
+  display: block;
+}
+
+.inner-userProfile-wrapper
+  .profileDetail-wrapper
+  .btnaction-wrapper
+  button
+  svg {
+  width: 30px;
+}
+
+.inner-userProfile-wrapper
+  .profileDetail-wrapper
+  .btnaction-wrapper
+  button
+  svg
+  path {
+  transition: all ease 0.3s;
+}
+
+.inner-userProfile-wrapper
+  .profileDetail-wrapper
+  .btnaction-wrapper
+  button:hover
+  svg
+  path {
+  fill: rgba(0, 0, 0, 0.5);
+}

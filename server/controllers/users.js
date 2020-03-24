@@ -32,7 +32,14 @@ module.exports = {
         status: "on"
       }
     });
-    await newUser.save();
+    await newUser.save(error => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Data Created");
+      }
+    });
+
     const token = signToken(newUser);
 
     res.status(200).json({ token });
@@ -126,17 +133,12 @@ module.exports = {
   },
   getCurrentFriend: async (req, res, next) => {
     var user_id = req.body.user_id;
-    console.log(user_id);
-    // const friends = await Friend.find({ user_id: user_id }).exec();
     const friends = await Friend.aggregate([
       { $match: { user_id: user_id } },
       {
         $project: {
           friend_id: {
-            $convert: {
-              input: "$friend_id",
-              to: "objectId"
-            }
+            $toObjectId: "$friend_id"
           },
           user_id: {
             $toString: "$user_id"
@@ -152,7 +154,7 @@ module.exports = {
         }
       }
     ]);
-    console.log(friends);
+
     const token = signToken(req.body.user);
     res.status(200).json({ friends, token });
   }

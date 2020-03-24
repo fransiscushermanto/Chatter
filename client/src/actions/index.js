@@ -20,7 +20,7 @@ export const signUp = data => {
         payload: res.data.token,
         authType: "local"
       });
-
+      decodeJWT(res.data.token);
       localStorage.setItem("JWT_TOKEN", res.data.token);
       localStorage.setItem("AUTH_TYPE", "local");
       axios.defaults.headers.common["Authorization"] = res.data.token;
@@ -41,6 +41,7 @@ export const signIn = data => {
     try {
       console.log("[ActionCreator] signIn dispatch");
       const res = await axios.post("/users/signin", data);
+      decodeJWT(res.data.token);
       dispatch({
         type: AUTH_SIGN_UP,
         payload: res.data.token,
@@ -84,7 +85,6 @@ export const oauthFacebook = data => {
         res.data.token,
         process.env.REACT_APP_JWT_SECRET
       );
-
       const dataStatus = jwtData.sub.facebook.status === "on" ? "" : "oauth";
       dispatch({
         type: OAUTH_SIGN_UP,
@@ -152,7 +152,6 @@ export const updateData = data => {
     try {
       console.log("[ActionCreator] updateData dispatch");
       const res = await axios.post("/users/update", data);
-      console.log(res);
       dispatch({
         type: OAUTH_SIGN_UP,
         payload: res.data.token,
@@ -216,7 +215,6 @@ export const getCurrentFriend = data => {
   return async dispatch => {
     try {
       const res = await axios.post("/users/currentFriend", data);
-      console.log(res);
       dispatch({
         type: GET_LIST_FRIEND,
         payload: res.data

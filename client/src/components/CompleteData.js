@@ -43,13 +43,14 @@ let CompleteData = () => {
 
   useEffect(() => {
     const decode = async data => {
+      console.log("TRYYYY");
       await dispatch(actions.decodeJWT(data));
     };
 
     if (token) {
       decode(token);
     }
-  }, [token, dispatch]);
+  }, [dispatch]);
 
   useEffect(() => {
     if (jwtDataUser !== "") {

@@ -18,10 +18,16 @@ if (process.env.NODE_ENV !== "test") {
     console.log(error);
     console.log("ERROR CONNECT");
   });
+  mongoose.connection.on("connected", function() {
+    console.log("Connected");
+  });
 } else {
   mongoose.connect(connectionString, {
     useNewUrlParser: true,
     useUnifiedTopology: true
+  });
+  mongoose.connection.on("connected", function() {
+    console.log("Connected");
   });
 }
 

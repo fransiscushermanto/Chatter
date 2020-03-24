@@ -3,11 +3,11 @@ import PropTypes from "prop-types";
 import Avatar from "react-avatar";
 
 const CustomAvatar = props => {
-  const { size, displayName } = props;
+  const { size, displayName, round } = props;
 
   return (
     <Avatar
-      round="50px"
+      round={round ? round : "50px"}
       size={size}
       name={displayName}
       className="profile-avatar"
@@ -19,7 +19,8 @@ const CustomAvatar = props => {
 
 CustomAvatar.propTypes = {
   size: PropTypes.string.isRequired,
-  displayName: PropTypes.string.isRequired
+  displayName: PropTypes.string.isRequired,
+  round: PropTypes.string
 };
 
 export default CustomAvatar;

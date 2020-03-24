@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 
 import CustomAvatar from "./CustomAvatar";
 import * as actions from "../actions";
@@ -9,18 +10,19 @@ const ResultAddFriend = ({
   data,
   dataUser,
   socket,
-  checkFriend
+  checkFriend,
+  renderProfile
 }) => {
   const dispatch = useDispatch();
   const [friend, setFriend] = useState(false);
   const onAddFriend = async () => {
+    setFriend(true);
     const addFriendData = {
       friendId: data._id,
       userId: dataUser._id,
       user: dataUser
     };
     await dispatch(actions.addFriend(addFriendData));
-    setFriend(true);
     socket.emit("GET_FRIEND");
   };
 

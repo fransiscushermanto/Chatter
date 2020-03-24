@@ -5,7 +5,7 @@ import Avatar from "react-avatar";
 import "../css/Home-Header.css";
 import * as actions from "../actions";
 
-const HomeHeader = props => {
+const HomeHeader = ({ profileName, renderProfile }) => {
   const dispatch = useDispatch();
   let { url } = useRouteMatch();
   const isAuth = useSelector(state => state.auth.isAuthenticated);
@@ -48,29 +48,20 @@ const HomeHeader = props => {
     }
   }, [isAuth, authType, dispatch, jwtToken]);
 
-  const setInitialProfilePicture = () => {
-    const data = dataUser;
-    var fullname;
-    if (data.method === "local") {
-      fullname = data.local.fullname;
-    } else if (data.method === "facebook") {
-      fullname = data.facebook.fullname;
-    } else {
-      fullname = data.google.fullname;
-    }
-
-    return fullname;
-  };
-
   const handleClick = () => {
     setOpen(!open);
+  };
+
+  const showProfile = () => {
+    setOpen(!open);
+    renderProfile(profileName);
   };
 
   const renderAvatar = size => (
     <Avatar
       round="50px"
       size={size}
-      name={setInitialProfilePicture()}
+      name={profileName}
       className="profile-avatar"
       style={{ marginRight: "10px" }}
       onClick={() => handleClick()}
@@ -95,11 +86,11 @@ const HomeHeader = props => {
           <ul className="nav">
             <li className="nav-item">
               <div className="header-profile-nav">
-                <Link to="/profile">
+                <Link to={`${url}?name=You`} onClick={() => showProfile()}>
                   <Avatar
                     round="50px"
                     size="35px"
-                    name={setInitialProfilePicture()}
+                    name={profileName}
                     className="profile-avatar"
                     style={{ marginRight: "10px" }}
                     maxInitials={2}
@@ -165,12 +156,6 @@ const HomeHeader = props => {
       </div>
     );
   };
-
-  useEffect(() => {
-    if (dataUser !== "") {
-      setInitialProfilePicture();
-    }
-  }, [dataUser]);
 
   return (
     <div className="navbar-wrapper" id="header">

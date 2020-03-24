@@ -7,6 +7,8 @@ import Header from "./Home-Header";
 import ChatDisplay from "./ChatDisplay";
 import ChatRoom from "./ChatRoom";
 import AddFriend from "./AddFriend";
+import FriendDisplay from "./FriendDisplay";
+import UserProfile from "./UserProfile";
 import * as actions from "../actions";
 
 import "../css/Home.css";
@@ -67,13 +69,14 @@ const Home = props => {
 
   const socketRef = useRef();
   const listFriend = useSelector(state => state.friend.data);
-  const jwtToken = useSelector(state => state.auth.token);
   const dataUser = useSelector(state => state.decode.user);
   const [showChatHistory, setShowChatHistory] = useState(true);
   const [searchValue, setSearchValue] = useState("");
+  const [showProfile, setShowProfile] = useState();
   const [searchResult, setSearchResult] = useState([]);
   const [showChatRoom, setShowChatRoom] = useState(false);
-  const [friendList, setFriendList] = useState([]);
+  const [friendList, setFriendList] = useState();
+  const [profileName, setProfileName] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
   const [chatItem, setChatItem] = useState({
     friendName: "",
@@ -82,12 +85,12 @@ const Home = props => {
 
   const currentChatData = useRef();
 
-  const loadFriend = () => {
+  const loadFriend = async () => {
     const loadFriendData = {
       user_id: dataUser._id,
       user: dataUser
     };
-    dispatch(actions.getCurrentFriend(loadFriendData));
+    await dispatch(actions.getCurrentFriend(loadFriendData));
   };
 
   const renderChatHistory = () => {
@@ -137,7 +140,75 @@ const Home = props => {
     }
   };
 
-  const renderFriendList = () => {};
+  const renderFriendList = () => {
+    if (searchResult.length > 0) {
+      return searchResult.map((friend, index) => {
+        return (
+          <FriendDisplay
+            key={index}
+            displayName={friend.fullname}
+            data={{ fullname: friend.fullname, email: friend.email }}
+            onClick={renderProfile}
+          />
+        );
+      });
+    } else if (searchValue !== "" && searchResult.length === 0) {
+      return (
+        <div
+          className="search-errorWrapper"
+          style={{ height: "100%", display: "flex" }}
+        >
+          <span
+            style={{
+              textAlign: "center",
+              width: "100%",
+              marginTop: "50px",
+              minWidth: "321px",
+              maxWidth: "321px"
+            }}
+          >
+            Theres is no result for "{searchValue}"
+          </span>
+        </div>
+      );
+    } else {
+      if (friendList.length > 0) {
+        return friendList.map((friend, index) => {
+          return (
+            <FriendDisplay
+              key={index}
+              displayName={friend.profile.fullname}
+              data={{
+                _id: friend._id,
+                fullname: friend.profile.fullname,
+                email: friend.profile.email
+              }}
+              onClick={renderProfile}
+            />
+          );
+        });
+      } else {
+        return (
+          <div
+            className="search-errorWrapper"
+            style={{ height: "100%", display: "flex" }}
+          >
+            <span
+              style={{
+                textAlign: "center",
+                width: "100%",
+                marginTop: "50px",
+                minWidth: "321px",
+                maxWidth: "321px"
+              }}
+            >
+              There is no friend! Go find some friend!
+            </span>
+          </div>
+        );
+      }
+    }
+  };
 
   const onClickDisplayChat = e => {
     console.log(e);
@@ -169,8 +240,12 @@ const Home = props => {
     var id = e.target.id;
     var charId = id.split("-");
     if (charId[0] === "chat") {
+      setSearchValue("");
+      setSearchResult([]);
       setShowChatHistory(true);
     } else if (charId[0] === "friend") {
+      setSearchValue("");
+      setSearchResult([]);
       setShowChatHistory(false);
     }
   };
@@ -179,18 +254,51 @@ const Home = props => {
     var array = [];
     if (listFriend !== "") {
       if (listFriend.friends.length > 0) {
-        listFriend.friends.map(friend => {
-          array.push(friend.my_friend);
+        listFriend.friends.map(list => {
+          list.my_friend.map(friend => {
+            let userData;
+            if (friend.method === "google") {
+              userData = friend.google;
+            } else if (friend.method === "facebook") {
+              userData = friend.facebook;
+            } else {
+              userData = friend.local;
+            }
+            const data = {
+              _id: friend._id,
+              profile: userData
+            };
+            array.push(data);
+          });
         });
         setFriendList([...array]);
       }
+    } else {
+      setFriendList([]);
+    }
+  };
+
+  const checkFriend = id => {
+    return listFriend.friends.filter(data => data.friend_id === id);
+  };
+
+  const renderProfile = e => {
+    if (e) {
+      setShowProfile(e);
+    } else {
+      setShowProfile(undefined);
     }
   };
 
   useEffect(() => {
-    const results = chatHistory.filter(chat =>
-      chat.friendName.toLowerCase().includes(searchValue.toLowerCase())
-    );
+    const results = showChatHistory
+      ? chatHistory.filter(chat =>
+          chat.friendName.toLowerCase().includes(searchValue.toLowerCase())
+        )
+      : friendList.filter(friend =>
+          friend.fullname.toLowerCase().includes(searchValue.toLowerCase())
+        );
+    console.log(results);
     setSearchResult(results);
   }, [searchValue]);
 
@@ -225,8 +333,22 @@ const Home = props => {
   }, []);
 
   useEffect(() => {
-    fetchFriend();
-  }, [listFriend]);
+    if (dataUser !== "") {
+      loadFriend();
+
+      const data = dataUser;
+      var fullname;
+      if (data.method === "local") {
+        fullname = data.local.fullname;
+      } else if (data.method === "facebook") {
+        fullname = data.facebook.fullname;
+      } else {
+        fullname = data.google.fullname;
+      }
+
+      setProfileName(fullname);
+    }
+  }, [dataUser]);
 
   useEffect(() => {
     if (showChatRoom == false && currentChatData.current !== undefined) {
@@ -235,15 +357,20 @@ const Home = props => {
   }, [showChatRoom]);
 
   useEffect(() => {
-    if (jwtToken) {
-      dispatch(actions.decodeJWT(jwtToken));
-    }
-  }, [dispatch, jwtToken]);
+    fetchFriend();
+  }, [listFriend]);
+
+  useEffect(() => {
+    console.log(showProfile);
+  }, [showProfile]);
 
   return (
     <div className="main-wrapper">
       <div className="wrapper">
-        <Header></Header>
+        <Header
+          profileName={profileName}
+          renderProfile={renderProfile}
+        ></Header>
         <div className="row">
           <div className="sider">
             <div className="search-bar">
@@ -345,13 +472,22 @@ const Home = props => {
           <Route path={`${path}/addFriend`}>
             {socket && (
               <AddFriend
+                checkFriend={checkFriend}
                 dataUser={dataUser}
                 loadFriend={loadFriend}
                 socket={socket}
+                renderProfile={renderProfile}
               />
             )}
           </Route>
         </Switch>
+        {showProfile !== undefined ? (
+          <UserProfile
+            profile={showProfile}
+            onClick={renderProfile}
+            checkFriend={checkFriend}
+          />
+        ) : null}
       </div>
     </div>
   );

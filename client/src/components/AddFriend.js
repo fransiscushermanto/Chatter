@@ -6,11 +6,16 @@ import { Link, withRouter } from "react-router-dom";
 import ResultAddFriend from "./ResultAddFriend";
 import * as actions from "../actions";
 import "../css/AddFriend.css";
-const AddFriend = ({ dataUser, socket, loadFriend }) => {
+const AddFriend = ({
+  dataUser,
+  socket,
+  loadFriend,
+  checkFriend,
+  renderProfile
+}) => {
   const dispatch = useDispatch();
   const { register, handleSubmit } = useForm();
   const findResult = useSelector(state => state.user.data);
-  const listFriend = useSelector(state => state.friend.data);
   const onSubmit = async data => {
     if (data !== "") {
       data["user"] = dataUser;
@@ -19,10 +24,6 @@ const AddFriend = ({ dataUser, socket, loadFriend }) => {
 
     await dispatch(actions.findFriend(data));
     socket.emit("GET_FRIEND");
-  };
-
-  const checkFriend = id => {
-    return listFriend.friends.filter(data => data.friend_id === id);
   };
 
   const renderResult = () => {
@@ -37,7 +38,6 @@ const AddFriend = ({ dataUser, socket, loadFriend }) => {
           } else {
             method = user.google;
           }
-          //console.log(checkFriend(user._id));
           return (
             <ResultAddFriend
               key={user._id}
@@ -46,6 +46,7 @@ const AddFriend = ({ dataUser, socket, loadFriend }) => {
               dataUser={dataUser}
               socket={socket}
               checkFriend={checkFriend}
+              renderProfile={renderProfile}
             />
           );
         });
@@ -62,11 +63,6 @@ const AddFriend = ({ dataUser, socket, loadFriend }) => {
       loadFriend();
     });
   }, []);
-
-  useEffect(() => {
-    if (listFriend.friends) {
-    }
-  }, [listFriend]);
 
   useEffect(() => {
     onSubmit("");

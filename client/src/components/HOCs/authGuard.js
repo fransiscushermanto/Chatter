@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 
-import * as actions from "../../actions";
 export default OriginalComponent => {
   const MixedComponent = () => {
     const dispatch = useDispatch();
@@ -13,11 +12,8 @@ export default OriginalComponent => {
     const authType = useSelector(state => state.auth.authType);
 
     useEffect(() => {
-      const decodeData = async () => {
-        await dispatch(actions.decodeJWT(jwtToken));
-      };
-
       const checkAuth = async () => {
+        console.log("Checking");
         if (isAuth && jwtToken) {
           if (
             localStorage.getItem("AUTH_TYPE") === "" ||
@@ -42,9 +38,6 @@ export default OriginalComponent => {
       };
 
       checkAuth();
-      if (jwtToken !== null) {
-        decodeData();
-      }
     }, [jwtToken, dispatch, history, isAuth]);
 
     useEffect(() => {

@@ -8,10 +8,13 @@
   align-items: center;
   width: 100%;
   cursor: pointer;
+  color: black;
 }
 
 .cxroom:hover {
   background-color: rgba(0, 0, 0, 0.05);
+  text-decoration: none;
+  color: black;
 }
 
 .cxroom .displayer {
