@@ -49,6 +49,19 @@ module.exports = {
       fullname: Joi.string().required(),
       user_id: Joi.string().required(),
       user: Joi.object().required()
+    }),
+    createRoomSchema: Joi.object().keys({
+      user_id: Joi.string().required(),
+      friend_id: Joi.string().required(),
+      user: Joi.object().required()
+    }),
+    getRoom: Joi.object().keys({
+      user_id: Joi.string().required(),
+      user: Joi.object().required()
+    }),
+    getChat: Joi.object().keys({
+      room_id: Joi.string().required(),
+      user: Joi.object().required()
     })
   }
 };

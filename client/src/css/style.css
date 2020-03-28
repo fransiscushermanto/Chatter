@@ -6,10 +6,31 @@
   flex-direction: column;
 }
 
+div span {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+div.selectable-text span {
+  -webkit-touch-callout: text;
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
 :root {
   --textbox-grey: rgba(194, 189, 189, 0.3);
   --thin-black-background: rgba(0, 0, 0, 0.1);
   --wrapper-background: rgba(0, 0, 0, 0.4);
+  --system-message-background: rgba(225, 245, 254, 0.92);
+  --unread-message-background: rgba(194, 189, 189, 0.12);
+  --main-page-background: rgba(194, 189, 189, 0.16);
 }
 
 body {
@@ -60,6 +81,8 @@ select:-webkit-autofill {
   transition: background-color 5000s ease-in-out 0s;
 }
 
+div:hover,
+div:focus,
 textarea:hover,
 input:hover,
 textarea:active,

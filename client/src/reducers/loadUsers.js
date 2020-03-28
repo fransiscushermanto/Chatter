@@ -8,6 +8,7 @@ export default (state = DEFAULT_STATE, action) => {
   switch (action.type) {
     case GET_USERS_DATA:
       return {
+        ...state,
         data: action.payload
       };
     default:

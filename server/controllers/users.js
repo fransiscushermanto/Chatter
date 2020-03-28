@@ -90,14 +90,24 @@ module.exports = {
   getUserData: async (req, res, next) => {
     var name = req.body.fullname;
     var user_id = req.body.user_id;
-    var criteria = {
-      $or: [
-        { "local.fullname": { $regex: ".*" + name + ".*", $options: "i" } },
-        { "facebook.fullname": { $regex: ".*" + name + ".*", $options: "i" } },
-        { "google.fullname": { $regex: ".*" + name + ".*", $options: "i" } }
-      ]
-    };
-    const query = User.find(criteria).limit(20);
+    var criteria, limit;
+    if (name !== "all") {
+      criteria = {
+        $or: [
+          { "local.fullname": { $regex: ".*" + name + ".*", $options: "i" } },
+          {
+            "facebook.fullname": { $regex: ".*" + name + ".*", $options: "i" }
+          },
+          { "google.fullname": { $regex: ".*" + name + ".*", $options: "i" } }
+        ]
+      };
+      limit = 20;
+    } else {
+      criteria = {};
+      limit = 0;
+    }
+
+    const query = User.find(criteria).limit(limit);
     const data = await query
       .where("_id")
       .ne(user_id)

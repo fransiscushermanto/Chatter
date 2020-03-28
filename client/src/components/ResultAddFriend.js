@@ -10,7 +10,7 @@ const ResultAddFriend = ({
   data,
   dataUser,
   socket,
-  checkFriend,
+  isFriend,
   renderProfile
 }) => {
   const dispatch = useDispatch();
@@ -27,7 +27,7 @@ const ResultAddFriend = ({
   };
 
   useEffect(() => {
-    if (checkFriend(data._id).length === 1) {
+    if (isFriend(data._id).length === 1) {
       setFriend(true);
     }
   }, []);

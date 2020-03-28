@@ -6,3 +6,6 @@ export const AUTH_ERROR = "AUTH_ERROR";
 export const GET_DECODE_DATA = "GET_DECODE_DATA";
 export const GET_USERS_DATA = "GET_USERS_DATA";
 export const GET_LIST_FRIEND = "GET_LIST_FRIEND";
+export const CREATE_ROOM = "CREATE_ROOM";
+export const ROOM_ERROR = "ROOM_ERROR";
+export const LOAD_ALL_CHAT = "LOAD_ALL_CHAT";

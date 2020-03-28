@@ -10,7 +10,7 @@ const AddFriend = ({
   dataUser,
   socket,
   loadFriend,
-  checkFriend,
+  isFriend,
   renderProfile
 }) => {
   const dispatch = useDispatch();
@@ -45,7 +45,7 @@ const AddFriend = ({
               data={user}
               dataUser={dataUser}
               socket={socket}
-              checkFriend={checkFriend}
+              isFriend={isFriend}
               renderProfile={renderProfile}
             />
           );

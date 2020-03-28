@@ -7,7 +7,10 @@ import {
   OAUTH_SIGN_UP,
   GET_DECODE_DATA,
   GET_USERS_DATA,
-  GET_LIST_FRIEND
+  GET_LIST_FRIEND,
+  CREATE_ROOM,
+  ROOM_ERROR,
+  LOAD_ALL_CHAT
 } from "../actions/types";
 
 export const signUp = data => {
@@ -221,10 +224,64 @@ export const getCurrentFriend = data => {
       });
       localStorage.setItem("JWT_TOKEN", res.data.token);
     } catch (error) {
+      console.log("Failed to load Friend");
+    }
+  };
+};
+
+export const createRoom = data => {
+  return async dispatch => {
+    try {
+      const res = await axios.post("/chats/createRoom", data);
+      localStorage.setItem("JWT_TOKEN", res.data.token);
+    } catch (error) {
       dispatch({
-        type: AUTH_ERROR,
-        payload: "Failed to load Friend"
+        type: ROOM_ERROR,
+        payload: "Failed to create Room"
       });
+    }
+  };
+};
+
+export const loadRoom = data => {
+  return async dispatch => {
+    try {
+      const res = await axios.post("/chats/loadAllRoom", data);
+
+      dispatch({
+        type: CREATE_ROOM,
+        payload: res.data.room
+      });
+      localStorage.setItem("JWT_TOKEN", res.data.token);
+    } catch (error) {
+      dispatch({
+        type: ROOM_ERROR,
+        payload: "Failed to load Room"
+      });
+    }
+  };
+};
+
+export const loadAllChat = data => {
+  return async dispatch => {
+    try {
+      const res = await axios.post("/chats/loadAllChat", data);
+      dispatch({
+        type: LOAD_ALL_CHAT,
+        payload: res.data.chat
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+};
+
+export const updateChatReadStatus = data => {
+  return async dispatch => {
+    try {
+      console.log(data);
+    } catch (error) {
+      console.log(error);
     }
   };
 };

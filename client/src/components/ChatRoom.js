@@ -1,58 +1,350 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useReducer } from "react";
 import Avatar from "./CustomAvatar";
 import { useForm } from "react-hook-form";
 
+import axios from "../instance";
 import "../css/ChatRoom.css";
+
+const initialState = {
+  chat: []
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "LOAD":
+      return { ...state, chat: action.payload };
+    default:
+      return state;
+  }
+};
+
 const ChatRoom = props => {
-  const [visible, setVisible] = useState(false);
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const [visible, setVisible] = useState(true);
+  const [chatContainer, setChatContainer] = useState([]);
 
   const { handleSubmit, register } = useForm();
-  const { displayName, chat, onSubmit } = props;
+  const height = useRef(0);
+  const count = useRef(0);
+  const ctrl = useRef(false);
+  const {
+    displayName,
+    room_id,
+    status,
+    friend_id,
+    user,
+    socket,
+    unreadMessage,
+    user_id
+  } = props;
   const prevScrollY = useRef(0);
 
+  const setStatetoChatContainer = () => {
+    let arr = [];
+    state.chat.map(data => {
+      arr.push(data);
+    });
+    setChatContainer(arr);
+  };
+
+  const loadChat = async () => {
+    const data = {
+      room_id,
+      user
+    };
+    const res = await axios.post("/chats/loadAllChat", data);
+    dispatch({
+      type: "LOAD",
+      payload: res.data.chat
+    });
+  };
+
+  const dateSeperator = date => {
+    date = date.split(",");
+
+    const now = new Date();
+    const arrMonth = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "Desember"
+    ];
+    const arrDay = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ];
+    if (
+      Number.parseInt(date[1]) === now.getDate() &&
+      Number.parseInt(date[2]) === now.getMonth() + 1 &&
+      Number.parseInt(date[3]) === now.getFullYear()
+    ) {
+      return "Today";
+    } else {
+      return `${arrDay[date[0]]}, ${date[1]} ${arrMonth[date[2] - 1]} ${
+        date[3]
+      }`;
+    }
+  };
+
+  const onSubmit2 = e => {
+    const messagebar = document.getElementById("message-bar");
+    const restrictedKey = {
+      91: true, //Win Key
+      92: true, //Win Key
+      93: true, //Context Menu
+      144: true, //Num Lock
+      145: true, //Scroll Lock
+      112: true, //F1
+      113: true, //F2
+      114: true, //F3
+      115: true, //F4
+      116: true, //F5
+      117: true, //F6
+      118: true, //F7
+      119: true, //F8
+      120: true, //F9
+      121: true, //F10
+      122: true, //F11
+      123: true //F12
+    };
+    if (e.keyCode === 13 && e.shiftKey) {
+      setVisible(false);
+      count.current++;
+      height.current = messagebar.offsetHeight;
+      if (messagebar.offsetHeight > 20) {
+        height.current = messagebar.offsetHeight;
+      }
+    } else if (e.keyCode === 13) {
+      e.preventDefault();
+      if (messagebar.innerHTML !== "") {
+        let date = new Date(Date.now());
+        let message = messagebar.innerHTML;
+        let arr = chatContainer;
+        let data = {
+          room_id: room_id,
+          chat: message,
+          sender_id: user_id,
+          time: date,
+          status: "unread"
+        };
+        arr.push(data);
+        setChatContainer(arr);
+        messagebar.innerHTML = "";
+        setVisible(true);
+      }
+    } else if (e.ctrlKey && e.keyCode === 65) {
+      ctrl.current = true;
+    } else if (e.keyCode === 8) {
+      console.log("height", height.current, messagebar.offsetHeight);
+      console.log("length", messagebar.innerHTML.length - 1);
+      console.log("count", count.current);
+      if (ctrl.current) {
+        setVisible(true);
+        count.current = 0;
+        ctrl.current = false;
+        return;
+      }
+
+      if (height.current > 20) {
+        if (
+          height.current === 40 &&
+          messagebar.offsetHeight === 20 &&
+          messagebar.innerHTML.length - 1 > 0
+        ) {
+          setVisible(false);
+        } else if (messagebar.innerHTML.length - 1 > 1) {
+          console.log("NOT VISIBLE");
+          setVisible(false);
+        } else {
+          height.current = messagebar.offsetHeight;
+          setVisible(true);
+          count.current = 0;
+        }
+      } else if (height.current === 0 || height.current === 20) {
+        if (
+          height.current === 20 &&
+          messagebar.offsetHeight === 40 &&
+          messagebar.innerHTML.length - 1 > 0
+        ) {
+          setVisible(false);
+        } else if (height.current === 20 && messagebar.offsetHeight === 40) {
+          setVisible(true);
+          count.current = 0;
+        } else if (
+          height.current === 20 &&
+          messagebar.offsetHeight === 20 &&
+          count.current === 1 &&
+          messagebar.innerHTML.length - 1 === 1
+        ) {
+          setVisible(true);
+          count.current = 0;
+        } else if (messagebar.innerHTML.length - 1 > 0) {
+          console.log("ASDe");
+          setVisible(false);
+        } else {
+          console.log("ASD");
+          setVisible(true);
+          count.current = 0;
+        }
+      }
+    } else if (messagebar.innerHTML.length - 1 > 0) {
+      setVisible(false);
+    } else if (e.keyCode >= 48 && restrictedKey[e.keyCode] === undefined) {
+      setVisible(false);
+    }
+  };
+  const tConvert = time => {
+    // Check correct time format and split into components
+    time = time.toString().match(/^([01]\d|2[0-3])(:)([0-5]\d)?$/) || [time];
+
+    if (time.length > 1) {
+      // If time format correct
+      time = time.slice(1); // Remove full string match value
+      time[5] = +time[0] < 12 ? " AM" : " PM"; // Set AM/PM
+      time[0] = +time[0] % 12 || 12; // Adjust hours
+    }
+    return time.join(""); // return adjusted time or original string
+  };
+
+  const onSubmit = e => {
+    socket.emit("SEND_MESSAGE", {
+      message: e.message,
+      status: "out"
+    });
+    document.getElementById("message-bar").value = "";
+  };
+
   const renderAllChat = () => {
-    let currentStatus;
-    let changeStatus = false;
-    return chat.map((item, index) => {
-      if (currentStatus === item.status && changeStatus !== undefined) {
+    let currentStatus,
+      newMessageStatus = true;
+    let changeStatus = true;
+    let datestatus,
+      changeDate = false;
+    return chatContainer.map((item, index) => {
+      if (item.sender_id === currentStatus && changeStatus !== undefined) {
         changeStatus = false;
       } else {
         changeStatus = true;
       }
 
-      if (item.status === "in") {
-        currentStatus = "in";
-        return ChatInComp(item.message, index, changeStatus);
+      const temp = new Date(item.time);
+      var chatTime = `${temp.getHours()}:${temp.getMinutes()}`;
+      var chatDate = `${temp.getDay()},${temp.getDate()},${temp.getMonth() +
+        1},${temp.getFullYear()}`;
+
+      if (index === 0) {
+        datestatus = chatDate;
+        changeDate = true;
+      } else if (datestatus !== chatDate) {
+        datestatus = chatDate;
+        changeDate = true;
+      } else if (datestatus === chatDate) {
+        datestatus = chatDate;
+        changeDate = false;
+      }
+      if (item.sender_id !== user._id) {
+        currentStatus = item.sender_id;
+        return (
+          <div key={index}>
+            {changeDate ? (
+              <div className="chatroom-date-sep m-wrapper">
+                <div className="inner-date-sep">
+                  <span>{dateSeperator(chatDate)}</span>
+                </div>
+              </div>
+            ) : null}
+            {unreadMessage > 0 ? (
+              newMessageStatus ? (
+                <div className="unread-notif">
+                  {(newMessageStatus = false)}
+                  <span>{unreadMessage} UNREAD MESSAGES</span>
+                </div>
+              ) : null
+            ) : null}
+            {ChatInComp(item.chat, index, changeStatus, chatTime)}
+          </div>
+        );
       } else {
-        currentStatus = "out";
-        return ChatOutComp(item.message, index, changeStatus);
+        currentStatus = item.sender_id;
+        return (
+          <div key={index}>
+            {changeDate ? (
+              <div className="chatroom-date-sep m-wrapper">
+                <div className="inner-date-sep">
+                  <span>{dateSeperator(chatDate)}</span>
+                </div>
+              </div>
+            ) : null}
+            {ChatOutComp(item.chat, index, changeStatus, chatTime)}
+          </div>
+        );
       }
     });
   };
 
-  const ChatInComp = (item, index, status) => {
+  const ChatInComp = (item, index, status, time) => {
     return (
       <div
         key={index}
         className="comp-messageIn m-wrapper"
         style={status ? { marginTop: "5px" } : null}
       >
-        <div className="inner-m-wrapper">
-          <span className="messageIn">{item}</span>
+        <div
+          className={
+            !status
+              ? "inner-m-wrapper selectable-text "
+              : "inner-m-wrapper selectable-text tail"
+          }
+        >
+          <span className="messageIn">
+            <span>{item}</span>
+          </span>
+        </div>
+        <div className="time-wrapper">
+          <span className="time">
+            <span>{tConvert(time)}</span>
+          </span>
         </div>
       </div>
     );
   };
 
-  const ChatOutComp = (item, index, status) => {
+  const ChatOutComp = (item, index, status, time, read) => {
     return (
       <div
         key={index}
         className="comp-messageOut m-wrapper"
         style={status ? { marginTop: "5px" } : null}
       >
-        <div className="inner-m-wrapper">
-          <span className="messageOut">{item}</span>
+        <div className="time-wrapper">
+          <span className="time">
+            <span>{tConvert(time)}</span>
+          </span>
+        </div>
+        <div
+          className={
+            !status
+              ? "inner-m-wrapper selectable-text "
+              : "inner-m-wrapper selectable-text tail"
+          }
+        >
+          <span className="messageOut">
+            <span>{item}</span>
+          </span>
         </div>
       </div>
     );
@@ -65,7 +357,14 @@ const ChatRoom = props => {
 
   useEffect(() => {
     scrollBottom();
+    loadChat();
   }, []);
+
+  useEffect(() => {
+    if (state.chat.length > 0) {
+      setStatetoChatContainer();
+    }
+  }, [state]);
 
   return (
     <div className="chat-room">
@@ -90,11 +389,22 @@ const ChatRoom = props => {
         </div>
       </div>
       <div className="main-chat-room">
+        {status === "off" ? (
+          <div className="alert-status-wrapper">
+            <div className="inner-alert-status">
+              <div className="action-btn">
+                <button>ADD</button>
+                <div className="line"></div>
+                <button>BLOCK</button>
+              </div>
+            </div>
+          </div>
+        ) : null}
         <div className="chat-display-wrapper" id="chat-window">
           {renderAllChat()}
         </div>
       </div>
-      <div className="footer">
+      <footer className="footer">
         <div className="footer-wrapper">
           <div className="icon-wrapper">
             <svg
@@ -113,18 +423,33 @@ const ChatRoom = props => {
               ></path>
             </svg>
           </div>
-          <div className="input-message-bar">
-            <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
-              <input
+          <div tabIndex="-1" className="input-message-bar">
+            <div
+              // onSubmit={handleSubmit(onSubmit)}
+              className="inner-input-message"
+              onKeyDown={onSubmit2}
+              tabIndex="-1"
+            >
+              <div
+                className="placeholder"
+                style={
+                  visible ? { visibility: visible } : { visibility: "hidden" }
+                }
+              >
+                Type a message
+              </div>
+              <div
                 type="text"
                 name="message"
-                className="form-control"
+                className="input-bar"
                 id="message-bar"
                 placeholder="Type a message"
                 autoComplete="off"
-                ref={register}
-              />
-            </form>
+                contentEditable={true}
+                dir="ltr"
+                spellCheck="true"
+              ></div>
+            </div>
           </div>
           <div className="icon-wrapper">
             <button onClick={handleSubmit(onSubmit)}>
@@ -146,7 +471,7 @@ const ChatRoom = props => {
             </button>
           </div>
         </div>
-      </div>
+      </footer>
     </div>
   );
 };

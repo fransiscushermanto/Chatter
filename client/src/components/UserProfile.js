@@ -4,7 +4,7 @@ import { useLocation, Link } from "react-router-dom";
 import Avatar from "./CustomAvatar";
 
 import "../css/UserProfile.css";
-const UserProfile = ({ profile, onClick, checkFriend }) => {
+const UserProfile = ({ profile, onClick, checkFriend, createChatRoom }) => {
   let query = new URLSearchParams(useLocation().search);
   const displayName = query.get("name") === "You" ? profile : query.get("name");
 
@@ -32,7 +32,10 @@ const UserProfile = ({ profile, onClick, checkFriend }) => {
             </div>
             {query.get("name") !== "You" ? (
               <div className="btnaction-wrapper">
-                <button className="start-chat">
+                <button
+                  className="start-chat"
+                  onClick={() => createChatRoom(profile)}
+                >
                   <svg
                     aria-hidden="true"
                     focusable="false"
@@ -56,7 +59,7 @@ const UserProfile = ({ profile, onClick, checkFriend }) => {
                     focusable="false"
                     data-prefix="fas"
                     data-icon="ban"
-                    class="svg-inline--fa fa-ban fa-w-16"
+                    className="svg-inline--fa fa-ban fa-w-16"
                     role="img"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 512 512"

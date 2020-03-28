@@ -26,7 +26,7 @@
   -ms-flex-wrap: nowrap;
   flex-wrap: nowrap;
 
-  padding: 0px 90px;
+  padding: 0px 65px;
 }
 
 .main-wrapper .wrapper .row .sider {
@@ -111,6 +111,7 @@
 .sider .pane-side {
   overflow-y: auto;
   width: 100%;
+  overflow-x: hidden;
 }
 
 .sider .pane-side .inner-pane-side {
@@ -145,7 +146,7 @@
   border: none;
   border-top: 1px solid var(--thin-black-background);
 
-  padding: 19px 10px;
+  padding: 16px 10px;
 }
 
 .sider .taskbar-side .inner-taskbar .taskbar-btn:nth-child(1) {
@@ -209,10 +210,6 @@
     -ms-flex: 35%;
     flex: 35%;
   }
-
-  .cxroom .display-chat .chat-item {
-    max-width: 250px;
-  }
 }
 
 @media screen and (max-width: 1024px) and (min-width: 901px) {
@@ -226,67 +223,25 @@
     -ms-flex: 35%;
     flex: 35%;
   }
-  .cxroom .display-chat .chat-item {
-    max-width: 250px;
-  }
-}
-
-@media screen and (max-width: 900px) {
-  .main-wrapper .wrapper .row .main-page {
-    -webkit-box-flex: 60%;
-    -ms-flex: 60%;
-    flex: 60%;
-  }
-  .main-wrapper .wrapper .row .sider {
-    -webkit-box-flex: 40%;
-    -ms-flex: 40%;
-    flex: 40%;
-
-    min-width: 321px;
-  }
-  .cxroom .display-chat .chat-item {
-    max-width: 230px;
-  }
 }
 
 @media (max-width: 1441px) {
   .main-wrapper .wrapper .row {
     padding: 0px !important;
-    overflow-x: scroll;
   }
 }
 
 @media screen and (max-width: 648px) {
   .main-wrapper .wrapper .row {
     padding: 0px !important;
+    overflow-x: scroll;
   }
 
   .sider .search-bar {
     padding: 15px 8px;
   }
 
-  .cxroom .display-chat .chat-item {
-    max-width: 190px;
-  }
-
   .main-wrapper .wrapper .row .main-page {
     min-width: 382px;
-  }
-
-  .chat-room .header .header-wrapper .inner-header-displayInfo {
-    padding: 0px;
-  }
-
-  .chat-room
-    .header
-    .header-wrapper
-    .inner-header-displayInfo
-    .displayName-wrapper,
-  .chat-room
-    .header
-    .header-wrapper
-    .inner-header-displayInfo
-    .displayStatus-wrapper {
-    max-width: 190px;
   }
 }

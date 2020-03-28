@@ -18,7 +18,9 @@ io.on("connection", socket => {
     io.emit("LOAD_FRIEND");
   });
 
-  socket.on("join", ({ name, room }, callback) => {});
+  socket.on("JOIN_ROOM", ({ name, room }, callback) => {
+    io.emit("LOAD_ROOM");
+  });
 });
 
 http.listen(port, () => {
