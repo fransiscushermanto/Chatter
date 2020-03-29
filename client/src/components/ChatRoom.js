@@ -377,7 +377,9 @@ const ChatRoom = props => {
       var arr = chatContainer;
       arr.push(message.data);
       setChatContainer(arr);
+      console.log("CLICK");
     });
+    console.log(chatContainer);
   }, [chatContainer]);
 
   return (
