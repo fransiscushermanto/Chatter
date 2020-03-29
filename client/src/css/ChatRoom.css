@@ -44,6 +44,12 @@
   padding: 0px 10px;
 }
 
+.chat-room .header .alert-status-wrapper {
+  width: 100%;
+  height: auto;
+  margin: 12px 0px 0px 0px;
+}
+
 .inner-header-displayInfo .displayStatus-wrapper {
   font-weight: 200;
 }
@@ -61,11 +67,6 @@
   height: 100%;
   overflow: hidden;
   order: 2;
-}
-
-.chat-room .main-chat-room .alert-status-wrapper {
-  width: 100%;
-  height: auto;
 }
 
 .alert-status-wrapper .inner-alert-status {

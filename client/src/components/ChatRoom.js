@@ -403,8 +403,6 @@ const ChatRoom = props => {
             <span>btn</span>
           </div>
         </div>
-      </div>
-      <div className="main-chat-room">
         {status === "off" ? (
           <div className="alert-status-wrapper">
             <div className="inner-alert-status">
@@ -416,6 +414,8 @@ const ChatRoom = props => {
             </div>
           </div>
         ) : null}
+      </div>
+      <div className="main-chat-room">
         <div className="chat-display-wrapper" id="chat-window">
           {renderAllChat()}
         </div>
