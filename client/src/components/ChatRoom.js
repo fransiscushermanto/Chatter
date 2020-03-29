@@ -373,13 +373,11 @@ const ChatRoom = props => {
   }, [state]);
 
   useEffect(() => {
-    if (chatContainer.length > 0) {
-      socket.on("RECEIVE_MESSAGE", message => {
-        var arr = chatContainer;
-        arr.push(message.data);
-        setChatContainer(arr);
-      });
-    }
+    socket.on("RECEIVE_MESSAGE", message => {
+      var arr = chatContainer;
+      arr.push(message.data);
+      setChatContainer(arr);
+    });
   }, [chatContainer]);
 
   return (
