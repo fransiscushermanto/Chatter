@@ -372,15 +372,9 @@ const ChatRoom = props => {
     }
   }, [state]);
 
-  useEffect(() => {
-    socket.on("RECEIVE_MESSAGE", message => {
-      var arr = chatContainer;
-      arr.push(message.data);
-      setChatContainer(arr);
-      console.log("CLICK");
-    });
-    console.log(chatContainer);
-  }, [chatContainer]);
+  socket.on("RECEIVE_MESSAGE", message => {
+    setChatContainer([...chatContainer, message.data]);
+  });
 
   return (
     <div className="chat-room">
