@@ -12,7 +12,9 @@ const FriendDisplay = ({ displayName, data, onClick }) => {
       className="cxroom"
       onClick={() => onClick(data)}
     >
-      <Avatar size="40px" displayName={displayName} />
+      <div className="avatar-wrapper">
+        <Avatar size="40px" displayName={displayName} />
+      </div>
       <div className="displayer">
         <div className="display-name">
           <div className="inner-displayName">

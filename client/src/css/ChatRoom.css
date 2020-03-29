@@ -237,6 +237,7 @@
 .time-wrapper {
   width: auto;
   height: auto;
+  padding-bottom: 1px;
 }
 
 .comp-messageIn .time-wrapper .time {
@@ -245,6 +246,10 @@
 
 .comp-messageOut .time-wrapper .time {
   margin-right: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
 }
 
 .time-wrapper .time span {

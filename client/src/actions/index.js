@@ -233,6 +233,7 @@ export const createRoom = data => {
   return async dispatch => {
     try {
       const res = await axios.post("/chats/createRoom", data);
+      console.log(res);
       localStorage.setItem("JWT_TOKEN", res.data.token);
     } catch (error) {
       dispatch({
@@ -270,6 +271,7 @@ export const loadAllChat = data => {
         type: LOAD_ALL_CHAT,
         payload: res.data.chat
       });
+      localStorage.setItem("JWT_TOKEN", res.data.token);
     } catch (error) {
       console.log(error);
     }

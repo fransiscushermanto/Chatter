@@ -10,16 +10,16 @@ io.on("connection", socket => {
     console.log("Disconnected");
   });
 
-  socket.on("SEND_MESSAGE", data => {
-    io.emit("RECEIVE_MESSAGE", data);
+  socket.on("SEND_MESSAGE", ({ room, data }, callback) => {
+    io.to(room).emit("RECEIVE_MESSAGE", { data });
   });
 
   socket.on("GET_FRIEND", () => {
     io.emit("LOAD_FRIEND");
   });
 
-  socket.on("JOIN_ROOM", ({ name, room }, callback) => {
-    io.emit("LOAD_ROOM");
+  socket.on("JOIN_ROOM", ({ room }, callback) => {
+    socket.join(room);
   });
 });
 

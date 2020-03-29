@@ -38,6 +38,7 @@ const Home = props => {
   const [chatHistory, setChatHistory] = useState([]);
   const [chatItem, setChatItem] = useState({
     friendName: "",
+    userName: "",
     room_id: "",
     status: "",
     friend_id: "",
@@ -106,8 +107,9 @@ const Home = props => {
             chat: data.lastchat.chat,
             time: data.lastchat.time,
             status: data.status,
-            friend_id: data._id,
-            read: data.lastchat.status
+            friend_id: data.friend_id,
+            read: data.lastchat.status,
+            userName: profileName
           });
         } else if (user.length === 1) {
           chats.push({
@@ -117,7 +119,8 @@ const Home = props => {
             time: data.lastchat.time,
             status: data.status,
             friend_id: data.user_id,
-            read: data.lastchat.status
+            read: data.lastchat.status,
+            userName: profileName
           });
         }
       });
@@ -135,7 +138,8 @@ const Home = props => {
       room_id: e.room_id,
       status: e.status,
       friend_id: e.friend_id,
-      unreadMessage: e.unreadMessage
+      unreadMessage: e.unreadMessage,
+      userName: e.userName
     };
     setChatItem(data);
     setShowChatRoom(!showChatRoom);
@@ -420,16 +424,6 @@ const Home = props => {
     search();
   }, [searchValue]);
 
-  //UPDATE RECEIVED MESSAGE
-  useEffect(() => {
-    socketRef.current.on("RECEIVE_MESSAGE", data => {
-      setChatItem({
-        ...chatItem,
-        chat: [...chatItem.chat, data]
-      });
-    });
-  }, [chatItem]);
-
   //FIRST RENDER LOAD ALL
   useEffect(() => {
     document.getElementsByClassName("app-wrapper")[0].style.cssText =
@@ -457,6 +451,9 @@ const Home = props => {
       }
 
       setProfileName(fullname);
+      socketRef.current.on("RECEIVE_MESSAGE", () => {
+        loadAllChat();
+      });
     }
   }, [dataUser]);
 
@@ -590,6 +587,7 @@ const Home = props => {
                 user={dataUser}
                 unreadMessage={chatItem.unreadMessage}
                 socket={socket}
+                userName={chatItem.userName}
               />
             ) : null}
           </div>

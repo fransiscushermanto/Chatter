@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState, useReducer } from "react";
 import Avatar from "./CustomAvatar";
-import { useForm } from "react-hook-form";
 
 import axios from "../instance";
 import "../css/ChatRoom.css";
@@ -24,7 +23,6 @@ const ChatRoom = props => {
   const [visible, setVisible] = useState(true);
   const [chatContainer, setChatContainer] = useState([]);
 
-  const { handleSubmit, register } = useForm();
   const height = useRef(0);
   const count = useRef(0);
   const ctrl = useRef(false);
@@ -36,7 +34,8 @@ const ChatRoom = props => {
     user,
     socket,
     unreadMessage,
-    user_id
+    user_id,
+    userName
   } = props;
   const prevScrollY = useRef(0);
 
@@ -58,6 +57,12 @@ const ChatRoom = props => {
       type: "LOAD",
       payload: res.data.chat
     });
+    localStorage.setItem("JWT_TOKEN", res.data.token);
+  };
+
+  const sendChat = async data => {
+    const res = await axios.post("/chats/sendChat", data);
+    localStorage.setItem("JWT_TOKEN", res.data.token);
   };
 
   const dateSeperator = date => {
@@ -100,7 +105,7 @@ const ChatRoom = props => {
     }
   };
 
-  const onSubmit2 = e => {
+  const onSendChat = e => {
     const messagebar = document.getElementById("message-bar");
     const restrictedKey = {
       91: true, //Win Key
@@ -128,21 +133,22 @@ const ChatRoom = props => {
       if (messagebar.offsetHeight > 20) {
         height.current = messagebar.offsetHeight;
       }
-    } else if (e.keyCode === 13) {
+    } else if (e.keyCode === 13 || e.keyCode === undefined) {
       e.preventDefault();
       if (messagebar.innerHTML !== "") {
         let date = new Date(Date.now());
         let message = messagebar.innerHTML;
-        let arr = chatContainer;
         let data = {
           room_id: room_id,
           chat: message,
           sender_id: user_id,
           time: date,
-          status: "unread"
+          status: "unread",
+          user: user,
+          friend_id: friend_id
         };
-        arr.push(data);
-        setChatContainer(arr);
+        sendChat(data);
+        socket.emit("SEND_MESSAGE", { room: room_id, data });
         messagebar.innerHTML = "";
         setVisible(true);
       }
@@ -220,14 +226,6 @@ const ChatRoom = props => {
     return time.join(""); // return adjusted time or original string
   };
 
-  const onSubmit = e => {
-    socket.emit("SEND_MESSAGE", {
-      message: e.message,
-      status: "out"
-    });
-    document.getElementById("message-bar").value = "";
-  };
-
   const renderAllChat = () => {
     let currentStatus,
       newMessageStatus = true;
@@ -242,7 +240,9 @@ const ChatRoom = props => {
       }
 
       const temp = new Date(item.time);
-      var chatTime = `${temp.getHours()}:${temp.getMinutes()}`;
+      var chatTime = `${temp.getHours()}:${
+        temp.getMinutes().toString().length > 1 ? "" : 0
+      }${temp.getMinutes()}`;
       var chatDate = `${temp.getDay()},${temp.getDate()},${temp.getMonth() +
         1},${temp.getFullYear()}`;
 
@@ -289,7 +289,7 @@ const ChatRoom = props => {
                 </div>
               </div>
             ) : null}
-            {ChatOutComp(item.chat, index, changeStatus, chatTime)}
+            {ChatOutComp(item.chat, index, changeStatus, chatTime, item.status)}
           </div>
         );
       }
@@ -332,6 +332,7 @@ const ChatRoom = props => {
       >
         <div className="time-wrapper">
           <span className="time">
+            <span>{read === "read" ? "Read" : ""}</span>
             <span>{tConvert(time)}</span>
           </span>
         </div>
@@ -358,6 +359,11 @@ const ChatRoom = props => {
   useEffect(() => {
     scrollBottom();
     loadChat();
+    socket.emit("JOIN_ROOM", { room: room_id });
+    return () => {
+      socket.emit("disconnect");
+      socket.off();
+    };
   }, []);
 
   useEffect(() => {
@@ -365,6 +371,16 @@ const ChatRoom = props => {
       setStatetoChatContainer();
     }
   }, [state]);
+
+  useEffect(() => {
+    if (chatContainer.length > 0) {
+      socket.on("RECEIVE_MESSAGE", message => {
+        var arr = chatContainer;
+        arr.push(message.data);
+        setChatContainer(arr);
+      });
+    }
+  }, [chatContainer]);
 
   return (
     <div className="chat-room">
@@ -425,9 +441,8 @@ const ChatRoom = props => {
           </div>
           <div tabIndex="-1" className="input-message-bar">
             <div
-              // onSubmit={handleSubmit(onSubmit)}
               className="inner-input-message"
-              onKeyDown={onSubmit2}
+              onKeyDown={onSendChat}
               tabIndex="-1"
             >
               <div
@@ -452,7 +467,7 @@ const ChatRoom = props => {
             </div>
           </div>
           <div className="icon-wrapper">
-            <button onClick={handleSubmit(onSubmit)}>
+            <button onClick={onSendChat}>
               <svg
                 aria-hidden="true"
                 focusable="false"

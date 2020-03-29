@@ -89,19 +89,14 @@ module.exports = {
     return res.status(200).send({ token, room: allRoom });
   },
   sendChat: async (req, res, next) => {
-    // const {room_id, sender_id, chat} = req.body;
-
-    var chat = "Halo Sam";
-    var sender_id = "5e7493a5e11cf361384ebfc9";
-    var room_id = "116c78d6430dd94d622c4f081acf0e7d";
-    var time = Date.now();
+    const { room_id, sender_id, chat, time, status } = req.body;
 
     const newChat = new ChatHistory({
       room_id: room_id,
       chat: chat,
       sender_id: sender_id,
       time: time,
-      status: "unread"
+      status: status
     });
 
     await ChatRoom.updateMany(
@@ -113,7 +108,7 @@ module.exports = {
           sender_id: sender_id,
           chat: chat,
           time: time,
-          status: "unread"
+          status: status
         }
       }
     );

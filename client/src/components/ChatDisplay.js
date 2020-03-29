@@ -51,7 +51,6 @@ const ChatDisplay = props => {
 
   useEffect(() => {
     data["unreadMessage"] = unreadMessage[room_id];
-    console.log(unreadMessage);
   }, [unreadMessage]);
 
   return (

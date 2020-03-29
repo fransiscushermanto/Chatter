@@ -62,6 +62,15 @@ module.exports = {
     getChat: Joi.object().keys({
       room_id: Joi.string().required(),
       user: Joi.object().required()
+    }),
+    sendChat: Joi.object().keys({
+      room_id: Joi.string().required(),
+      chat: Joi.string().required(),
+      sender_id: Joi.string().required(),
+      time: Joi.string().required(),
+      status: Joi.string().required(),
+      user: Joi.object().required(),
+      friend_id: Joi.string().required()
     })
   }
 };

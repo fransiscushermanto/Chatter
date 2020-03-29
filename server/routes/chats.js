@@ -15,7 +15,9 @@ router
     ChatController.createRoom
   );
 
-router.route("/sendChat").post(ChatController.sendChat);
+router
+  .route("/sendChat")
+  .post(validateBody(schemas.sendChat), passportJWT, ChatController.sendChat);
 
 router
   .route("/loadAllRoom")
