@@ -53,6 +53,10 @@ const ChatDisplay = props => {
     data["unreadMessage"] = unreadMessage[room_id];
   }, [unreadMessage]);
 
+  useEffect(() => {
+    console.log(data);
+  }, []);
+
   return (
     <div className="cxroom" onClick={() => onClick(data)}>
       <div className="avatar-wrapper">
