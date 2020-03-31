@@ -12,6 +12,7 @@ export default OriginalComponent => {
     const authType = useSelector(state => state.auth.authType);
 
     useEffect(() => {
+      console.log(localStorage.getItem("JWT_TOKEN"));
       const checkAuth = async () => {
         console.log("Checking");
         console.log(jwtToken);

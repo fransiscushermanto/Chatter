@@ -3,6 +3,11 @@ const User = require("../models/user");
 const Friend = require("../models/friend");
 
 signToken = user => {
+  console.log(user);
+  if (!user) {
+    return null;
+  }
+
   return JWT.sign(
     {
       sub: user,
