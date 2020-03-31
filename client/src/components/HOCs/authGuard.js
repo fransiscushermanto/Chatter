@@ -14,6 +14,7 @@ export default OriginalComponent => {
     useEffect(() => {
       const checkAuth = async () => {
         console.log("Checking");
+        console.log(jwtToken);
         if (isAuth && jwtToken) {
           if (
             localStorage.getItem("AUTH_TYPE") === "" ||

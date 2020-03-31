@@ -11,6 +11,7 @@ io.on("connection", socket => {
   });
 
   socket.on("SEND_MESSAGE", ({ room, data }, callback) => {
+    console.log(room);
     io.to(room).emit("RECEIVE_MESSAGE", { data });
   });
 
@@ -19,6 +20,7 @@ io.on("connection", socket => {
   });
 
   socket.on("JOIN_ROOM", ({ room }, callback) => {
+    console.log(room);
     socket.join(room);
   });
 });
