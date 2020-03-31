@@ -93,12 +93,15 @@ const Home = props => {
         arr = [];
       chatList.map(data => {
         arr[data.room_id] = 0;
+        console.log(data.friend_id);
         const friend = friendList.filter(friend =>
           friend._id.includes(data.friend_id)
         );
+        console.log(friend);
         const user = userList.filter(user =>
           user.user_id.includes(data.friend_id)
         );
+        console.log(user);
         if (friend.length === 1) {
           chats.push({
             room_id: data.room_id,
@@ -123,6 +126,7 @@ const Home = props => {
           });
         }
       });
+      console.log(chats);
       handleUnreadMessage(arr);
       setChatHistory(chats);
     }
