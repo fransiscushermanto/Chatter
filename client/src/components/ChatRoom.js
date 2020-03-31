@@ -233,65 +233,73 @@ const ChatRoom = props => {
     let datestatus,
       changeDate = false;
     return chatContainer.map((item, index) => {
-      if (item.sender_id === currentStatus && changeStatus !== undefined) {
-        changeStatus = false;
-      } else {
-        changeStatus = true;
-      }
+      if (item.sender_id === friend_id || item.sender_id === user_id) {
+        if (item.sender_id === currentStatus && changeStatus !== undefined) {
+          changeStatus = false;
+        } else {
+          changeStatus = true;
+        }
 
-      const temp = new Date(item.time);
-      var chatTime = `${temp.getHours()}:${
-        temp.getMinutes().toString().length > 1 ? "" : 0
-      }${temp.getMinutes()}`;
-      var chatDate = `${temp.getDay()},${temp.getDate()},${temp.getMonth() +
-        1},${temp.getFullYear()}`;
+        const temp = new Date(item.time);
+        var chatTime = `${temp.getHours()}:${
+          temp.getMinutes().toString().length > 1 ? "" : 0
+        }${temp.getMinutes()}`;
+        var chatDate = `${temp.getDay()},${temp.getDate()},${temp.getMonth() +
+          1},${temp.getFullYear()}`;
 
-      if (index === 0) {
-        datestatus = chatDate;
-        changeDate = true;
-      } else if (datestatus !== chatDate) {
-        datestatus = chatDate;
-        changeDate = true;
-      } else if (datestatus === chatDate) {
-        datestatus = chatDate;
-        changeDate = false;
-      }
-      if (item.sender_id !== user._id) {
-        currentStatus = item.sender_id;
-        return (
-          <div key={index}>
-            {changeDate ? (
-              <div className="chatroom-date-sep m-wrapper">
-                <div className="inner-date-sep">
-                  <span>{dateSeperator(chatDate)}</span>
+        if (index === 0) {
+          datestatus = chatDate;
+          changeDate = true;
+        } else if (datestatus !== chatDate) {
+          datestatus = chatDate;
+          changeDate = true;
+        } else if (datestatus === chatDate) {
+          datestatus = chatDate;
+          changeDate = false;
+        }
+        if (item.sender_id !== user._id) {
+          currentStatus = item.sender_id;
+          return (
+            <div key={index}>
+              {changeDate ? (
+                <div className="chatroom-date-sep m-wrapper">
+                  <div className="inner-date-sep">
+                    <span>{dateSeperator(chatDate)}</span>
+                  </div>
                 </div>
-              </div>
-            ) : null}
-            {unreadMessage > 0 ? (
-              newMessageStatus ? (
-                <div className="unread-notif">
-                  {(newMessageStatus = false)}
-                  <span>{unreadMessage} UNREAD MESSAGES</span>
+              ) : null}
+              {unreadMessage > 0 ? (
+                newMessageStatus ? (
+                  <div className="unread-notif">
+                    {(newMessageStatus = false)}
+                    <span>{unreadMessage} UNREAD MESSAGES</span>
+                  </div>
+                ) : null
+              ) : null}
+              {ChatInComp(item.chat, index, changeStatus, chatTime)}
+            </div>
+          );
+        } else {
+          currentStatus = item.sender_id;
+          return (
+            <div key={index}>
+              {changeDate ? (
+                <div className="chatroom-date-sep m-wrapper">
+                  <div className="inner-date-sep">
+                    <span>{dateSeperator(chatDate)}</span>
+                  </div>
                 </div>
-              ) : null
-            ) : null}
-            {ChatInComp(item.chat, index, changeStatus, chatTime)}
-          </div>
-        );
-      } else {
-        currentStatus = item.sender_id;
-        return (
-          <div key={index}>
-            {changeDate ? (
-              <div className="chatroom-date-sep m-wrapper">
-                <div className="inner-date-sep">
-                  <span>{dateSeperator(chatDate)}</span>
-                </div>
-              </div>
-            ) : null}
-            {ChatOutComp(item.chat, index, changeStatus, chatTime, item.status)}
-          </div>
-        );
+              ) : null}
+              {ChatOutComp(
+                item.chat,
+                index,
+                changeStatus,
+                chatTime,
+                item.status
+              )}
+            </div>
+          );
+        }
       }
     });
   };
