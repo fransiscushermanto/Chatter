@@ -48,7 +48,6 @@ const Home = props => {
 
   const currentChatData = useRef();
   const socketRef = useRef();
-
   //CONNECT SOCKET.IO-ClIENT
   useEffect(() => {
     socketRef.current = io.connect(socketUrl);
@@ -455,6 +454,7 @@ const Home = props => {
         loadAllChat();
       });
     }
+    console.log(dataUser);
   }, [dataUser]);
 
   //SHOWCHAT ROOM STATE HANDLER
