@@ -94,6 +94,7 @@ const Home = props => {
       chatList.map(data => {
         arr[data.room_id] = 0;
         console.log(data.friend_id);
+        console.log(data);
         const friend = friendList.filter(friend =>
           friend._id.includes(data.friend_id)
         );
@@ -101,7 +102,7 @@ const Home = props => {
         const user = userList.filter(user =>
           user.user_id.includes(data.friend_id)
         );
-        console.log(user);
+        console.log(friend);
         if (friend.length === 1) {
           chats.push({
             room_id: data.room_id,
@@ -120,7 +121,7 @@ const Home = props => {
             chat: data.lastchat.chat,
             time: data.lastchat.time,
             status: data.status,
-            friend_id: data.user_id,
+            friend_id: data.friend_id,
             read: data.lastchat.status,
             userName: profileName
           });
