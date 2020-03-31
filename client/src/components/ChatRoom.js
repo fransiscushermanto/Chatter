@@ -233,6 +233,9 @@ const ChatRoom = props => {
     let datestatus,
       changeDate = false;
     return chatContainer.map((item, index) => {
+      console.log("sender", item.sender_id);
+      console.log("friend", friend_id);
+      console.log("user", user_id);
       if (item.sender_id === friend_id || item.sender_id === user_id) {
         if (item.sender_id === currentStatus && changeStatus !== undefined) {
           changeStatus = false;
