@@ -248,7 +248,6 @@ export const loadRoom = data => {
   return async dispatch => {
     try {
       const res = await axios.post("/chats/loadAllRoom", data);
-
       dispatch({
         type: CREATE_ROOM,
         payload: res.data.room

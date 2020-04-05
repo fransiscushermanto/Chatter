@@ -134,5 +134,33 @@ module.exports = {
 
     const token = signToken(user);
     return res.status(200).send({ token, chat: chatHistory });
+  },
+  updateChatStatus: async (req, res, next) => {
+    const { room_id, sender_id } = req.body;
+    const unreadExist = await ChatHistory.find({
+      $and: [
+        { room_id: room_id },
+        { status: "unread" },
+        { sender_id: sender_id }
+      ]
+    }).exec();
+
+    if (unreadExist.length > 0) {
+      await ChatHistory.updateMany(
+        {
+          $and: [
+            { room_id: room_id },
+            { status: "unread" },
+            { sender_id: sender_id }
+          ]
+        },
+        {
+          status: "read"
+        }
+      );
+      return res.status(200).send({ message: false });
+    } else {
+      return res.status(200).send({ message: false });
+    }
   }
 };

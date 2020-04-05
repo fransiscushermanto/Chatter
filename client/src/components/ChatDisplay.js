@@ -53,10 +53,6 @@ const ChatDisplay = props => {
     data["unreadMessage"] = unreadMessage[room_id];
   }, [unreadMessage]);
 
-  useEffect(() => {
-    console.log(data);
-  }, []);
-
   return (
     <div className="cxroom" onClick={() => onClick(data)}>
       <div className="avatar-wrapper">
@@ -64,8 +60,10 @@ const ChatDisplay = props => {
       </div>
       <div className="displayer">
         <div className="display-name">
-          <div className="inner-displayName">
-            <span>{displayName}</span>
+          <div className="display-name-wrapper">
+            <div className="inner-displayName">
+              <span>{displayName}</span>
+            </div>
           </div>
           <div className="display-time">
             {chat !== "" ? tConvert(now, date) : null}

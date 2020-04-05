@@ -35,10 +35,11 @@ const ChatRoom = props => {
     socket,
     unreadMessage,
     user_id,
-    userName
+    userName,
+    updateState
   } = props;
-  const prevScrollY = useRef(0);
 
+  const prevScrollY = useRef(0);
   const setStatetoChatContainer = () => {
     let arr = [];
     state.chat.map(data => {
@@ -57,11 +58,25 @@ const ChatRoom = props => {
       type: "LOAD",
       payload: res.data.chat
     });
+    console.log("Loading...");
     localStorage.setItem("JWT_TOKEN", res.data.token);
+  };
+
+  const updateChat = async () => {
+    console.log("Updating...");
+    const data = {
+      room_id,
+      sender_id: friend_id
+    };
+    const res = await axios.post("/chats/updateChatReadStatus", data);
+    if (res.data.message) {
+      loadChat();
+    }
   };
 
   const sendChat = async data => {
     const res = await axios.post("/chats/sendChat", data);
+    console.log(data.room_id);
     localStorage.setItem("JWT_TOKEN", res.data.token);
   };
 
@@ -148,16 +163,14 @@ const ChatRoom = props => {
           friend_id: friend_id
         };
         sendChat(data);
-        socket.emit("SEND_MESSAGE", { room: room_id, data });
+        updateState();
+        socket.emit("SEND_MESSAGE", { room: data.room_id, data });
         messagebar.innerHTML = "";
         setVisible(true);
       }
     } else if (e.ctrlKey && e.keyCode === 65) {
       ctrl.current = true;
     } else if (e.keyCode === 8) {
-      console.log("height", height.current, messagebar.offsetHeight);
-      console.log("length", messagebar.innerHTML.length - 1);
-      console.log("count", count.current);
       if (ctrl.current) {
         setVisible(true);
         count.current = 0;
@@ -173,7 +186,6 @@ const ChatRoom = props => {
         ) {
           setVisible(false);
         } else if (messagebar.innerHTML.length - 1 > 1) {
-          console.log("NOT VISIBLE");
           setVisible(false);
         } else {
           height.current = messagebar.offsetHeight;
@@ -199,10 +211,8 @@ const ChatRoom = props => {
           setVisible(true);
           count.current = 0;
         } else if (messagebar.innerHTML.length - 1 > 0) {
-          console.log("ASDe");
           setVisible(false);
         } else {
-          console.log("ASD");
           setVisible(true);
           count.current = 0;
         }
@@ -233,9 +243,6 @@ const ChatRoom = props => {
     let datestatus,
       changeDate = false;
     return chatContainer.map((item, index) => {
-      console.log("sender", item.sender_id);
-      console.log("friend", friend_id);
-      console.log("user", user_id);
       if (item.sender_id === friend_id || item.sender_id === user_id) {
         if (item.sender_id === currentStatus && changeStatus !== undefined) {
           changeStatus = false;
@@ -368,9 +375,10 @@ const ChatRoom = props => {
   };
 
   useEffect(() => {
-    scrollBottom();
+    updateChat();
     loadChat();
-    socket.emit("JOIN_ROOM", { room: room_id });
+    scrollBottom();
+
     return () => {
       socket.emit("disconnect");
       socket.off();
@@ -385,6 +393,7 @@ const ChatRoom = props => {
 
   socket.on("RECEIVE_MESSAGE", message => {
     setChatContainer([...chatContainer, message.data]);
+    scrollBottom();
   });
 
   return (

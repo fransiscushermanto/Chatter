@@ -13,19 +13,21 @@ import * as actions from "../actions";
 
 import "../css/Home.css";
 import "../css/responsive.css";
-const Home = props => {
-  const socketUrl = `${process.env.REACT_APP_SOCKET_URL ||
-    window.location.origin}`;
+const Home = (props) => {
+  const socketUrl = `${
+    process.env.REACT_APP_SOCKET_URL || window.location.origin
+  }`;
 
   let { path } = useRouteMatch();
   const dispatch = useDispatch();
   const history = useHistory();
 
-  const chatList = useSelector(state => state.personal.data);
-  const allChatHistory = useSelector(state => state.personal.chat);
-  const listFriend = useSelector(state => state.friend.data);
-  const dataUser = useSelector(state => state.decode.user);
-  const allUser = useSelector(state => state.user.data);
+  const chatList = useSelector((state) => state.personal.data);
+  const allChatHistory = useSelector((state) => state.personal.chat);
+  const listFriend = useSelector((state) => state.friend.data);
+  const dataUser = useSelector((state) => state.decode.user);
+  const allUser = useSelector((state) => state.user.data);
+  const [updateChatState, setUpdateChatState] = useState(false);
   const [showChatHistory, setShowChatHistory] = useState(true);
   const [unreadMessage, setUnreadMessage] = useState([]);
   const [searchValue, setSearchValue] = useState("");
@@ -34,6 +36,7 @@ const Home = props => {
   const [showChatRoom, setShowChatRoom] = useState(false);
   const [friendList, setFriendList] = useState();
   const [userList, setUserList] = useState();
+  const [allChatState, setAllChatState] = useState([]);
   const [profileName, setProfileName] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
   const [chatItem, setChatItem] = useState({
@@ -43,17 +46,13 @@ const Home = props => {
     status: "",
     friend_id: "",
     user_id: "",
-    unreadMessage: 0
+    unreadMessage: 0,
   });
 
-  const currentChatData = useRef();
   const socketRef = useRef();
   //CONNECT SOCKET.IO-ClIENT
   useEffect(() => {
     socketRef.current = io.connect(socketUrl);
-    return () => {
-      socketRef.current = io.connect(socketUrl);
-    };
   }, [socketUrl]);
   const socket = socketRef.current;
 
@@ -63,7 +62,7 @@ const Home = props => {
   const loadFriend = async () => {
     const loadFriendData = {
       user_id: dataUser._id,
-      user: dataUser
+      user: dataUser,
     };
     await dispatch(actions.getCurrentFriend(loadFriendData));
   };
@@ -72,7 +71,7 @@ const Home = props => {
   const loadRoom = async () => {
     const room = {
       user_id: dataUser._id,
-      user: dataUser
+      user: dataUser,
     };
     await dispatch(actions.loadRoom(room));
   };
@@ -81,28 +80,30 @@ const Home = props => {
   const loadAllChat = async () => {
     const data = {
       room_id: "all",
-      user: dataUser
+      user: dataUser,
     };
     await dispatch(actions.loadAllChat(data));
   };
+
+  //LOAD ALL CHAT FROM CHAT ROOM
+  function updateState() {
+    setUpdateChatState(!updateChatState);
+  }
 
   //LOAD CHAT HISTORY FUNCTION
   const loadChatHistory = () => {
     if (chatList.length > 0) {
       const chats = [],
         arr = [];
-      chatList.map(data => {
+      chatList.map((data) => {
         arr[data.room_id] = 0;
-        console.log(data.friend_id);
-        console.log(data);
-        const friend = friendList.filter(friend =>
+        const friend = friendList.filter((friend) =>
           friend._id.includes(data.friend_id)
         );
-        console.log(friend);
-        const user = userList.filter(user =>
+        const user = userList.filter((user) =>
           user.user_id.includes(data.friend_id)
         );
-        console.log(friend);
+        socketRef.current.emit("JOIN_ROOM", { room: data.room_id });
         if (friend.length === 1) {
           chats.push({
             room_id: data.room_id,
@@ -112,7 +113,7 @@ const Home = props => {
             status: data.status,
             friend_id: data.friend_id,
             read: data.lastchat.status,
-            userName: profileName
+            userName: profileName,
           });
         } else if (user.length === 1) {
           chats.push({
@@ -123,18 +124,17 @@ const Home = props => {
             status: data.status,
             friend_id: data.friend_id,
             read: data.lastchat.status,
-            userName: profileName
+            userName: profileName,
           });
         }
       });
-      console.log(chats);
       handleUnreadMessage(arr);
       setChatHistory(chats);
     }
   };
 
   //LOAD CHAT ITEM TO CHAT ROOM
-  const onClickDisplayChat = e => {
+  const onClickDisplayChat = (e) => {
     console.log(e);
     const data = {
       user_id: dataUser._id,
@@ -143,13 +143,13 @@ const Home = props => {
       status: e.status,
       friend_id: e.friend_id,
       unreadMessage: e.unreadMessage,
-      userName: e.userName
+      userName: e.userName,
     };
     setChatItem(data);
     setShowChatRoom(!showChatRoom);
     const update = {
       room_id: e.room_id,
-      friend_id: e.friend_id
+      friend_id: e.friend_id,
     };
 
     dispatch(actions.updateChatReadStatus(update));
@@ -160,7 +160,7 @@ const Home = props => {
     const data = {
       fullname: "all",
       user: dataUser,
-      user_id: dataUser._id
+      user_id: dataUser._id,
     };
 
     await dispatch(actions.findFriend(data));
@@ -169,7 +169,7 @@ const Home = props => {
   //RENDER ALL CHAT HISTORY
   const renderChatHistory = () => {
     if (searchResult.length > 0) {
-      return searchResult.map(data => {
+      return searchResult.map((data) => {
         return (
           <ChatDisplay
             key={data.room_id}
@@ -195,7 +195,7 @@ const Home = props => {
               width: "100%",
               marginTop: "50px",
               minWidth: "321px",
-              maxWidth: "321px"
+              maxWidth: "321px",
             }}
           >
             Theres is no result for "{searchValue}"
@@ -203,7 +203,7 @@ const Home = props => {
         </div>
       );
     } else {
-      return chatHistory.map(data => {
+      return chatHistory.map((data) => {
         return (
           <ChatDisplay
             key={data.room_id}
@@ -246,7 +246,7 @@ const Home = props => {
               width: "100%",
               marginTop: "50px",
               minWidth: "321px",
-              maxWidth: "321px"
+              maxWidth: "321px",
             }}
           >
             Theres is no result for "{searchValue}"
@@ -263,7 +263,7 @@ const Home = props => {
               data={{
                 _id: friend._id,
                 fullname: friend.profile.fullname,
-                email: friend.profile.email
+                email: friend.profile.email,
               }}
               onClick={renderProfile}
             />
@@ -281,7 +281,7 @@ const Home = props => {
                 width: "100%",
                 marginTop: "50px",
                 minWidth: "321px",
-                maxWidth: "321px"
+                maxWidth: "321px",
               }}
             >
               There is no friend! Go find some friend!
@@ -293,7 +293,7 @@ const Home = props => {
   };
 
   //RENDER PROFILE FUNCTION
-  const renderProfile = e => {
+  const renderProfile = (e) => {
     if (e) {
       setShowProfile(e);
     } else {
@@ -302,11 +302,11 @@ const Home = props => {
   };
 
   //CREATE CHAT ROOM FUNCTION
-  const createChatRoom = async data => {
+  const createChatRoom = async (data) => {
     const create = {
       user_id: dataUser._id,
       friend_id: data._id,
-      user: dataUser
+      user: dataUser,
     };
     await dispatch(actions.createRoom(create));
     loadRoom();
@@ -316,14 +316,14 @@ const Home = props => {
   };
 
   //HANDLE SEARCH VALUE FUNCTION
-  const handleChange = e => {
+  const handleChange = (e) => {
     setSearchValue(e.target.value);
   };
 
   //HANDLE UNREAD MESSAGE
-  const handleUnreadMessage = listRoom => {
-    if (allChatHistory.length > 0) {
-      allChatHistory.map(data => {
+  const handleUnreadMessage = (listRoom) => {
+    if (allChatState.length > 0) {
+      allChatState.map((data) => {
         if (data.status === "unread" && data.sender_id !== dataUser._id) {
           listRoom[data.room_id] = listRoom[data.room_id] + 1;
         }
@@ -333,7 +333,7 @@ const Home = props => {
   };
 
   //SWITCH CHATDISPLAY OR FRIENDLIST PANE
-  const switchPane = e => {
+  const switchPane = (e) => {
     var id = e.target.id;
     var charId = id.split("-");
     if (charId[0] === "chat") {
@@ -352,8 +352,8 @@ const Home = props => {
     var array = [];
     if (listFriend !== "") {
       if (listFriend.friends.length > 0) {
-        listFriend.friends.map(list => {
-          list.my_friend.map(friend => {
+        listFriend.friends.map((list) => {
+          list.my_friend.map((friend) => {
             let userData;
             if (friend.method === "google") {
               userData = friend.google;
@@ -364,7 +364,7 @@ const Home = props => {
             }
             const data = {
               _id: friend._id,
-              profile: userData
+              profile: userData,
             };
             array.push(data);
           });
@@ -382,7 +382,7 @@ const Home = props => {
     var user;
     if (allUser !== "") {
       if (allUser.data.length > 0) {
-        allUser.data.map(list => {
+        allUser.data.map((list) => {
           if (list.method === "local") {
             user = list.local;
           } else if (list.method === "google") {
@@ -392,7 +392,7 @@ const Home = props => {
           }
           const data = {
             user_id: list._id,
-            user
+            user,
           };
 
           array.push(data);
@@ -405,17 +405,17 @@ const Home = props => {
   };
 
   //CHECK isFRIEND FUNCTION
-  const isFriend = id => {
-    return listFriend.friends.filter(data => data.friend_id === id);
+  const isFriend = (id) => {
+    return listFriend.friends.filter((data) => data.friend_id === id);
   };
 
   //SEARCH FUNCTION
   const search = () => {
     const results = showChatHistory
-      ? chatHistory.filter(chat =>
+      ? chatHistory.filter((chat) =>
           chat.friendName.toLowerCase().includes(searchValue.toLowerCase())
         )
-      : friendList.filter(friend =>
+      : friendList.filter((friend) =>
           friend.fullname.toLowerCase().includes(searchValue.toLowerCase())
         );
     setSearchResult(results);
@@ -455,11 +455,7 @@ const Home = props => {
       }
 
       setProfileName(fullname);
-      socketRef.current.on("RECEIVE_MESSAGE", () => {
-        loadAllChat();
-      });
     }
-    console.log(dataUser);
   }, [dataUser]);
 
   //SHOWCHAT ROOM STATE HANDLER
@@ -478,6 +474,22 @@ const Home = props => {
   useEffect(() => {
     loadChatHistory();
   }, [chatList, friendList, userList, allChatHistory]);
+
+  useEffect(() => {
+    socketRef.current.on("RECEIVE_MESSAGE", (message) => {
+      if (allChatState.length > 0) {
+        setAllChatState([...allChatState, message.data]);
+      }
+    });
+    loadChatHistory();
+    loadRoom();
+  }, [allChatState]);
+
+  useEffect(() => {
+    if (allChatHistory.length > 0) {
+      setAllChatState(allChatHistory);
+    }
+  }, [allChatHistory]);
 
   //FETCH USER
   useEffect(() => {
@@ -593,6 +605,7 @@ const Home = props => {
                 unreadMessage={chatItem.unreadMessage}
                 socket={socket}
                 userName={chatItem.userName}
+                updateState={updateState}
               />
             ) : null}
           </div>

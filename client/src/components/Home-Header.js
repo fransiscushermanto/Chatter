@@ -46,7 +46,7 @@ const HomeHeader = ({ profileName, renderProfile }) => {
       brandLogo.setAttribute("style", "font-size: 30px !important");
       decodedata(jwtToken);
     }
-  }, [isAuth, authType, dispatch, jwtToken]);
+  }, [isAuth, authType]);
 
   const handleClick = () => {
     setOpen(!open);

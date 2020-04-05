@@ -27,6 +27,8 @@ router
   .route("/loadAllChat")
   .post(validateBody(schemas.getChat), passportJWT, ChatController.getAllChat);
 
-// router.route("/updateChatReadStatus").post(passportJWT, ChatController.)
+router
+  .route("/updateChatReadStatus")
+  .post(passportJWT, ChatController.updateChatStatus);
 
 module.exports = router;

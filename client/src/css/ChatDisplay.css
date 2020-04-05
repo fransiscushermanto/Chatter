@@ -45,6 +45,10 @@
   position: relative;
 }
 
+.cxroom .display-name .display-name-wrapper {
+  flex: 1;
+}
+
 .cxroom .display-name .inner-displayName {
   flex-grow: 1;
   overflow: hidden;
