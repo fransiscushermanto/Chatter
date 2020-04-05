@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 import Avatar from "./CustomAvatar";
 import "../css/ChatDisplay.css";
-const ChatDisplay = props => {
+const ChatDisplay = (props) => {
   const {
     onClick,
     displayName,
@@ -11,10 +11,12 @@ const ChatDisplay = props => {
     time,
     data,
     unreadMessage,
-    room_id
+    room_id,
   } = props;
   const temp = new Date(time);
-  var now = `${temp.getHours()}:${temp.getMinutes()}`;
+  var now = `${temp.getHours()}:${
+    temp.getMinutes().toString().length > 1 ? "" : 0
+  }${temp.getMinutes()}`;
   var date = `${temp.getDate()},${temp.getMonth() + 1},${temp.getFullYear()}`;
   const tConvert = (time, date) => {
     // Check correct time format and split into components
@@ -100,7 +102,7 @@ const ChatDisplay = props => {
 ChatDisplay.propTypes = {
   onClick: PropTypes.func.isRequired,
   displayName: PropTypes.string.isRequired,
-  chat: PropTypes.string.isRequired
+  chat: PropTypes.string.isRequired,
 };
 
 export default ChatDisplay;
