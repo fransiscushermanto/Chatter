@@ -141,7 +141,6 @@ module.exports = {
     });
     await newFriend.save();
     const token = signToken(user);
-    console.log(token);
     res.status(200).json({ token });
   },
   getCurrentFriend: async (req, res, next) => {

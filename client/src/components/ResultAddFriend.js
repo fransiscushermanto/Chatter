@@ -11,7 +11,7 @@ const ResultAddFriend = ({
   dataUser,
   socket,
   isFriend,
-  renderProfile
+  renderProfile,
 }) => {
   const dispatch = useDispatch();
   const [friend, setFriend] = useState(false);
@@ -20,10 +20,10 @@ const ResultAddFriend = ({
     const addFriendData = {
       friendId: data._id,
       userId: dataUser._id,
-      user: dataUser
+      user: dataUser,
     };
     await dispatch(actions.addFriend(addFriendData));
-    socket.emit("GET_FRIEND");
+    socket.emit("GET_FRIEND", { room: dataUser._id });
   };
 
   useEffect(() => {
@@ -93,7 +93,7 @@ const ResultAddFriend = ({
 };
 
 ResultAddFriend.propTypes = {
-  displayName: PropTypes.string.isRequired
+  displayName: PropTypes.string.isRequired,
 };
 
 export default ResultAddFriend;

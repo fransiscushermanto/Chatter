@@ -453,7 +453,7 @@ const Home = (props) => {
       } else {
         fullname = data.google.fullname;
       }
-
+      socketRef.current.emit("JOIN_ROOM", { room: data._id });
       setProfileName(fullname);
     }
   }, [dataUser]);

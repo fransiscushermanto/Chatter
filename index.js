@@ -4,8 +4,7 @@ const httpTemp = require("http");
 const http = httpTemp.createServer(app);
 const io = require("socket.io")(http);
 
-io.on("connection", socket => {
-  console.log(`UserId : ${socket.id}`);
+io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("Disconnected");
   });
@@ -15,12 +14,11 @@ io.on("connection", socket => {
     io.to(room).emit("RECEIVE_MESSAGE", { data });
   });
 
-  socket.on("GET_FRIEND", () => {
-    io.emit("LOAD_FRIEND");
+  socket.on("GET_FRIEND", ({ room }) => {
+    io.to(room).emit("LOAD_FRIEND");
   });
 
   socket.on("JOIN_ROOM", ({ room }, callback) => {
-    console.log(room);
     socket.join(room);
   });
 });

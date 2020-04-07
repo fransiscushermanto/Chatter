@@ -204,7 +204,6 @@ export const addFriend = (data) => {
   return async (dispatch) => {
     try {
       const res = await axios.post("/users/addFriend", data);
-      console.log(res);
       localStorage.setItem("JWT_TOKEN", res.data.token);
     } catch (error) {
       dispatch({

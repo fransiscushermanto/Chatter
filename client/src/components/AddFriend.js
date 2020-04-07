@@ -40,7 +40,6 @@ const AddFriend = ({
       } else {
         method = user.google;
       }
-      console.log(user);
       arr.push({
         _id: user._id,
         data: method,
