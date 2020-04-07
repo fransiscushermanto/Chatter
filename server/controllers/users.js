@@ -2,7 +2,7 @@ const JWT = require("jsonwebtoken");
 const User = require("../models/user");
 const Friend = require("../models/friend");
 
-signToken = user => {
+signToken = (user) => {
   console.log(user);
   if (!user) {
     return null;
@@ -11,7 +11,7 @@ signToken = user => {
   return JWT.sign(
     {
       sub: user,
-      iat: Date.now()
+      iat: Date.now(),
     },
     process.env.JWT_SECRET,
     { expiresIn: "1h" }
@@ -34,10 +34,10 @@ module.exports = {
         password: password,
         level: "customer",
         verified: "yes",
-        status: "on"
-      }
+        status: "on",
+      },
     });
-    await newUser.save(error => {
+    await newUser.save((error) => {
       if (error) {
         console.log(error);
       } else {
@@ -101,10 +101,10 @@ module.exports = {
         $or: [
           { "local.fullname": { $regex: ".*" + name + ".*", $options: "i" } },
           {
-            "facebook.fullname": { $regex: ".*" + name + ".*", $options: "i" }
+            "facebook.fullname": { $regex: ".*" + name + ".*", $options: "i" },
           },
-          { "google.fullname": { $regex: ".*" + name + ".*", $options: "i" } }
-        ]
+          { "google.fullname": { $regex: ".*" + name + ".*", $options: "i" } },
+        ],
       };
       limit = 20;
     } else {
@@ -113,10 +113,7 @@ module.exports = {
     }
 
     const query = User.find(criteria).limit(limit);
-    const data = await query
-      .where("_id")
-      .ne(user_id)
-      .exec();
+    const data = await query.where("_id").ne(user_id).exec();
     const token = signToken(req.body.user);
     res.status(200).json({ data, token });
   },
@@ -129,7 +126,7 @@ module.exports = {
     const { friendId, userId, user } = req.body;
 
     const existFriend = await Friend.findOne({
-      $and: [{ user_id: userId }, { friend_id: friendId }]
+      $and: [{ user_id: userId }, { friend_id: friendId }],
     });
 
     if (existFriend) {
@@ -140,10 +137,11 @@ module.exports = {
     const newFriend = new Friend({
       user_id: userId,
       friend_id: friendId,
-      status: "friend"
+      status: "friend",
     });
     await newFriend.save();
     const token = signToken(user);
+    console.log(token);
     res.status(200).json({ token });
   },
   getCurrentFriend: async (req, res, next) => {
@@ -153,24 +151,24 @@ module.exports = {
       {
         $project: {
           friend_id: {
-            $toObjectId: "$friend_id"
+            $toObjectId: "$friend_id",
           },
           user_id: {
-            $toString: "$user_id"
-          }
-        }
+            $toString: "$user_id",
+          },
+        },
       },
       {
         $lookup: {
           from: "users",
           localField: "friend_id",
           foreignField: "_id",
-          as: "my_friend"
-        }
-      }
+          as: "my_friend",
+        },
+      },
     ]);
 
     const token = signToken(req.body.user);
     res.status(200).json({ friends, token });
-  }
+  },
 };
