@@ -5,7 +5,7 @@ import axios from "../instance";
 import "../css/ChatRoom.css";
 
 const initialState = {
-  chat: []
+  chat: [],
 };
 
 const reducer = (state, action) => {
@@ -17,7 +17,7 @@ const reducer = (state, action) => {
   }
 };
 
-const ChatRoom = props => {
+const ChatRoom = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const [visible, setVisible] = useState(true);
@@ -36,13 +36,13 @@ const ChatRoom = props => {
     unreadMessage,
     user_id,
     userName,
-    updateState
+    updateState,
   } = props;
 
   const prevScrollY = useRef(0);
   const setStatetoChatContainer = () => {
     let arr = [];
-    state.chat.map(data => {
+    state.chat.map((data) => {
       arr.push(data);
     });
     setChatContainer(arr);
@@ -51,12 +51,12 @@ const ChatRoom = props => {
   const loadChat = async () => {
     const data = {
       room_id,
-      user
+      user,
     };
     const res = await axios.post("/chats/loadAllChat", data);
     dispatch({
       type: "LOAD",
-      payload: res.data.chat
+      payload: res.data.chat,
     });
     console.log("Loading...");
     localStorage.setItem("JWT_TOKEN", res.data.token);
@@ -66,7 +66,7 @@ const ChatRoom = props => {
     console.log("Updating...");
     const data = {
       room_id,
-      sender_id: friend_id
+      sender_id: friend_id,
     };
     const res = await axios.post("/chats/updateChatReadStatus", data);
     if (res.data.message) {
@@ -74,13 +74,13 @@ const ChatRoom = props => {
     }
   };
 
-  const sendChat = async data => {
+  const sendChat = async (data) => {
     const res = await axios.post("/chats/sendChat", data);
     console.log(data.room_id);
     localStorage.setItem("JWT_TOKEN", res.data.token);
   };
 
-  const dateSeperator = date => {
+  const dateSeperator = (date) => {
     date = date.split(",");
 
     const now = new Date();
@@ -96,7 +96,7 @@ const ChatRoom = props => {
       "September",
       "October",
       "November",
-      "Desember"
+      "Desember",
     ];
     const arrDay = [
       "Sunday",
@@ -105,7 +105,7 @@ const ChatRoom = props => {
       "Wednesday",
       "Thursday",
       "Friday",
-      "Saturday"
+      "Saturday",
     ];
     if (
       Number.parseInt(date[1]) === now.getDate() &&
@@ -120,7 +120,7 @@ const ChatRoom = props => {
     }
   };
 
-  const onSendChat = e => {
+  const onSendChat = (e) => {
     const messagebar = document.getElementById("message-bar");
     const restrictedKey = {
       91: true, //Win Key
@@ -139,7 +139,7 @@ const ChatRoom = props => {
       120: true, //F9
       121: true, //F10
       122: true, //F11
-      123: true //F12
+      123: true, //F12
     };
     if (e.keyCode === 13 && e.shiftKey) {
       setVisible(false);
@@ -160,7 +160,7 @@ const ChatRoom = props => {
           time: date,
           status: "unread",
           user: user,
-          friend_id: friend_id
+          friend_id: friend_id,
         };
         sendChat(data);
         updateState();
@@ -223,7 +223,7 @@ const ChatRoom = props => {
       setVisible(false);
     }
   };
-  const tConvert = time => {
+  const tConvert = (time) => {
     // Check correct time format and split into components
     time = time.toString().match(/^([01]\d|2[0-3])(:)([0-5]\d)?$/) || [time];
 
@@ -254,8 +254,9 @@ const ChatRoom = props => {
         var chatTime = `${temp.getHours()}:${
           temp.getMinutes().toString().length > 1 ? "" : 0
         }${temp.getMinutes()}`;
-        var chatDate = `${temp.getDay()},${temp.getDate()},${temp.getMonth() +
-          1},${temp.getFullYear()}`;
+        var chatDate = `${temp.getDay()},${temp.getDate()},${
+          temp.getMonth() + 1
+        },${temp.getFullYear()}`;
 
         if (index === 0) {
           datestatus = chatDate;
@@ -391,7 +392,7 @@ const ChatRoom = props => {
     }
   }, [state]);
 
-  socket.on("RECEIVE_MESSAGE", message => {
+  socket.on("RECEIVE_MESSAGE", (message) => {
     setChatContainer([...chatContainer, message.data]);
     scrollBottom();
   });

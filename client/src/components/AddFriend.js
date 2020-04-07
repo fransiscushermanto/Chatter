@@ -1,36 +1,60 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { Link, withRouter } from "react-router-dom";
 
 import ResultAddFriend from "./ResultAddFriend";
 import * as actions from "../actions";
 import "../css/AddFriend.css";
+
 const AddFriend = ({
   dataUser,
   socket,
   loadFriend,
   isFriend,
-  renderProfile
+  renderProfile,
 }) => {
-  const dispatch = useDispatch();
   const { register, handleSubmit } = useForm();
-  const findResult = useSelector(state => state.user.data);
-  const onSubmit = async data => {
-    if (data !== "") {
-      data["user"] = dataUser;
-      data["user_id"] = dataUser._id;
+  const allUser = useSelector((state) => state.user.data);
+  const [allUserState, setAllUserState] = useState([]);
+  const [searchResult, setSearchResult] = useState([]);
+  const onSubmit = async (data) => {
+    if (data.fullname !== "") {
+      const result = allUserState.filter((user) =>
+        user.data.fullname.toLowerCase().includes(data.fullname.toLowerCase())
+      );
+      setSearchResult(result);
+    } else {
+      setSearchResult([]);
     }
+  };
 
-    await dispatch(actions.findFriend(data));
-    socket.emit("GET_FRIEND");
+  const loadToState = () => {
+    let arr = [];
+    allUser.data.map((user) => {
+      let method;
+      if (user.method === "local") {
+        method = user.local;
+      } else if (user.method === "facebook") {
+        method = user.facebook;
+      } else {
+        method = user.google;
+      }
+      console.log(user);
+      arr.push({
+        _id: user._id,
+        data: method,
+      });
+    });
+
+    setAllUserState(arr);
   };
 
   const renderResult = () => {
     let method;
-    if (findResult.data) {
-      if (findResult.data.length > 0) {
-        return findResult.data.map(user => {
+    if (searchResult) {
+      if (searchResult.length > 0) {
+        return searchResult.map((user) => {
           if (user.method === "local") {
             method = user.local;
           } else if (user.method === "facebook") {
@@ -41,7 +65,7 @@ const AddFriend = ({
           return (
             <ResultAddFriend
               key={user._id}
-              displayName={method.fullname}
+              displayName={user.data.fullname}
               data={user}
               dataUser={dataUser}
               socket={socket}
@@ -62,10 +86,7 @@ const AddFriend = ({
     socket.on("LOAD_FRIEND", () => {
       loadFriend();
     });
-  }, []);
-
-  useEffect(() => {
-    onSubmit("");
+    loadToState();
   }, []);
 
   return (
@@ -123,12 +144,12 @@ const AddFriend = ({
               <div
                 className="inner-result-field"
                 style={
-                  findResult
+                  allUser
                     ? null
                     : { alignItems: "center", justifyContent: "center" }
                 }
               >
-                {findResult ? renderResult() : null}
+                {allUser ? renderResult() : null}
               </div>
             </div>
           </div>
