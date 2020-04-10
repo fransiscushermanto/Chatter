@@ -14,6 +14,7 @@ io.on("connection", (socket) => {
 
   socket.on("SEND_MESSAGE", async ({ room, data }, callback) => {
     io.volatile.to(room).emit("RECEIVE_MESSAGE", { data });
+    callback();
     try {
       const newChat = new ChatHistory({
         room_id: data.room_id,
@@ -101,7 +102,6 @@ io.on("connection", (socket) => {
     } catch (error) {
       console.log(error);
     }
-    callback();
   });
 
   socket.on("UPDATE_MESSAGE", ({ room }, callback) => {
