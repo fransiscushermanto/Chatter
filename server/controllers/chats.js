@@ -5,11 +5,11 @@ const Friend = require("../models/friend");
 const ChatRoom = require("../models/chatRoom");
 const ChatHistory = require("../models/chatHistory");
 
-signToken = user => {
+signToken = (user) => {
   return JWT.sign(
     {
       sub: user,
-      iat: Date.now()
+      iat: Date.now(),
     },
     process.env.JWT_SECRET,
     { expiresIn: "1h" }
@@ -19,61 +19,40 @@ signToken = user => {
 module.exports = {
   createRoom: async (req, res, next) => {
     const { user_id, friend_id, user } = req.body;
+    try {
+      const exist = await ChatRoom.findOne({
+        $or: [
+          { $and: [{ user_id: user_id }, { friend_id: friend_id }] },
+          { $and: [{ user_id: friend_id }, { friend_id: user_id }] },
+        ],
+      });
 
-    const exist = await ChatRoom.findOne({
-      $or: [
-        { $and: [{ user_id: user_id }, { friend_id: friend_id }] },
-        { $and: [{ user_id: friend_id }, { friend_id: user_id }] }
-      ]
-    });
+      if (exist) {
+        const token = signToken(user);
+        return res.status(200).send({ token, room: exist });
+      }
 
-    if (exist) {
-      const token = signToken(user);
-      return res.status(200).send({ token, room: exist });
-    }
+      const room_id = md5(user_id + friend_id);
 
-    const room_id = md5(user_id + friend_id);
-
-    const existFriend = await Friend.findOne({
-      $and: [{ user_id: friend_id }, { friend_id: user_id }]
-    });
-
-    const status = existFriend ? "on" : "off";
-
-    const newChatRoom = [
-      {
+      const newChatRoom = new ChatRoom({
         room_id: room_id,
         user_id: user_id,
         friend_id: friend_id,
         lastchat: {
           sender_id: "",
-          chat: ""
+          chat: "",
         },
-        status: "on"
-      },
-      {
-        room_id: room_id,
-        user_id: friend_id,
-        friend_id: user_id,
-        lastchat: {
-          sender_id: "",
-          chat: ""
-        },
-        status: status
-      }
-    ];
+        status: "on",
+      });
 
-    const result = await ChatRoom.collection.insert(
-      newChatRoom,
-      (err, docs) => {
-        if (err) {
-          return console.log(err);
-        } else {
-          console.log("Room Created");
+      await newChatRoom.save((error) => {
+        if (error) {
+          console.log(error);
         }
-      }
-    );
-
+      });
+    } catch (error) {
+      console.log(error);
+    }
     const token = signToken(user);
     console.log(result);
     res.status(200).json({ token, room: result });
@@ -82,55 +61,39 @@ module.exports = {
     const { user_id, user } = req.body;
 
     const allRoom = await ChatRoom.find({
-      $or: [{ user_id: user_id }]
+      $or: [{ user_id: user_id }],
     });
 
     const token = signToken(user);
     return res.status(200).send({ token, room: allRoom });
   },
-  sendChat: async (req, res, next) => {
-    const { room_id, sender_id, chat, time, status } = req.body;
-
-    const newChat = new ChatHistory({
-      room_id: room_id,
-      chat: chat,
-      sender_id: sender_id,
-      time: time,
-      status: status
-    });
-
-    await ChatRoom.updateMany(
-      {
-        room_id: room_id
-      },
-      {
-        lastchat: {
-          sender_id: sender_id,
-          chat: chat,
-          time: time,
-          status: status
-        }
-      }
-    );
-    await newChat.save(error => {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("Message saved!");
-      }
-    });
-    res.status(200);
-  },
   getAllChat: async (req, res, next) => {
-    const { room_id, user } = req.body;
-    var criteria;
+    const { room_id, user, skip } = req.body;
+    var criteria, limit;
     if (room_id !== "all") {
-      criteria = { room_id: room_id };
+      criteria = {
+        $and: [
+          { room_id: room_id },
+          {
+            $or: [
+              { "backup.person_1": user._id },
+              { "backup.person_2": user._id },
+            ],
+          },
+        ],
+      };
+      limit = 30;
     } else {
-      criteria = {};
+      criteria = {
+        $or: [{ "backup.person_1": user._id }, { "backup.person_2": user._id }],
+      };
+      limit = 0;
     }
-
-    const chatHistory = await ChatHistory.find(criteria);
+    console.log(skip);
+    const chatHistory = await ChatHistory.find(criteria)
+      .limit(limit)
+      .skip(skip)
+      .sort({ time: -1 });
 
     const token = signToken(user);
     return res.status(200).send({ token, chat: chatHistory });
@@ -141,8 +104,8 @@ module.exports = {
       $and: [
         { room_id: room_id },
         { status: "unread" },
-        { sender_id: sender_id }
-      ]
+        { sender_id: sender_id },
+      ],
     }).exec();
 
     if (unreadExist.length > 0) {
@@ -151,16 +114,16 @@ module.exports = {
           $and: [
             { room_id: room_id },
             { status: "unread" },
-            { sender_id: sender_id }
-          ]
+            { sender_id: sender_id },
+          ],
         },
         {
-          status: "read"
+          status: "read",
         }
       );
-      return res.status(200).send({ message: false });
+      return res.status(200).send({ message: true });
     } else {
       return res.status(200).send({ message: false });
     }
-  }
+  },
 };

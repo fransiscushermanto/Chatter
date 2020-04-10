@@ -1,6 +1,7 @@
 const JWT = require("jsonwebtoken");
 const User = require("../models/user");
 const Friend = require("../models/friend");
+const ChatRoom = require("../models/chatRoom");
 
 signToken = (user) => {
   console.log(user);
@@ -124,24 +125,40 @@ module.exports = {
   },
   addFriend: async (req, res, next) => {
     const { friendId, userId, user } = req.body;
+    try {
+      const exist = await ChatRoom.findOne({
+        $and: [{ user_id: userId }, { friend_id: friendId }],
+      });
 
-    const existFriend = await Friend.findOne({
-      $and: [{ user_id: userId }, { friend_id: friendId }],
-    });
+      if (exist) {
+        await ChatRoom.findOneAndUpdate(
+          { $and: [{ user_id: userId }, { friend_id: friendId }] },
+          { status: "on" },
+          { new: true }
+        );
+      }
 
-    if (existFriend) {
+      const existFriend = await Friend.findOne({
+        $and: [{ user_id: userId }, { friend_id: friendId }],
+      });
+
+      if (existFriend) {
+        const token = signToken(user);
+        return res.status(400).json({ existFriend, token });
+      }
+
+      const newFriend = new Friend({
+        user_id: userId,
+        friend_id: friendId,
+        status: "friend",
+      });
+
+      await newFriend.save();
       const token = signToken(user);
-      return res.status(400).json({ existFriend, token });
+      res.status(200).json({ token });
+    } catch (error) {
+      console.log(error);
     }
-
-    const newFriend = new Friend({
-      user_id: userId,
-      friend_id: friendId,
-      status: "friend",
-    });
-    await newFriend.save();
-    const token = signToken(user);
-    res.status(200).json({ token });
   },
   getCurrentFriend: async (req, res, next) => {
     var user_id = req.body.user_id;

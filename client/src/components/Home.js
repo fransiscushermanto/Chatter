@@ -53,6 +53,9 @@ const Home = (props) => {
   //CONNECT SOCKET.IO-ClIENT
   useEffect(() => {
     socketRef.current = io.connect(socketUrl);
+    socketRef.current.on("connect", function () {
+      console.log(socketRef.current.connected);
+    });
   }, [socketUrl]);
   const socket = socketRef.current;
 
@@ -476,13 +479,18 @@ const Home = (props) => {
   }, [chatList, friendList, userList, allChatHistory]);
 
   useEffect(() => {
+    loadChatHistory();
+    loadRoom();
     socketRef.current.on("RECEIVE_MESSAGE", (message) => {
+      console.log(message.data, "HOME");
       if (allChatState.length > 0) {
         setAllChatState([...allChatState, message.data]);
       }
     });
-    loadChatHistory();
-    loadRoom();
+    return () => {
+      socketRef.current.emit("disconnect");
+      socketRef.current.off();
+    };
   }, [allChatState]);
 
   useEffect(() => {

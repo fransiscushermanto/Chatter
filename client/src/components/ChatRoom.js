@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState, useReducer } from "react";
-import Avatar from "./CustomAvatar";
+
+import ChatRoomFooter from "./ChatRoomFooter";
+import ChatRoomHeader from "./ChatRoomHeader";
+import ChatRoomMain from "./ChatRoomMain";
 
 import axios from "../instance";
 import "../css/ChatRoom.css";
@@ -22,10 +25,8 @@ const ChatRoom = (props) => {
 
   const [visible, setVisible] = useState(true);
   const [chatContainer, setChatContainer] = useState([]);
+  const [message, setMessage] = useState("");
 
-  const height = useRef(0);
-  const count = useRef(0);
-  const ctrl = useRef(false);
   const {
     displayName,
     room_id,
@@ -39,21 +40,30 @@ const ChatRoom = (props) => {
     updateState,
   } = props;
 
-  const prevScrollY = useRef(0);
+  const chatContainerRef = useRef([]);
   const setStatetoChatContainer = () => {
-    let arr = [];
-    state.chat.map((data) => {
-      arr.push(data);
-    });
-    setChatContainer(arr);
+    if (chatContainer.length === 0) {
+      setChatContainer(...chatContainer, state.chat);
+    } else {
+      setChatContainer(state.chat);
+    }
   };
 
-  const loadChat = async () => {
+  const loadChat = async (length = 0) => {
+    let skip = 0;
+    skip += length;
+    console.log(state.chat.length, skip);
+    if (state.chat.length >= 30) {
+      skip = state;
+    }
+
     const data = {
       room_id,
       user,
+      skip,
     };
     const res = await axios.post("/chats/loadAllChat", data);
+
     dispatch({
       type: "LOAD",
       payload: res.data.chat,
@@ -74,10 +84,19 @@ const ChatRoom = (props) => {
     }
   };
 
-  const sendChat = async (data) => {
-    const res = await axios.post("/chats/sendChat", data);
-    console.log(data.room_id);
-    localStorage.setItem("JWT_TOKEN", res.data.token);
+  const handleSendChat = () => {
+    let date = new Date(Date.now());
+    let data = {
+      room_id: room_id,
+      chat: message,
+      sender_id: user_id,
+      time: date,
+      status: "unread",
+      user: user,
+      friend_id: friend_id,
+    };
+    socket.emit("SEND_MESSAGE", { room: room_id, data }, () => setMessage(""));
+    setVisible(true);
   };
 
   const dateSeperator = (date) => {
@@ -120,107 +139,48 @@ const ChatRoom = (props) => {
     }
   };
 
-  const onSendChat = (e) => {
-    const messagebar = document.getElementById("message-bar");
-    const restrictedKey = {
-      91: true, //Win Key
-      92: true, //Win Key
-      93: true, //Context Menu
-      144: true, //Num Lock
-      145: true, //Scroll Lock
-      112: true, //F1
-      113: true, //F2
-      114: true, //F3
-      115: true, //F4
-      116: true, //F5
-      117: true, //F6
-      118: true, //F7
-      119: true, //F8
-      120: true, //F9
-      121: true, //F10
-      122: true, //F11
-      123: true, //F12
-    };
-    if (e.keyCode === 13 && e.shiftKey) {
-      setVisible(false);
-      count.current++;
-      height.current = messagebar.offsetHeight;
-      if (messagebar.offsetHeight > 20) {
-        height.current = messagebar.offsetHeight;
-      }
-    } else if (e.keyCode === 13 || e.keyCode === undefined) {
-      e.preventDefault();
-      if (messagebar.innerHTML !== "") {
-        let date = new Date(Date.now());
-        let message = messagebar.innerHTML;
-        let data = {
-          room_id: room_id,
-          chat: message,
-          sender_id: user_id,
-          time: date,
-          status: "unread",
-          user: user,
-          friend_id: friend_id,
-        };
-        sendChat(data);
-        updateState();
-        socket.emit("SEND_MESSAGE", { room: data.room_id, data });
-        messagebar.innerHTML = "";
-        setVisible(true);
-      }
-    } else if (e.ctrlKey && e.keyCode === 65) {
-      ctrl.current = true;
-    } else if (e.keyCode === 8) {
-      if (ctrl.current) {
-        setVisible(true);
-        count.current = 0;
-        ctrl.current = false;
-        return;
-      }
+  const pastePlainText = (e) => {
+    e.preventDefault();
+    const text = e.clipboardData.getData("text/plain");
+    document.execCommand("insertHTML", false, text);
+  };
 
-      if (height.current > 20) {
-        if (
-          height.current === 40 &&
-          messagebar.offsetHeight === 20 &&
-          messagebar.innerHTML.length - 1 > 0
-        ) {
-          setVisible(false);
-        } else if (messagebar.innerHTML.length - 1 > 1) {
-          setVisible(false);
-        } else {
-          height.current = messagebar.offsetHeight;
-          setVisible(true);
-          count.current = 0;
-        }
-      } else if (height.current === 0 || height.current === 20) {
-        if (
-          height.current === 20 &&
-          messagebar.offsetHeight === 40 &&
-          messagebar.innerHTML.length - 1 > 0
-        ) {
-          setVisible(false);
-        } else if (height.current === 20 && messagebar.offsetHeight === 40) {
-          setVisible(true);
-          count.current = 0;
-        } else if (
-          height.current === 20 &&
-          messagebar.offsetHeight === 20 &&
-          count.current === 1 &&
-          messagebar.innerHTML.length - 1 === 1
-        ) {
-          setVisible(true);
-          count.current = 0;
-        } else if (messagebar.innerHTML.length - 1 > 0) {
-          setVisible(false);
-        } else {
-          setVisible(true);
-          count.current = 0;
-        }
+  const disableNewLines = (e) => {
+    const keyCode = e.keyCode || e.which;
+    if (keyCode === 13 && e.shiftKey) {
+      setVisible(false);
+    } else if (keyCode === 13) {
+      e.returnValue = false;
+      if (e.preventDefault) {
+        e.preventDefault();
       }
-    } else if (messagebar.innerHTML.length - 1 > 0) {
+    } else {
+      e.returnValue = true;
+    }
+  };
+
+  const handleChange = (e) => {
+    setMessage(e.target.value.trim());
+    if (e.target.value.trim().length > 0) {
       setVisible(false);
-    } else if (e.keyCode >= 48 && restrictedKey[e.keyCode] === undefined) {
+    }
+
+    if (e.target.value === "<br>") {
+      setVisible(true);
+      setMessage("");
+    }
+
+    if (e.target.value.length > 0) {
       setVisible(false);
+    } else {
+      setVisible(true);
+    }
+
+    if (
+      (e.target.value.length === 1 && e.target.value.trim() === "") ||
+      (e.target.value.length === 4 && e.target.value.trim() === "<br>")
+    ) {
+      setVisible(true);
     }
   };
 
@@ -243,77 +203,91 @@ const ChatRoom = (props) => {
     let changeStatus = true;
     let datestatus,
       changeDate = false;
-    return chatContainer.map((item, index) => {
-      if (item.sender_id === friend_id || item.sender_id === user_id) {
-        if (item.sender_id === currentStatus && changeStatus !== undefined) {
-          changeStatus = false;
-        } else {
-          changeStatus = true;
-        }
+    return chatContainer
+      .sort(function (a, b) {
+        var tA = new Date(a.time);
+        var tB = new Date(b.time);
+        if (tA < tB) return -1;
+        if (tA > tB) return 1;
+        return 0;
+      })
+      .map((item, index) => {
+        if (item.sender_id === friend_id || item.sender_id === user_id) {
+          if (item.sender_id === currentStatus && changeStatus !== undefined) {
+            changeStatus = false;
+          } else {
+            changeStatus = true;
+          }
 
-        const temp = new Date(item.time);
-        var chatTime = `${temp.getHours()}:${
-          temp.getMinutes().toString().length > 1 ? "" : 0
-        }${temp.getMinutes()}`;
-        var chatDate = `${temp.getDay()},${temp.getDate()},${
-          temp.getMonth() + 1
-        },${temp.getFullYear()}`;
+          const temp = new Date(item.time);
+          var chatTime = `${temp.getHours()}:${
+            temp.getMinutes().toString().length > 1 ? "" : 0
+          }${temp.getMinutes()}`;
+          var chatDate = `${temp.getDay()},${temp.getDate()},${
+            temp.getMonth() + 1
+          },${temp.getFullYear()}`;
 
-        if (index === 0) {
-          datestatus = chatDate;
-          changeDate = true;
-        } else if (datestatus !== chatDate) {
-          datestatus = chatDate;
-          changeDate = true;
-        } else if (datestatus === chatDate) {
-          datestatus = chatDate;
-          changeDate = false;
+          if (index === 0) {
+            datestatus = chatDate;
+            changeDate = true;
+          } else if (datestatus !== chatDate) {
+            datestatus = chatDate;
+            changeDate = true;
+          } else if (datestatus === chatDate) {
+            datestatus = chatDate;
+            changeDate = false;
+          }
+          if (item.sender_id !== user._id) {
+            currentStatus = item.sender_id;
+
+            return (
+              <div key={index}>
+                {changeDate ? (
+                  <div className="chatroom-date-sep m-wrapper">
+                    <div className="inner-date-sep">
+                      <span>{dateSeperator(chatDate)}</span>
+                    </div>
+                  </div>
+                ) : null}
+                {item.status === "unread"
+                  ? console.log(item.status, unreadMessage)
+                  : null}
+                {item.status === "unread" ? (
+                  unreadMessage > 0 ? (
+                    newMessageStatus ? (
+                      <div className="unread-notif">
+                        {(newMessageStatus = false)}
+                        <span>{unreadMessage} UNREAD MESSAGES</span>
+                      </div>
+                    ) : null
+                  ) : null
+                ) : null}
+                {ChatInComp(item.chat, index, changeStatus, chatTime)}
+              </div>
+            );
+          } else {
+            currentStatus = item.sender_id;
+            return (
+              <div key={index}>
+                {changeDate ? (
+                  <div className="chatroom-date-sep m-wrapper">
+                    <div className="inner-date-sep">
+                      <span>{dateSeperator(chatDate)}</span>
+                    </div>
+                  </div>
+                ) : null}
+                {ChatOutComp(
+                  item.chat,
+                  index,
+                  changeStatus,
+                  chatTime,
+                  item.status
+                )}
+              </div>
+            );
+          }
         }
-        if (item.sender_id !== user._id) {
-          currentStatus = item.sender_id;
-          return (
-            <div key={index}>
-              {changeDate ? (
-                <div className="chatroom-date-sep m-wrapper">
-                  <div className="inner-date-sep">
-                    <span>{dateSeperator(chatDate)}</span>
-                  </div>
-                </div>
-              ) : null}
-              {unreadMessage > 0 ? (
-                newMessageStatus ? (
-                  <div className="unread-notif">
-                    {(newMessageStatus = false)}
-                    <span>{unreadMessage} UNREAD MESSAGES</span>
-                  </div>
-                ) : null
-              ) : null}
-              {ChatInComp(item.chat, index, changeStatus, chatTime)}
-            </div>
-          );
-        } else {
-          currentStatus = item.sender_id;
-          return (
-            <div key={index}>
-              {changeDate ? (
-                <div className="chatroom-date-sep m-wrapper">
-                  <div className="inner-date-sep">
-                    <span>{dateSeperator(chatDate)}</span>
-                  </div>
-                </div>
-              ) : null}
-              {ChatOutComp(
-                item.chat,
-                index,
-                changeStatus,
-                chatTime,
-                item.status
-              )}
-            </div>
-          );
-        }
-      }
-    });
+      });
   };
 
   const ChatInComp = (item, index, status, time) => {
@@ -379,8 +353,21 @@ const ChatRoom = (props) => {
   useEffect(() => {
     updateChat();
     loadChat();
-    scrollBottom();
     console.log(status);
+    socket.emit("ENTER_ROOM", { room: room_id, user: user_id });
+    document
+      .getElementById("chat-window")
+      .addEventListener("scroll", function () {
+        if (this.scrollTop === 0) {
+          console.log(
+            chatContainerRef.current.length,
+            chatContainerRef.current
+          );
+          // if (chatContainerRef.current.length >= 30) {
+          //   loadChat(30);
+          // }
+        }
+      });
     return () => {
       socket.emit("disconnect");
       socket.off();
@@ -393,32 +380,51 @@ const ChatRoom = (props) => {
     }
   }, [state]);
 
-  socket.on("RECEIVE_MESSAGE", (message) => {
-    setChatContainer([...chatContainer, message.data]);
-    scrollBottom();
-  });
+  useEffect(() => {
+    if (message.trim().length === 4 && message.trim() === "<br>") {
+      setMessage("");
+      setVisible(true);
+    }
+  }, [message]);
+
+  useEffect(() => {
+    chatContainerRef.current = chatContainer;
+    socket.on("REPREPARE_ROOM", async (data) => {
+      if (data.user !== user_id) {
+        await updateChat();
+        console.log("Repreparing...");
+        loadChat();
+      }
+    });
+    socket.on("RECEIVE_MESSAGE", (message) => {
+      if (message.data.sender_id !== user_id) {
+        socket.emit("UPDATE_MESSAGE", { room: room_id }, () => updateChat());
+        loadChat();
+      } else {
+        setChatContainer([...chatContainer, message.data]);
+      }
+
+      scrollBottom();
+    });
+    socket.on("REFRESH_MESSAGE", () => {
+      console.log("Refreshing...");
+      loadChat();
+    });
+
+    if (chatContainer.length <= 30) {
+      scrollBottom();
+    }
+    console.log(chatContainer);
+    return () => {
+      socket.emit("disconnect");
+      socket.off();
+    };
+  }, [chatContainer]);
 
   return (
     <div className="chat-room">
       <div className="header">
-        <div className="header-wrapper">
-          <div className="inner-header-avatar">
-            <Avatar size="50px" displayName={displayName} />
-          </div>
-          <div className="inner-header-displayInfo">
-            <div className="displayName-wrapper">
-              <span>{displayName}</span>
-            </div>
-            <div className="displayStatus-wrapper">
-              <span>Last seen 7 hours ago</span>
-            </div>
-          </div>
-          <div className="inner-header-button">
-            <span>btn</span>
-            <span>btn</span>
-            <span>btn</span>
-          </div>
-        </div>
+        <ChatRoomHeader displayName={displayName}></ChatRoomHeader>
         {status === "off" ? (
           <div className="alert-status-wrapper">
             <div className="inner-alert-status">
@@ -432,76 +438,17 @@ const ChatRoom = (props) => {
         ) : null}
       </div>
       <div className="main-chat-room">
-        <div className="chat-display-wrapper" id="chat-window">
-          {renderAllChat()}
-        </div>
+        <ChatRoomMain renderAllChat={renderAllChat}></ChatRoomMain>
       </div>
       <footer className="footer">
-        <div className="footer-wrapper">
-          <div className="icon-wrapper">
-            <svg
-              aria-hidden="true"
-              focusable="false"
-              data-prefix="far"
-              data-icon="smile"
-              className="svg-inline--fa fa-smile fa-w-16"
-              role="img"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 496 512"
-            >
-              <path
-                fill="currentColor"
-                d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm0 448c-110.3 0-200-89.7-200-200S137.7 56 248 56s200 89.7 200 200-89.7 200-200 200zm-80-216c17.7 0 32-14.3 32-32s-14.3-32-32-32-32 14.3-32 32 14.3 32 32 32zm160 0c17.7 0 32-14.3 32-32s-14.3-32-32-32-32 14.3-32 32 14.3 32 32 32zm4 72.6c-20.8 25-51.5 39.4-84 39.4s-63.2-14.3-84-39.4c-8.5-10.2-23.7-11.5-33.8-3.1-10.2 8.5-11.5 23.6-3.1 33.8 30 36 74.1 56.6 120.9 56.6s90.9-20.6 120.9-56.6c8.5-10.2 7.1-25.3-3.1-33.8-10.1-8.4-25.3-7.1-33.8 3.1z"
-              ></path>
-            </svg>
-          </div>
-          <div tabIndex="-1" className="input-message-bar">
-            <div
-              className="inner-input-message"
-              onKeyDown={onSendChat}
-              tabIndex="-1"
-            >
-              <div
-                className="placeholder"
-                style={
-                  visible ? { visibility: visible } : { visibility: "hidden" }
-                }
-              >
-                Type a message
-              </div>
-              <div
-                type="text"
-                name="message"
-                className="input-bar"
-                id="message-bar"
-                placeholder="Type a message"
-                autoComplete="off"
-                contentEditable={true}
-                dir="ltr"
-                spellCheck="true"
-              ></div>
-            </div>
-          </div>
-          <div className="icon-wrapper">
-            <button onClick={onSendChat}>
-              <svg
-                aria-hidden="true"
-                focusable="false"
-                data-prefix="fas"
-                data-icon="paper-plane"
-                className="svg-inline--fa fa-paper-plane fa-w-16"
-                role="img"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 512 512"
-              >
-                <path
-                  fill="currentColor"
-                  d="M476 3.2L12.5 270.6c-18.1 10.4-15.8 35.6 2.2 43.2L121 358.4l287.3-253.2c5.5-4.9 13.3 2.6 8.6 8.3L176 407v80.5c0 23.6 28.5 32.9 42.5 15.8L282 426l124.6 52.2c14.2 6 30.4-2.9 33-18.2l72-432C515 7.8 493.3-6.8 476 3.2z"
-                ></path>
-              </svg>
-            </button>
-          </div>
-        </div>
+        <ChatRoomFooter
+          handleChange={handleChange}
+          handleSendChat={handleSendChat}
+          message={message}
+          visible={visible}
+          pastePlainText={pastePlainText}
+          disableNewLines={disableNewLines}
+        ></ChatRoomFooter>
       </footer>
     </div>
   );

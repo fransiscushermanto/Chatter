@@ -16,10 +16,6 @@ router
   );
 
 router
-  .route("/sendChat")
-  .post(validateBody(schemas.sendChat), passportJWT, ChatController.sendChat);
-
-router
   .route("/loadAllRoom")
   .post(validateBody(schemas.getRoom), passportJWT, ChatController.getAllRoom);
 

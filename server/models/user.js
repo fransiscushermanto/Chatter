@@ -6,83 +6,95 @@ const userSchema = new Schema({
   method: {
     type: String,
     enum: ["local", "google", "facebook"],
-    required: true
+    required: true,
   },
   local: {
     fullname: {
-      type: String
+      type: String,
     },
     email: {
       type: String,
-      lowercase: true
+      lowercase: true,
     },
     password: {
-      type: String
+      type: String,
     },
     level: {
-      type: String
+      type: String,
     },
     verified: {
       type: String,
-      enum: ["yes", "no"]
+      enum: ["yes", "no"],
     },
     status: {
       type: String,
-      enum: ["on", "off"]
-    }
+      enum: ["on", "off"],
+    },
+    online: {
+      type: String,
+      enum: ["on", "off"],
+    },
   },
   google: {
     id: {
-      type: String
+      type: String,
     },
     fullname: {
-      type: String
+      type: String,
     },
     email: {
       type: String,
-      lowercase: true
+      lowercase: true,
     },
     level: {
-      type: String
+      type: String,
     },
     verified: {
       type: String,
-      enum: ["yes", "no"]
+      enum: ["yes", "no"],
     },
     status: {
       type: String,
-      enum: ["on", "off"]
-    }
+      enum: ["on", "off"],
+    },
+    online: {
+      type: String,
+      enum: ["on", "off"],
+    },
   },
   facebook: {
     id: {
-      type: String
+      type: String,
     },
     fullname: {
-      type: String
+      type: String,
     },
     email: {
       type: String,
-      lowercase: true
+      lowercase: true,
     },
     level: {
-      type: String
+      type: String,
     },
     verified: {
       type: String,
-      enum: ["yes", "no"]
+      enum: ["yes", "no"],
     },
     level: {
-      type: String
+      type: String,
     },
     status: {
       type: String,
-      enum: ["on", "off"]
-    }
-  }
+      enum: ["on", "off"],
+    },
+    online: {
+      type: String,
+      enum: ["on", "off"],
+    },
+  },
 });
 
-userSchema.pre("save", async function(next) {
+userSchema.pre("save", async function (next) {
   try {
     if (this.method !== "local") {
       next();
@@ -96,7 +108,7 @@ userSchema.pre("save", async function(next) {
   }
 });
 
-userSchema.methods.isValidPassword = async function(newPassword) {
+userSchema.methods.isValidPassword = async function (newPassword) {
   try {
     return await bcrypt.compare(newPassword, this.local.password);
   } catch (error) {

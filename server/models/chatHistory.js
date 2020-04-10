@@ -3,22 +3,30 @@ const Schema = mongoose.Schema;
 
 const ChatHistorySchema = new Schema({
   room_id: {
-    type: String
+    type: String,
   },
   chat: {
-    type: String
+    type: String,
   },
   sender_id: {
-    type: String
+    type: String,
   },
   time: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   status: {
     type: String,
-    enum: ["read", "unread"]
-  }
+    enum: ["read", "unread"],
+  },
+  backup: {
+    person_1: {
+      type: String,
+    },
+    person_2: {
+      type: String,
+    },
+  },
 });
 
 const ChatHistory = mongoose.model("chatHistory", ChatHistorySchema);

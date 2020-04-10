@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { Link, withRouter } from "react-router-dom";
 
 import ResultAddFriend from "./ResultAddFriend";
-import * as actions from "../actions";
+
 import "../css/AddFriend.css";
 
 const AddFriend = ({

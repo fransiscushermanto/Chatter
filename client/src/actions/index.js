@@ -266,6 +266,7 @@ export const loadAllChat = (data) => {
   return async (dispatch) => {
     try {
       const res = await axios.post("/chats/loadAllChat", data);
+      console.log(res);
       dispatch({
         type: LOAD_ALL_CHAT,
         payload: res.data.chat,
