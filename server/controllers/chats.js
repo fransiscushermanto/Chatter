@@ -20,16 +20,43 @@ module.exports = {
   createRoom: async (req, res, next) => {
     const { user_id, friend_id, user } = req.body;
     try {
-      const exist = await ChatRoom.findOne({
+      const exist = await ChatRoom.find({
         $or: [
           { $and: [{ user_id: user_id }, { friend_id: friend_id }] },
           { $and: [{ user_id: friend_id }, { friend_id: user_id }] },
         ],
       });
-
-      if (exist) {
-        const token = signToken(user);
-        return res.status(200).send({ token, room: exist });
+      if (exist.length > 0) {
+        if (exist.length > 1) {
+          const token = signToken(user);
+          return res.status(200).send({ token, room: exist });
+        } else {
+          if (
+            exist[0].user_id !== user_id &&
+            exist[0].friend_id !== friend_id
+          ) {
+            const newChatRoom = new ChatRoom({
+              room_id: exist[0].room_id,
+              user_id: user_id,
+              friend_id: friend_id,
+              lastchat: {
+                sender_id: "",
+                chat: "",
+              },
+              status: "on",
+            });
+            await newChatRoom.save((error) => {
+              if (error) {
+                console.log(error);
+              }
+            });
+            const token = signToken(user);
+            return res.status(200).send({ token, room: newChatRoom });
+          } else {
+            const token = signToken(user);
+            return res.status(200).send({ token, room: newChatRoom });
+          }
+        }
       }
 
       const room_id = md5(user_id + friend_id);
@@ -54,49 +81,56 @@ module.exports = {
       console.log(error);
     }
     const token = signToken(user);
-    console.log(result);
-    res.status(200).json({ token, room: result });
+    res.status(200).json({ token, room: newChatRoom });
   },
   getAllRoom: async (req, res, next) => {
-    const { user_id, user } = req.body;
+    try {
+      const { user_id, user } = req.body;
 
-    const allRoom = await ChatRoom.find({
-      $or: [{ user_id: user_id }],
-    });
-
-    const token = signToken(user);
-    return res.status(200).send({ token, room: allRoom });
+      const allRoom = await ChatRoom.find({
+        $or: [{ user_id: user_id }, { friend_id: user_id }],
+      });
+      const token = signToken(user);
+      return res.status(200).send({ token, room: allRoom });
+    } catch (error) {
+      console.log(error);
+    }
   },
   getAllChat: async (req, res, next) => {
-    const { room_id, user, skip } = req.body;
-    var criteria, limit;
-    if (room_id !== "all") {
-      criteria = {
-        $and: [
-          { room_id: room_id },
-          {
-            $or: [
-              { "backup.person_1": user._id },
-              { "backup.person_2": user._id },
-            ],
-          },
-        ],
-      };
-      limit = 30;
-    } else {
-      criteria = {
-        $or: [{ "backup.person_1": user._id }, { "backup.person_2": user._id }],
-      };
-      limit = 0;
-    }
-    console.log(skip);
-    const chatHistory = await ChatHistory.find(criteria)
-      .limit(limit)
-      .skip(skip)
-      .sort({ time: -1 });
+    try {
+      const { room_id, user, skip } = req.body;
+      var criteria, limit;
+      if (room_id !== "all") {
+        criteria = {
+          $and: [
+            { room_id: room_id },
+            {
+              $or: [
+                { "backup.person_1": user._id },
+                { "backup.person_2": user._id },
+              ],
+            },
+          ],
+        };
+        limit = 30;
+      } else {
+        criteria = {
+          $or: [
+            { "backup.person_1": user._id },
+            { "backup.person_2": user._id },
+          ],
+        };
+        limit = 0;
+      }
+      const chatHistory = await ChatHistory.find(criteria)
+        .limit(limit)
+        .sort({ time: -1 });
 
-    const token = signToken(user);
-    return res.status(200).send({ token, chat: chatHistory });
+      const token = signToken(user);
+      return res.status(200).send({ token, chat: chatHistory });
+    } catch (error) {
+      console.log(error);
+    }
   },
   updateChatStatus: async (req, res, next) => {
     const { room_id, sender_id } = req.body;

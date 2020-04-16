@@ -12,26 +12,26 @@ const connectionString = "mongodb://localhost/chatter";
 if (process.env.NODE_ENV !== "test") {
   mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
   });
-  mongoose.connection.on("error", function(error) {
+  mongoose.connection.on("error", function (error) {
     console.log(error);
     console.log("ERROR CONNECT");
   });
-  mongoose.connection.on("connected", function() {
+  mongoose.connection.on("connected", function () {
     console.log("Connected");
   });
 } else {
   mongoose.connect(connectionString, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
   });
-  mongoose.connection.on("connected", function() {
+  mongoose.connection.on("connected", function () {
     console.log("Connected");
   });
 }
 
-const app = express();
+const app = (module.exports.app = express());
 
 //Middlewares
 app.use(morgan("dev"));
@@ -41,12 +41,12 @@ app.use(favicon(path.join(__dirname, "client", "build", "favicon.ico")));
 app.use(express.static(__dirname));
 app.use(express.static(path.join(__dirname, "client", "build")));
 if (process.env.NODE_ENV !== "test") {
-  app.get("*", function(req, res) {
+  app.get("*", function (req, res) {
     const index = path.join(__dirname, "client", "build", "index.html");
     res.sendFile(index);
   });
 }
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   if (
     process.env.NODE_ENV !== "test" &&
     req.headers["x-forwarded-proto"] !== "https"
@@ -57,7 +57,5 @@ app.use(function(req, res, next) {
 });
 
 //Routes
-app.use("/users", require("./server/routes/users"));
-app.use("/chats", require("./server/routes/chats"));
-
-module.exports = app;
+app.use("/users", require("./routes/users"));
+app.use("/chats", require("./routes/chats"));

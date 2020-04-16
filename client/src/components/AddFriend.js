@@ -82,10 +82,12 @@ const AddFriend = ({
   };
 
   useEffect(() => {
-    socket.on("LOAD_FRIEND", () => {
-      loadFriend();
-    });
-    loadToState();
+    if (socket !== "") {
+      socket.on("LOAD_FRIEND", () => {
+        loadFriend();
+      });
+      loadToState();
+    }
   }, []);
 
   return (

@@ -22,7 +22,6 @@ signToken = (user) => {
 module.exports = {
   signUp: async (req, res, next) => {
     const { email, password, fullname } = req.value.body;
-    console.log("REQ VALUE", req.value.body);
     const exist = await User.findOne({ "local.email": email });
     if (exist) {
       return res.status(403).send({ error: "Email is already exist" });

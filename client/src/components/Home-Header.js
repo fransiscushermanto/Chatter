@@ -5,13 +5,13 @@ import Avatar from "react-avatar";
 import "../css/Home-Header.css";
 import * as actions from "../actions";
 
-const HomeHeader = ({ profileName, renderProfile }) => {
+const HomeHeader = ({ profileName, renderProfile, socket }) => {
   const dispatch = useDispatch();
   let { url } = useRouteMatch();
-  const isAuth = useSelector(state => state.auth.isAuthenticated);
-  const authType = useSelector(state => state.auth.authType);
-  const jwtToken = useSelector(state => state.auth.token);
-  const dataUser = useSelector(state => state.decode.user);
+  const isAuth = useSelector((state) => state.auth.isAuthenticated);
+  const authType = useSelector((state) => state.auth.authType);
+  const jwtToken = useSelector((state) => state.auth.token);
+  const dataUser = useSelector((state) => state.decode.user);
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
 
@@ -32,11 +32,13 @@ const HomeHeader = ({ profileName, renderProfile }) => {
 
   const signOut = () => {
     dispatch(actions.signOut());
+    socket.emit("DISCONNECT");
+    socket.off();
     window.location.replace("/signin");
   };
 
   useEffect(() => {
-    const decodedata = async data => {
+    const decodedata = async (data) => {
       await dispatch(actions.decodeJWT(data));
     };
     if (isAuth && authType !== "oauth") {
@@ -57,7 +59,7 @@ const HomeHeader = ({ profileName, renderProfile }) => {
     renderProfile(profileName);
   };
 
-  const renderAvatar = size => (
+  const renderAvatar = (size) => (
     <Avatar
       round="50px"
       size={size}
@@ -166,7 +168,7 @@ const HomeHeader = ({ profileName, renderProfile }) => {
             style={{
               fontStyle: "italic",
               fontWeight: 100,
-              fontSize: "20px"
+              fontSize: "20px",
             }}
           >
             Alpha

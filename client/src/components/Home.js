@@ -13,11 +13,11 @@ import * as actions from "../actions";
 
 import "../css/Home.css";
 import "../css/responsive.css";
-const Home = (props) => {
-  const socketUrl = `${
-    process.env.REACT_APP_SOCKET_URL || window.location.origin
-  }`;
 
+const socketUrl = `${
+  process.env.REACT_APP_SOCKET_URL || window.location.origin
+}`;
+const Home = () => {
   let { path } = useRouteMatch();
   const dispatch = useDispatch();
   const history = useHistory();
@@ -27,7 +27,6 @@ const Home = (props) => {
   const listFriend = useSelector((state) => state.friend.data);
   const dataUser = useSelector((state) => state.decode.user);
   const allUser = useSelector((state) => state.user.data);
-  const [updateChatState, setUpdateChatState] = useState(false);
   const [showChatHistory, setShowChatHistory] = useState(true);
   const [unreadMessage, setUnreadMessage] = useState([]);
   const [searchValue, setSearchValue] = useState("");
@@ -39,6 +38,7 @@ const Home = (props) => {
   const [allChatState, setAllChatState] = useState([]);
   const [profileName, setProfileName] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
+  const [socket, setSocket] = useState("");
   const [chatItem, setChatItem] = useState({
     friendName: "",
     userName: "",
@@ -46,18 +46,21 @@ const Home = (props) => {
     status: "",
     friend_id: "",
     user_id: "",
-    unreadMessage: 0,
   });
 
-  const socketRef = useRef();
   //CONNECT SOCKET.IO-ClIENT
+
   useEffect(() => {
-    socketRef.current = io.connect(socketUrl);
-    socketRef.current.on("connect", function () {
-      console.log(socketRef.current.connected);
-    });
+    //Init Socket
+    const initSocket = () => {
+      const sockets = io.connect(socketUrl);
+      sockets.on("connect", function () {
+        sockets.emit("NEW USER");
+      });
+      setSocket(sockets);
+    };
+    initSocket();
   }, [socketUrl]);
-  const socket = socketRef.current;
 
   /*---ALL FUNCTION---*/
 
@@ -88,11 +91,6 @@ const Home = (props) => {
     await dispatch(actions.loadAllChat(data));
   };
 
-  //LOAD ALL CHAT FROM CHAT ROOM
-  function updateState() {
-    setUpdateChatState(!updateChatState);
-  }
-
   //LOAD CHAT HISTORY FUNCTION
   const loadChatHistory = () => {
     if (chatList.length > 0) {
@@ -106,7 +104,7 @@ const Home = (props) => {
         const user = userList.filter((user) =>
           user.user_id.includes(data.friend_id)
         );
-        socketRef.current.emit("JOIN_ROOM", { room: data.room_id });
+        socket.emit("JOIN_CHAT_ROOM", data.room_id);
         if (friend.length === 1) {
           chats.push({
             room_id: data.room_id,
@@ -131,6 +129,7 @@ const Home = (props) => {
           });
         }
       });
+
       handleUnreadMessage(arr);
       setChatHistory(chats);
     }
@@ -138,14 +137,12 @@ const Home = (props) => {
 
   //LOAD CHAT ITEM TO CHAT ROOM
   const onClickDisplayChat = (e) => {
-    console.log(e);
     const data = {
       user_id: dataUser._id,
       friendName: e.friendName,
       room_id: e.room_id,
       status: e.status,
       friend_id: e.friend_id,
-      unreadMessage: e.unreadMessage,
       userName: e.userName,
     };
     setChatItem(data);
@@ -177,6 +174,7 @@ const Home = (props) => {
           <ChatDisplay
             key={data.room_id}
             room_id={data.room_id}
+            unreadMessage={unreadMessage}
             onClick={onClickDisplayChat}
             displayName={data.friendName}
             chat={data.chat}
@@ -435,9 +433,6 @@ const Home = (props) => {
   useEffect(() => {
     document.getElementsByClassName("app-wrapper")[0].style.cssText =
       "margin: 0px";
-    socketRef.current.on("LOAD_FRIEND", () => {
-      loadFriend();
-    });
   }, []);
 
   //LOAD FRIEND & LOAD USER DATA
@@ -456,10 +451,26 @@ const Home = (props) => {
       } else {
         fullname = data.google.fullname;
       }
-      socketRef.current.emit("JOIN_ROOM", { room: data._id });
       setProfileName(fullname);
     }
   }, [dataUser]);
+
+  //SOCKET
+  useEffect(() => {
+    if (dataUser !== "" && socket !== "") {
+      socket.on("LOAD_USER", () => {
+        getAllUser();
+      });
+      socket.on("LOAD_FRIEND", () => {
+        loadFriend();
+      });
+      socket.on("UPCOMING_ROOM", () => {
+        loadAllChat();
+        loadRoom();
+        loadChatHistory();
+      });
+    }
+  }, [socket, dataUser]);
 
   //SHOWCHAT ROOM STATE HANDLER
   useEffect(() => {
@@ -476,22 +487,26 @@ const Home = (props) => {
   //LOAD ALL CHAT TO CHATDISPLAY
   useEffect(() => {
     loadChatHistory();
-  }, [chatList, friendList, userList, allChatHistory]);
+  }, [chatList, friendList, userList]);
 
   useEffect(() => {
-    loadChatHistory();
-    loadRoom();
-    socketRef.current.on("RECEIVE_MESSAGE", (message) => {
-      console.log(message.data, "HOME");
-      if (allChatState.length > 0) {
-        setAllChatState([...allChatState, message.data]);
-      }
-    });
-    return () => {
-      socketRef.current.emit("disconnect");
-      socketRef.current.off();
-    };
-  }, [allChatState]);
+    if (socket !== "" && dataUser !== "") {
+      socket.on("RECEIVE_MESSAGE", () => {
+        console.log("HOME UPDATE");
+        loadAllChat();
+        loadChatHistory();
+        loadRoom();
+      });
+      return () => {
+        socket.off("RECEIVE_MESSAGE", () => {
+          console.log("HOME UPDATE");
+          loadAllChat();
+          loadChatHistory();
+          loadRoom();
+        });
+      };
+    }
+  }, [socket, dataUser]);
 
   useEffect(() => {
     if (allChatHistory.length > 0) {
@@ -510,6 +525,7 @@ const Home = (props) => {
         <Header
           profileName={profileName}
           renderProfile={renderProfile}
+          socket={socket}
         ></Header>
         <div className="row">
           <div className="sider">
@@ -610,25 +626,23 @@ const Home = (props) => {
                 status={chatItem.status}
                 friend_id={chatItem.friend_id}
                 user={dataUser}
-                unreadMessage={chatItem.unreadMessage}
+                unreadMessage={unreadMessage[chatItem.room_id]}
                 socket={socket}
                 userName={chatItem.userName}
-                updateState={updateState}
+                chats={allChatState}
               />
             ) : null}
           </div>
         </div>
         <Switch>
           <Route path={`${path}/addFriend`}>
-            {socket && (
-              <AddFriend
-                isFriend={isFriend}
-                dataUser={dataUser}
-                loadFriend={loadFriend}
-                socket={socket}
-                renderProfile={renderProfile}
-              />
-            )}
+            <AddFriend
+              isFriend={isFriend}
+              dataUser={dataUser}
+              loadFriend={loadFriend}
+              socket={socket}
+              renderProfile={renderProfile}
+            />
           </Route>
         </Switch>
         {showProfile !== undefined ? (

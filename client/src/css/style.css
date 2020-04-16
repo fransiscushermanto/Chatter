@@ -31,6 +31,9 @@ div.selectable-text span {
   --system-message-background: rgba(225, 245, 254, 0.92);
   --unread-message-background: rgba(194, 189, 189, 0.12);
   --main-page-background: rgba(194, 189, 189, 0.16);
+  --incoming-background: #fff;
+  --shadow-rgb: rgb(0, 0, 0);
+  --unread-marker-background: #06d755;
 }
 
 body {

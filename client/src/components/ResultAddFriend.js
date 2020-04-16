@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
 
 import CustomAvatar from "./CustomAvatar";
 import * as actions from "../actions";
@@ -23,7 +22,7 @@ const ResultAddFriend = ({
       user: dataUser,
     };
     await dispatch(actions.addFriend(addFriendData));
-    socket.emit("GET_FRIEND", { room: dataUser._id });
+    socket.emit("GET_FRIEND");
   };
 
   useEffect(() => {

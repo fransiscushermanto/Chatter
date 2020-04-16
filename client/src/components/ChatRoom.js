@@ -1,31 +1,20 @@
-import React, { useEffect, useRef, useState, useReducer } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
 
 import ChatRoomFooter from "./ChatRoomFooter";
 import ChatRoomHeader from "./ChatRoomHeader";
 import ChatRoomMain from "./ChatRoomMain";
 
+import * as actions from "../actions";
 import axios from "../instance";
 import "../css/ChatRoom.css";
 
-const initialState = {
-  chat: [],
-};
-
-const reducer = (state, action) => {
-  switch (action.type) {
-    case "LOAD":
-      return { ...state, chat: action.payload };
-    default:
-      return state;
-  }
-};
-
 const ChatRoom = (props) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
-
   const [visible, setVisible] = useState(true);
   const [chatContainer, setChatContainer] = useState([]);
   const [message, setMessage] = useState("");
+  const [scrolling, setScrolling] = useState(false);
+  const [firstLoad, setFirstLoad] = useState(true);
 
   const {
     displayName,
@@ -36,67 +25,78 @@ const ChatRoom = (props) => {
     socket,
     unreadMessage,
     user_id,
-    userName,
-    updateState,
+    chats,
   } = props;
 
-  const chatContainerRef = useRef([]);
+  // const chatContainerRef = useRef(chats);
+  const dispatch = useDispatch();
   const setStatetoChatContainer = () => {
+    console.log(chats.length);
+    const res = chats.filter((data) => data.room_id.includes(room_id));
+
     if (chatContainer.length === 0) {
-      setChatContainer(...chatContainer, state.chat);
+      setChatContainer(...chatContainer, res);
     } else {
-      setChatContainer(state.chat);
+      setChatContainer(res);
     }
   };
 
-  const loadChat = async (length = 0) => {
-    let skip = 0;
-    skip += length;
-    console.log(state.chat.length, skip);
-    if (state.chat.length >= 30) {
-      skip = state;
-    }
+  // const loadChat = async (length = 0) => {
+  //   let skip = 0;
+  //   skip += length;
+  //   console.log(state.chat.length, skip);
+  //   if (state.chat.length >= 30) {
+  //     skip = state;
+  //   }
 
-    const data = {
-      room_id,
-      user,
-      skip,
-    };
-    const res = await axios.post("/chats/loadAllChat", data);
+  //   const data = {
+  //     room_id,
+  //     user,
+  //     skip,
+  //   };
+  //   const res = await axios.post("/chats/loadAllChat", data);
 
-    dispatch({
-      type: "LOAD",
-      payload: res.data.chat,
-    });
-    console.log("Loading...");
-    localStorage.setItem("JWT_TOKEN", res.data.token);
-  };
+  //   dispatch({
+  //     type: "LOAD",
+  //     payload: res.data.chat,
+  //   });
+  //   console.log("Loading...");
+  //   localStorage.setItem("JWT_TOKEN", res.data.token);
+  // };
 
-  const updateChat = async () => {
+  const updateChat = async (sender_id) => {
     console.log("Updating...");
     const data = {
       room_id,
-      sender_id: friend_id,
+      sender_id: sender_id,
     };
-    const res = await axios.post("/chats/updateChatReadStatus", data);
-    if (res.data.message) {
-      loadChat();
-    }
+    dispatch(actions.updateChatReadStatus(data));
   };
+
+  function escapeHtml(text) {
+    return text
+      .replace("&amp;", "&")
+      .replace("&lt;", "<")
+      .replace("&gt;", ">")
+      .replace("&quot;", '"');
+  }
 
   const handleSendChat = () => {
     let date = new Date(Date.now());
+
     let data = {
       room_id: room_id,
-      chat: message,
+      chat: escapeHtml(message),
       sender_id: user_id,
       time: date,
       status: "unread",
       user: user,
       friend_id: friend_id,
     };
-    socket.emit("SEND_MESSAGE", { room: room_id, data }, () => setMessage(""));
-    setVisible(true);
+    socket.emit("SEND_MESSAGE", { room: room_id, data }, () => {
+      setMessage("");
+      setVisible(true);
+    });
   };
 
   const dateSeperator = (date) => {
@@ -249,19 +249,24 @@ const ChatRoom = (props) => {
                     </div>
                   </div>
                 ) : null}
-                {item.status === "unread"
+                {/* {item.status === "unread"
                   ? console.log(item.status, unreadMessage)
-                  : null}
-                {item.status === "unread" ? (
-                  unreadMessage > 0 ? (
-                    newMessageStatus ? (
-                      <div className="unread-notif">
-                        {(newMessageStatus = false)}
-                        <span>{unreadMessage} UNREAD MESSAGES</span>
-                      </div>
+                  : null} */}
+                {
+                  item.status === "unread" ? (
+                    unreadMessage > 0 ? (
+                      newMessageStatus ? (
+                        <div className="unread-notif">
+                          {(newMessageStatus = false)}
+                          <span>{unreadMessage} UNREAD MESSAGES</span>
+                        </div>
+                      ) : null
                     ) : null
                   ) : null
-                ) : null}
+                  // firstLoad ? (
+                  //   console.log("FIRSTLOAD")
+                  // ) : null
+                }
                 {ChatInComp(item.chat, index, changeStatus, chatTime)}
               </div>
             );
@@ -345,40 +350,73 @@ const ChatRoom = (props) => {
     );
   };
 
+  const Handler = (message) => {
+    if (message.data.sender_id !== user_id && !scrolling) {
+      socket.emit("UPDATE_MESSAGE", () => updateChat(friend_id));
+    }
+    setChatContainer([...chatContainer, message.data]);
+  };
+
   const scrollBottom = () => {
     var windows = document.getElementById("chat-window");
-    windows.scrollTop = windows.scrollHeight;
+    if (!scrolling) {
+      windows.scrollTop = windows.scrollHeight;
+    }
+    if (unreadMessage > 0) {
+      updateChat(friend_id);
+    }
+  };
+
+  const detectScroll = () => {
+    var windows = document.getElementById("chat-window");
+    windows.addEventListener("scroll", function () {
+      console.log(
+        Math.floor(this.scrollTop + this.offsetHeight),
+        this.scrollHeight
+      );
+
+      if (
+        Math.floor(this.scrollTop + this.offsetHeight) === this.scrollHeight
+      ) {
+        console.log(this.scrollTop + this.offsetHeight === this.scrollHeight);
+        setScrolling(false);
+      } else {
+        setScrolling(true);
+      }
+    });
+  };
+
+  const onAddFriend = async () => {
+    const addFriendData = {
+      friendId: friend_id,
+      userId: user_id,
+      user: user,
+    };
+    await dispatch(actions.addFriend(addFriendData));
+    socket.emit("GET_FRIEND");
   };
 
   useEffect(() => {
-    updateChat();
-    loadChat();
-    console.log(status);
-    socket.emit("ENTER_ROOM", { room: room_id, user: user_id });
+    setStatetoChatContainer();
     document
       .getElementById("chat-window")
       .addEventListener("scroll", function () {
         if (this.scrollTop === 0) {
-          console.log(
-            chatContainerRef.current.length,
-            chatContainerRef.current
-          );
           // if (chatContainerRef.current.length >= 30) {
           //   loadChat(30);
           // }
         }
       });
-    return () => {
-      socket.emit("disconnect");
-      socket.off();
-    };
+    socket.emit("PREPARING", { user: friend_id, room: room_id });
   }, []);
 
   useEffect(() => {
-    if (state.chat.length > 0) {
-      setStatetoChatContainer();
-    }
-  }, [state]);
+    detectScroll();
+    scrollBottom();
+    return () => {
+      detectScroll();
+    };
+  }, [scrolling]);
 
   useEffect(() => {
     if (message.trim().length === 4 && message.trim() === "<br>") {
@@ -388,36 +426,16 @@ const ChatRoom = (props) => {
   }, [message]);
 
   useEffect(() => {
-    chatContainerRef.current = chatContainer;
     socket.on("REPREPARE_ROOM", async (data) => {
-      if (data.user !== user_id) {
-        await updateChat();
-        console.log("Repreparing...");
-        loadChat();
-      }
+      await updateChat(data.user);
     });
-    socket.on("RECEIVE_MESSAGE", (message) => {
-      if (message.data.sender_id !== user_id) {
-        socket.emit("UPDATE_MESSAGE", { room: room_id }, () => updateChat());
-        loadChat();
-      } else {
-        setChatContainer([...chatContainer, message.data]);
-      }
+    scrollBottom();
+  }, [chatContainer]);
 
-      scrollBottom();
-    });
-    socket.on("REFRESH_MESSAGE", () => {
-      console.log("Refreshing...");
-      loadChat();
-    });
-
-    if (chatContainer.length <= 30) {
-      scrollBottom();
-    }
-    console.log(chatContainer);
+  useEffect(() => {
+    socket.on("RECEIVE_MESSAGE", Handler);
     return () => {
-      socket.emit("disconnect");
-      socket.off();
+      socket.off("RECEIVE_MESSAGE", Handler);
     };
   }, [chatContainer]);
 
@@ -429,7 +447,7 @@ const ChatRoom = (props) => {
           <div className="alert-status-wrapper">
             <div className="inner-alert-status">
               <div className="action-btn">
-                <button>ADD</button>
+                <button onClick={onAddFriend}>ADD</button>
                 <div className="line"></div>
                 <button>BLOCK</button>
               </div>
@@ -439,6 +457,34 @@ const ChatRoom = (props) => {
       </div>
       <div className="main-chat-room">
         <ChatRoomMain renderAllChat={renderAllChat}></ChatRoomMain>
+        <span>
+          {scrolling ? (
+            <div
+              role="button"
+              className="scrollBottom"
+              onClick={() => setScrolling(false)}
+            >
+              <span className="unread">
+                {unreadMessage > 0 ? (
+                  <span className="unread-marker">{unreadMessage}</span>
+                ) : null}
+              </span>
+              <span className="arrow-down">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 21 21"
+                  width="21"
+                  height="21"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M4.8 6.1l5.7 5.7 5.7-5.7 1.6 1.6-7.3 7.2-7.3-7.2 1.6-1.6z"
+                  ></path>
+                </svg>
+              </span>
+            </div>
+          ) : null}
+        </span>
       </div>
       <footer className="footer">
         <ChatRoomFooter
