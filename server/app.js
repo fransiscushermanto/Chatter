@@ -36,12 +36,12 @@ const app = (module.exports.app = express());
 app.use(morgan("dev"));
 app.use(cors());
 app.use(bodyParser.json());
-app.use(favicon(path.join(__dirname, "client", "build", "favicon.ico")));
+app.use(favicon(path.join(__dirname, "..", "client", "build", "favicon.ico")));
 app.use(express.static(__dirname));
-app.use(express.static(path.join(__dirname, "client", "build")));
+app.use(express.static(path.join(__dirname, "..", "client", "build")));
 if (process.env.NODE_ENV !== "test") {
   app.get("*", function (req, res) {
-    const index = path.join(__dirname, "client", "build", "index.html");
+    const index = path.join(__dirname, "..", "client", "build", "index.html");
     res.sendFile(index);
   });
 }
@@ -57,5 +57,5 @@ app.use(function (req, res, next) {
 });
 
 //Routes
-app.use("/users", require("./server/routes/users"));
-app.use("/chats", require("./server/routes/chats"));
+app.use("/users", require("./routes/users"));
+app.use("/chats", require("./routes/chats"));
