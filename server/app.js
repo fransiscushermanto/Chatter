@@ -1,8 +1,6 @@
 require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
-const favicon = require("express-favicon");
-const path = require("path");
 const cors = require("cors");
 const morgan = require("morgan");
 const mongoose = require("mongoose");

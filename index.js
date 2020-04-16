@@ -2,6 +2,9 @@ const app = require("./server/app").app;
 const port = process.env.PORT || 8550;
 const httpTemp = require("http");
 const http = httpTemp.createServer(app);
+const favicon = require("express-favicon");
+const express = require("express");
+const path = require("path");
 const io = (module.exports.io = require("socket.io")(http));
 const SocketManager = require("./server/helpers/SocketManager");
 
