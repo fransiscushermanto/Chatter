@@ -1,4 +1,4 @@
-const app = require("./server/app").app;
+const app = require("./app").app;
 const port = process.env.PORT || 8550;
 const httpTemp = require("http");
 const http = httpTemp.createServer(app);
