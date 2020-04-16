@@ -1,10 +1,11 @@
 require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
+const favicon = require("express-favicon");
+const path = require("path");
 const cors = require("cors");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
-
 const connectionString = "mongodb://localhost/chatter";
 
 if (process.env.NODE_ENV !== "test") {
@@ -35,6 +36,15 @@ const app = (module.exports.app = express());
 app.use(morgan("dev"));
 app.use(cors());
 app.use(bodyParser.json());
+app.use(favicon(path.join(__dirname, "../", "client", "build", "favicon.ico")));
+app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, "../", "client", "build")));
+if (process.env.NODE_ENV !== "test") {
+  app.get("*", function (req, res) {
+    const index = path.join(__dirname, "../", "client", "build", "index.html");
+    res.sendFile(index);
+  });
+}
 
 app.use(function (req, res, next) {
   if (
