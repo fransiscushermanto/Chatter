@@ -9,7 +9,21 @@ import * as actions from "../actions";
 import axios from "../instance";
 import "../css/ChatRoom.css";
 
+const initialState = {
+  chat: [],
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "LOAD":
+      return { ...state, chat: action.payload };
+    default:
+      return state;
+  }
+};
+
 const ChatRoom = (props) => {
+  const [state, dispatcher] = useReducer(reducer, initialState);
   const [visible, setVisible] = useState(true);
   const [chatContainer, setChatContainer] = useState([]);
   const [message, setMessage] = useState("");
@@ -41,28 +55,21 @@ const ChatRoom = (props) => {
     }
   };
 
-  // const loadChat = async (length = 0) => {
-  //   let skip = 0;
-  //   skip += length;
-  //   console.log(state.chat.length, skip);
-  //   if (state.chat.length >= 30) {
-  //     skip = state;
-  //   }
+  const loadChat = async () => {
+    const data = {
+      room_id,
+      user,
+      skip: 0,
+    };
+    const res = await axios.post("/chats/loadAllChat", data);
 
-  //   const data = {
-  //     room_id,
-  //     user,
-  //     skip,
-  //   };
-  //   const res = await axios.post("/chats/loadAllChat", data);
-
-  //   dispatch({
-  //     type: "LOAD",
-  //     payload: res.data.chat,
-  //   });
-  //   console.log("Loading...");
-  //   localStorage.setItem("JWT_TOKEN", res.data.token);
-  // };
+    dispatcher({
+      type: "LOAD",
+      payload: res.data.chat,
+    });
+    console.log("Loading...");
+    localStorage.setItem("JWT_TOKEN", res.data.token);
+  };
 
   const updateChat = async (sender_id) => {
     console.log("Updating...");
