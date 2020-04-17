@@ -87,7 +87,7 @@ const ChatRoom = (props) => {
       .replace(/&quot;/g, '"')
       .replace(/&#039;/g, "'")
       .replace(/<div><br><\/div>/g, "\n")
-      .replace(/(<div>)(\w+)(\/div)/g, "\n")
+      .replace(/(<div>)(\w+)(\/div)/g, `\n${text}`)
       .replace(/<div>/g, "")
       .replace(/<\/div>/g, "")
       .replace(/<br>/g, "");
@@ -282,7 +282,6 @@ const ChatRoom = (props) => {
   };
 
   const tConvert = (time) => {
-    console.log(time);
     // Check correct time format and split into components
     time = time.toString().match(/^([01]\d|2[0-3])(:)([0-5]\d)?$/) || [time];
 
