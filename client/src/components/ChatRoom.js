@@ -86,7 +86,7 @@ const ChatRoom = (props) => {
       .replace(/&gt;/g, ">")
       .replace(/&quot;/g, '"')
       .replace(/&#039;/g, "'")
-      .replace(/<div><br><\/div>/g, " ")
+      .replace(/<div><br><\/div>/g, "\n")
       .replace(/<div>/g, "")
       .replace(/<\/div>/g, "")
       .replace(/<br>/g, "");
@@ -154,7 +154,6 @@ const ChatRoom = (props) => {
       }
     }
   };
-
   const dateSeperator = (date) => {
     date = date.split(",");
 
@@ -203,6 +202,10 @@ const ChatRoom = (props) => {
 
   const disableNewLines = (e) => {
     const keyCode = e.keyCode || e.which;
+    console.log(
+      keyCode,
+      document.getElementById("message-bar").innerText.length
+    );
     if (keyCode === 13 && e.shiftKey) {
       setVisible(false);
     } else if (keyCode === 13) {
@@ -220,6 +223,17 @@ const ChatRoom = (props) => {
       }
     } else {
       e.returnValue = true;
+    }
+    if (keyCode === 32) {
+      if (document.getElementById("message-bar").innerText.length === 0) {
+        document.getElementById("message-bar").contentEditable = false;
+        document.getElementById("message-bar").contentEditable = true;
+        setTimeout(() => {
+          document.getElementById("message-bar").focus();
+        }, 50);
+      } else {
+        document.getElementById("message-bar").contentEditable = true;
+      }
     }
   };
 
@@ -244,15 +258,22 @@ const ChatRoom = (props) => {
       escapeHtml(message).length
     );
     console.log("===============");
+
     if (escapeHtml(e.target.value).trim().length > 0) {
       setVisible(false);
     }
+
+    // if (escapeHtml(message).length === 0) {
+    //   div.getElementById("message-bar").disable = true;
+    // }
+
     if (
       /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(
         navigator.userAgent
       )
     ) {
       if (e.target.value.length === 15 && escapeHtml(message).length === 0) {
+        setVisible(true);
       }
     }
 
