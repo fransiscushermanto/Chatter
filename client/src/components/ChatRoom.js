@@ -81,10 +81,11 @@ const ChatRoom = (props) => {
 
   function escapeHtml(text) {
     return text
-      .replace("&amp;", "&")
-      .replace("&lt;", "<")
-      .replace("&gt;", ">")
-      .replace("&quot;", '"');
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#039;/g, "'");
   }
 
   const handleSendChat = () => {
