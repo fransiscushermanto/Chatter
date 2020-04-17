@@ -219,6 +219,11 @@ const ChatRoom = (props) => {
         if (e.preventDefault) {
           e.preventDefault();
         }
+      } else {
+        e.returnValue = false;
+        if (e.preventDefault) {
+          e.preventDefault();
+        }
       }
     } else {
       e.returnValue = true;
