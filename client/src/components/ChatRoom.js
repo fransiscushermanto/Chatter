@@ -87,6 +87,7 @@ const ChatRoom = (props) => {
       .replace(/&quot;/g, '"')
       .replace(/&#039;/g, "'")
       .replace(/<div><br><\/div>/g, "\n")
+      .replace(/(<div>)(\w+)(\/div)/g, "\n")
       .replace(/<div>/g, "")
       .replace(/<\/div>/g, "")
       .replace(/<br>/g, "");
