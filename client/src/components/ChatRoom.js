@@ -550,7 +550,7 @@ const ChatRoom = (props) => {
       document
         .getElementById("message-bar")
         .addEventListener("keydown", function (e) {
-          document.execCommand("insertHTML", false, "<br></br>");
+          document.execCommand("insertHTML", false, "<br>");
           return false;
         });
     }
