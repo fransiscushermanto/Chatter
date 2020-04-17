@@ -420,16 +420,18 @@ const Home = () => {
 
   /*---ON LOAD TASK---*/
 
-  //START SEARCH
-  useEffect(() => {
-    search();
-  }, [searchValue]);
-
   //FIRST RENDER LOAD ALL
   useEffect(() => {
     document.getElementsByClassName("app-wrapper")[0].style.cssText =
       "margin: 0px";
+
+    console.log(navigator.userAgent);
   }, []);
+
+  //START SEARCH
+  useEffect(() => {
+    search();
+  }, [searchValue]);
 
   //LOAD FRIEND & LOAD USER DATA
   useEffect(() => {
