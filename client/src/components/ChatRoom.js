@@ -163,6 +163,7 @@ const ChatRoom = (props) => {
 
   const disableNewLines = (e) => {
     console.log(e.keyCode, e);
+    console.log(e.shiftKey ? "shiftKey" : "");
     const keyCode = e.keyCode || e.which;
     if (keyCode === 13 && e.shiftKey) {
       setVisible(false);
