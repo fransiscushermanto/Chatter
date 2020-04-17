@@ -224,7 +224,9 @@ const ChatRoom = (props) => {
         e.returnValue = false;
         if (e.preventDefault) {
           e.preventDefault();
-          document.getElementById("message-bar").appendChild(<br></br>);
+          document
+            .getElementById("message-bar")
+            .appendChild(document.createElement("br"));
         }
       }
     } else {
