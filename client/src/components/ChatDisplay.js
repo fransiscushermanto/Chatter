@@ -14,9 +14,14 @@ const ChatDisplay = (props) => {
     room_id,
   } = props;
   const temp = new Date(time);
-  var now = `${temp.getHours()}:${
+  var now = `${
+    temp.getHours().toString().length > 1 ? "" : 0
+  }${temp.getHours()}:${
     temp.getMinutes().toString().length > 1 ? "" : 0
   }${temp.getMinutes()}`;
+  var chatDate = `${temp.getDay()},${temp.getDate()},${
+    temp.getMonth() + 1
+  },${temp.getFullYear()}`;
   var date = `${temp.getDate()},${temp.getMonth() + 1},${temp.getFullYear()}`;
   const tConvert = (time, date) => {
     // Check correct time format and split into components

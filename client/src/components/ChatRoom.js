@@ -224,17 +224,6 @@ const ChatRoom = (props) => {
     } else {
       e.returnValue = true;
     }
-    if (keyCode === 32) {
-      if (document.getElementById("message-bar").innerText.length === 0) {
-        document.getElementById("message-bar").contentEditable = false;
-        document.getElementById("message-bar").contentEditable = true;
-        setTimeout(() => {
-          document.getElementById("message-bar").focus();
-        }, 50);
-      } else {
-        document.getElementById("message-bar").contentEditable = true;
-      }
-    }
   };
 
   const handleChange = (e) => {
@@ -263,9 +252,11 @@ const ChatRoom = (props) => {
       setVisible(false);
     }
 
-    // if (escapeHtml(message).length === 0) {
-    //   div.getElementById("message-bar").disable = true;
-    // }
+    if (escapeHtml(message).length === 0) {
+      if (e.target.value === " ") {
+        document.getElementById("message-bar").innerText = "";
+      }
+    }
 
     if (
       /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(
@@ -290,6 +281,7 @@ const ChatRoom = (props) => {
   };
 
   const tConvert = (time) => {
+    console.log(time);
     // Check correct time format and split into components
     time = time.toString().match(/^([01]\d|2[0-3])(:)([0-5]\d)?$/) || [time];
 
@@ -325,7 +317,9 @@ const ChatRoom = (props) => {
           }
 
           const temp = new Date(item.time);
-          var chatTime = `${temp.getHours()}:${
+          var chatTime = `${
+            temp.getHours().toString().length > 1 ? "" : 0
+          }${temp.getHours()}:${
             temp.getMinutes().toString().length > 1 ? "" : 0
           }${temp.getMinutes()}`;
           var chatDate = `${temp.getDay()},${temp.getDate()},${
