@@ -31,6 +31,14 @@ module.exports = function (socket) {
     io.to(room).emit("RELOAD_MESSAGE");
   });
 
+  socket.on("TYPING", ({ room }, callback) => {
+    socket.to(room).emit("TYPING");
+  });
+
+  socket.on("STOP_TYPING", ({ room }, callback) => {
+    socket.to(room).emit("STOP_TYPING");
+  });
+
   socket.on("UPDATE_MESSAGE", ({ room }, callback) => {
     callback();
     console.log("OUTSIDE");

@@ -42,7 +42,7 @@ const ChatRoom = (props) => {
     chats,
   } = props;
 
-  const position = useRef();
+  const position = useRef(0);
   const dispatch = useDispatch();
   const setStatetoChatContainer = () => {
     const res = chats.filter((data) => data.room_id.includes(room_id));
@@ -85,34 +85,40 @@ const ChatRoom = (props) => {
       .replace(/&lt;/g, "<")
       .replace(/&gt;/g, ">")
       .replace(/&quot;/g, '"')
-      .replace(/&#039;/g, "'");
+      .replace(/&#039;/g, "'")
+      .replace(/<div><br><\/div>/g, "")
+      .replace(/<br>/g, "");
   }
 
-  const handleSendChat = () => {
-    let date = new Date(Date.now());
+  const handleSendChat = (e) => {
+    const keyCode = e.keyCode || e.which;
+    if (keyCode === 13 && e.shiftKey) {
+      setVisible(false);
+    } else if (keyCode === 13 && escapeHtml(message) !== "") {
+      let date = new Date(Date.now());
+      let data = {
+        room_id: room_id,
+        chat: escapeHtml(message),
+        sender_id: user_id,
+        time: date,
+        status: "unread",
+        user: user,
+        friend_id: friend_id,
+      };
 
-    let data = {
-      room_id: room_id,
-      chat: escapeHtml(message),
-      sender_id: user_id,
-      time: date,
-      status: "unread",
-      user: user,
-      friend_id: friend_id,
-    };
+      if (unreadMessage > 0) {
+        setFirstLoad(false);
+      }
 
-    if (unreadMessage > 0) {
-      setFirstLoad(false);
+      if (scrolling) {
+        setScrolling(false);
+      }
+
+      socket.emit("SEND_MESSAGE", { room: room_id, data }, () => {
+        setMessage("");
+        setVisible(true);
+      });
     }
-
-    if (scrolling) {
-      setScrolling(false);
-    }
-
-    socket.emit("SEND_MESSAGE", { room: room_id, data }, () => {
-      setMessage("");
-      setVisible(true);
-    });
   };
 
   const dateSeperator = (date) => {
@@ -184,24 +190,28 @@ const ChatRoom = (props) => {
 
   const handleChange = (e) => {
     setMessage(e.target.value.trim());
-    if (e.target.value.trim().length > 0) {
+    console.log(
+      "value",
+      escapeHtml(e.target.value),
+      "valuelength",
+      escapeHtml(e.target.value).length
+    );
+    console.log(
+      "mesage",
+      escapeHtml(message),
+      "mesageLength",
+      escapeHtml(message).length
+    );
+    console.log("===============");
+    if (escapeHtml(e.target.value).trim().length > 0) {
       setVisible(false);
-    }
-
-    if (e.target.value === "<br>") {
-      setVisible(true);
-      setMessage("");
-    }
-
-    if (e.target.value.length > 0) {
-      setVisible(false);
-    } else {
-      setVisible(true);
     }
 
     if (
-      (e.target.value.length === 1 && e.target.value.trim() === "") ||
-      (e.target.value.length === 4 && e.target.value.trim() === "<br>")
+      (escapeHtml(e.target.value).length === 1 &&
+        escapeHtml(message).length === 0) ||
+      (escapeHtml(e.target.value).length === 0 &&
+        escapeHtml(message).length === 1)
     ) {
       setVisible(true);
     }
@@ -419,9 +429,15 @@ const ChatRoom = (props) => {
 
   const detectScroll = () => {
     var windows = document.getElementById("chat-window");
+
     windows.addEventListener("scroll", function () {
+      console.log(
+        Math.floor(this.scrollTop + this.offsetHeight),
+        this.scrollHeight
+      );
       if (
-        Math.floor(this.scrollTop + this.offsetHeight) === this.scrollHeight
+        Math.floor(this.scrollTop + this.offsetHeight) === this.scrollHeight ||
+        Math.floor(this.scrollTop + this.offsetHeight) === this.scrollHeight - 1
       ) {
         setScrolling(false);
         position.current =
@@ -470,6 +486,7 @@ const ChatRoom = (props) => {
   }, [chats]);
 
   useEffect(() => {
+    console.log(scrolling);
     detectScroll();
     scrollBottom();
     return () => {
@@ -478,9 +495,10 @@ const ChatRoom = (props) => {
   }, [scrolling]);
 
   useEffect(() => {
-    if (message.trim().length === 4 && message.trim() === "<br>") {
-      setMessage("");
+    if (escapeHtml(message) === "") {
       setVisible(true);
+    } else {
+      setVisible(false);
     }
   }, [message]);
 
@@ -494,6 +512,7 @@ const ChatRoom = (props) => {
   useEffect(() => {
     socket.on("RECEIVE_MESSAGE", MessageHandler);
     scrollBottom();
+
     return () => {
       socket.off("RECEIVE_MESSAGE", MessageHandler);
     };

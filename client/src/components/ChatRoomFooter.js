@@ -36,9 +36,7 @@ const ChatRoomFooter = ({
             !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(
               navigator.userAgent
             )
-              ? e.key === "Enter" && message !== ""
-                ? handleSendChat()
-                : null
+              ? handleSendChat(e)
               : null
           }
         >
