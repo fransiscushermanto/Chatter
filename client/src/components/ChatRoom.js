@@ -221,6 +221,11 @@ const ChatRoom = (props) => {
           e.preventDefault();
         }
       } else {
+        e.returnValue = false;
+        if (e.preventDefault) {
+          e.preventDefault();
+          document.getElementById("message-bar").innerText = "<br>";
+        }
       }
     } else {
       e.returnValue = true;
