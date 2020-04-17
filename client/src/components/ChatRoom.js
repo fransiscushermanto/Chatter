@@ -224,7 +224,7 @@ const ChatRoom = (props) => {
         e.returnValue = false;
         if (e.preventDefault) {
           e.preventDefault();
-          document.getElementById("message-bar").innerText = "<br>";
+          document.getElementById("message-bar").innerHtml = "<br>";
         }
       }
     } else {
