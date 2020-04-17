@@ -87,6 +87,8 @@ const ChatRoom = (props) => {
       .replace(/&quot;/g, '"')
       .replace(/&#039;/g, "'")
       .replace(/<div><br><\/div>/g, "")
+      .replace(/<div>/g, "")
+      .replace(/<\/div>/g, "")
       .replace(/<br>/g, "");
   }
 
@@ -125,29 +127,31 @@ const ChatRoom = (props) => {
         });
       }
     } else {
-      let date = new Date(Date.now());
-      let data = {
-        room_id: room_id,
-        chat: escapeHtml(message),
-        sender_id: user_id,
-        time: date,
-        status: "unread",
-        user: user,
-        friend_id: friend_id,
-      };
+      if (escapeHtml(message) !== "") {
+        let date = new Date(Date.now());
+        let data = {
+          room_id: room_id,
+          chat: escapeHtml(message),
+          sender_id: user_id,
+          time: date,
+          status: "unread",
+          user: user,
+          friend_id: friend_id,
+        };
 
-      if (unreadMessage > 0) {
-        setFirstLoad(false);
+        if (unreadMessage > 0) {
+          setFirstLoad(false);
+        }
+
+        if (scrolling) {
+          setScrolling(false);
+        }
+
+        socket.emit("SEND_MESSAGE", { room: room_id, data }, () => {
+          setMessage("");
+          setVisible(true);
+        });
       }
-
-      if (scrolling) {
-        setScrolling(false);
-      }
-
-      socket.emit("SEND_MESSAGE", { room: room_id, data }, () => {
-        setMessage("");
-        setVisible(true);
-      });
     }
   };
 
@@ -212,6 +216,7 @@ const ChatRoom = (props) => {
         if (e.preventDefault) {
           e.preventDefault();
         }
+      } else {
       }
     } else {
       e.returnValue = true;
