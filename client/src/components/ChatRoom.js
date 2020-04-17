@@ -86,7 +86,7 @@ const ChatRoom = (props) => {
       .replace(/&gt;/g, ">")
       .replace(/&quot;/g, '"')
       .replace(/&#039;/g, "'")
-      .replace(/<div><br><\/div>/g, "")
+      .replace(/<div><br><\/div>/g, " ")
       .replace(/<div>/g, "")
       .replace(/<\/div>/g, "")
       .replace(/<br>/g, "");
@@ -246,6 +246,14 @@ const ChatRoom = (props) => {
     console.log("===============");
     if (escapeHtml(e.target.value).trim().length > 0) {
       setVisible(false);
+    }
+    if (
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(
+        navigator.userAgent
+      )
+    ) {
+      if (e.target.value.length === 15 && escapeHtml(message).length === 0) {
+      }
     }
 
     if (
