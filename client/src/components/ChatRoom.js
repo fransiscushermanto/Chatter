@@ -42,10 +42,9 @@ const ChatRoom = (props) => {
     chats,
   } = props;
 
-  // const chatContainerRef = useRef(chats);
+  const position = useRef();
   const dispatch = useDispatch();
   const setStatetoChatContainer = () => {
-    console.log(chats.length);
     const res = chats.filter((data) => data.room_id.includes(room_id));
 
     if (chatContainer.length === 0) {
@@ -71,13 +70,13 @@ const ChatRoom = (props) => {
     localStorage.setItem("JWT_TOKEN", res.data.token);
   };
 
-  const updateChat = async (sender_id) => {
-    console.log("Updating...");
-    const data = {
+  const updateChat = async (data) => {
+    console.log("UPDATING");
+    const sent = {
       room_id,
-      sender_id: sender_id,
+      sender_id: data,
     };
-    dispatch(actions.updateChatReadStatus(data));
+    await axios.post("/chats/updateChatReadStatus", sent);
   };
 
   function escapeHtml(text) {
@@ -100,6 +99,15 @@ const ChatRoom = (props) => {
       user: user,
       friend_id: friend_id,
     };
+
+    if (unreadMessage > 0) {
+      setFirstLoad(false);
+    }
+
+    if (scrolling) {
+      setScrolling(false);
+    }
+
     socket.emit("SEND_MESSAGE", { room: room_id, data }, () => {
       setMessage("");
       setVisible(true);
@@ -256,10 +264,7 @@ const ChatRoom = (props) => {
                     </div>
                   </div>
                 ) : null}
-                {/* {item.status === "unread"
-                  ? console.log(item.status, unreadMessage)
-                  : null} */}
-                {
+                {scrolling === false && firstLoad === true ? (
                   item.status === "unread" ? (
                     unreadMessage > 0 ? (
                       newMessageStatus ? (
@@ -270,10 +275,7 @@ const ChatRoom = (props) => {
                       ) : null
                     ) : null
                   ) : null
-                  // firstLoad ? (
-                  //   console.log("FIRSTLOAD")
-                  // ) : null
-                }
+                ) : null}
                 {ChatInComp(item.chat, index, changeStatus, chatTime)}
               </div>
             );
@@ -357,11 +359,31 @@ const ChatRoom = (props) => {
     );
   };
 
-  const Handler = (message) => {
-    if (message.data.sender_id !== user_id && !scrolling) {
-      socket.emit("UPDATE_MESSAGE", () => updateChat(friend_id));
+  const MessageHandler = (message) => {
+    if (!scrolling) {
+      setFirstLoad(false);
+    }
+
+    if (
+      (!scrolling && position.current === undefined) ||
+      (!scrolling && position.current === 0)
+    ) {
+      console.log("MES UP");
+      socket.emit(
+        "INROOM_UPDATE_MESSAGE",
+        { room: room_id },
+        async () => await updateChat(friend_id)
+      );
     }
     setChatContainer([...chatContainer, message.data]);
+  };
+
+  const UpdateHandler = () => {
+    socket.emit(
+      "UPDATE_MESSAGE",
+      { room: room_id },
+      async () => await updateChat(friend_id)
+    );
   };
 
   const scrollBottom = () => {
@@ -369,26 +391,36 @@ const ChatRoom = (props) => {
     if (!scrolling) {
       windows.scrollTop = windows.scrollHeight;
     }
-    if (unreadMessage > 0) {
-      updateChat(friend_id);
+
+    if (unreadMessage > 0 && position !== undefined && firstLoad) {
+      console.log("NO UP");
+      socket.emit(
+        "UPDATE_MESSAGE",
+        { room: room_id },
+        async () => await updateChat(friend_id)
+      );
+    } else if (unreadMessage === 1 && !scrolling && !firstLoad) {
+      console.log("MES 12UP");
+      socket.emit(
+        "INROOM_UPDATE_MESSAGE",
+        { room: room_id },
+        async () => await updateChat(friend_id)
+      );
     }
   };
 
   const detectScroll = () => {
     var windows = document.getElementById("chat-window");
     windows.addEventListener("scroll", function () {
-      console.log(
-        Math.floor(this.scrollTop + this.offsetHeight),
-        this.scrollHeight
-      );
-
       if (
         Math.floor(this.scrollTop + this.offsetHeight) === this.scrollHeight
       ) {
-        console.log(this.scrollTop + this.offsetHeight === this.scrollHeight);
         setScrolling(false);
+        position.current =
+          Math.floor(this.scrollTop + this.offsetHeight) - this.scrollHeight;
       } else {
         setScrolling(true);
+        position.current = Math.floor(this.scrollTop + this.offsetHeight);
       }
     });
   };
@@ -400,22 +432,34 @@ const ChatRoom = (props) => {
       user: user,
     };
     await dispatch(actions.addFriend(addFriendData));
-    socket.emit("GET_FRIEND");
+    socket.emit("UPDATE_ROOM");
   };
 
   useEffect(() => {
-    setStatetoChatContainer();
-    document
-      .getElementById("chat-window")
-      .addEventListener("scroll", function () {
-        if (this.scrollTop === 0) {
-          // if (chatContainerRef.current.length >= 30) {
-          //   loadChat(30);
-          // }
-        }
+    console.log(unreadMessage);
+  }, [unreadMessage]);
+
+  useEffect(() => {
+    // document
+    //   .getElementById("chat-window")
+    //   .addEventListener("scroll", function () {
+    //     if (this.scrollTop === 0) {
+    //       // if (chatContainerRef.current.length >= 30) {
+    //       //   loadChat(30);
+    //       // }
+    //     }
+    //   });
+    if (unreadMessage > 0) {
+      socket.emit("PREPARING", {
+        room: room_id,
       });
-    socket.emit("PREPARING", { user: friend_id, room: room_id });
+    }
   }, []);
+
+  useEffect(() => {
+    setStatetoChatContainer();
+    // console.log(chats.filter((data) => data.room_id.includes(room_id)));
+  }, [chats]);
 
   useEffect(() => {
     detectScroll();
@@ -433,16 +477,17 @@ const ChatRoom = (props) => {
   }, [message]);
 
   useEffect(() => {
-    socket.on("REPREPARE_ROOM", async (data) => {
-      await updateChat(data.user);
-    });
-    scrollBottom();
-  }, [chatContainer]);
+    socket.on("REPREPARE_ROOM", UpdateHandler);
+    return () => {
+      socket.off("REPREPARE_ROOM", UpdateHandler);
+    };
+  }, []);
 
   useEffect(() => {
-    socket.on("RECEIVE_MESSAGE", Handler);
+    socket.on("RECEIVE_MESSAGE", MessageHandler);
+    scrollBottom();
     return () => {
-      socket.off("RECEIVE_MESSAGE", Handler);
+      socket.off("RECEIVE_MESSAGE", MessageHandler);
     };
   }, [chatContainer]);
 

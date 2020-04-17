@@ -13,8 +13,8 @@ module.exports = function (socket) {
     console.log("Thank You For Using Chatter");
   });
 
-  socket.on("PREPARING", ({ user, room }) => {
-    io.to(room).emit("REPREPARE_ROOM", user);
+  socket.on("PREPARING", ({ room }) => {
+    io.to(room).emit("REPREPARE_ROOM");
   });
 
   socket.on("GET_FRIEND", () => {
@@ -23,6 +23,18 @@ module.exports = function (socket) {
 
   socket.on("JOIN_CHAT_ROOM", (room) => {
     socket.join(room);
+  });
+
+  socket.on("INROOM_UPDATE_MESSAGE", ({ room }, callback) => {
+    console.log("INROOM");
+    callback();
+    io.to(room).emit("RELOAD_MESSAGE");
+  });
+
+  socket.on("UPDATE_MESSAGE", ({ room }, callback) => {
+    callback();
+    console.log("OUTSIDE");
+    socket.to(room).emit("RELOAD_MESSAGE");
   });
 
   socket.on("SEND_MESSAGE", async ({ room, data }, callback) => {

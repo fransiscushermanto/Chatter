@@ -277,14 +277,3 @@ export const loadAllChat = (data) => {
     }
   };
 };
-
-export const updateChatReadStatus = (data) => {
-  return async (dispatch) => {
-    try {
-      const res = axios.post("/chats/updateChatReadStatus", data);
-      localStorage.setItem("JWT_TOKEN", res.data.token);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-};
