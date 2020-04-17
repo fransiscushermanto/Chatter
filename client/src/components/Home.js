@@ -424,15 +424,6 @@ const Home = () => {
   useEffect(() => {
     document.getElementsByClassName("app-wrapper")[0].style.cssText =
       "margin: 0px";
-    var ua = navigator.userAgent;
-    console.log(ua);
-    if (
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(
-        ua
-      )
-    ) {
-      console.log("MOBILE");
-    }
   }, []);
 
   //START SEARCH

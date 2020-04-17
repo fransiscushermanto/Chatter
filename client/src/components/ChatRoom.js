@@ -166,9 +166,16 @@ const ChatRoom = (props) => {
     if (keyCode === 13 && e.shiftKey) {
       setVisible(false);
     } else if (keyCode === 13) {
-      e.returnValue = false;
-      if (e.preventDefault) {
-        e.preventDefault();
+      var ua = navigator.userAgent;
+      if (
+        !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(
+          ua
+        )
+      ) {
+        e.returnValue = false;
+        if (e.preventDefault) {
+          e.preventDefault();
+        }
       }
     } else {
       e.returnValue = true;
