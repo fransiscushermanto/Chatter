@@ -87,7 +87,6 @@ const ChatRoom = (props) => {
       .replace(/&quot;/g, '"')
       .replace(/&#039;/g, "'")
       .replace(/<div><br><\/div>/g, "\n")
-      .replace(/(<div>)(\w+)(\/div)/g, `\n${text}`)
       .replace(/<div>/g, "")
       .replace(/<\/div>/g, "")
       .replace(/<br>/g, "");
@@ -220,11 +219,6 @@ const ChatRoom = (props) => {
         if (e.preventDefault) {
           e.preventDefault();
         }
-      } else {
-        console.log(document.getElementById("message-bar").innerText);
-        document
-          .getElementById("message-bar")
-          .appendChild(document.createElement("br"));
       }
     } else {
       e.returnValue = true;
@@ -543,6 +537,18 @@ const ChatRoom = (props) => {
     //       // }
     //     }
     //   });
+    if (
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(
+        navigator.userAgent
+      )
+    ) {
+      document
+        .getElementById("message-bar")
+        .addEventListener("keydown", function (e) {
+          document.execCommand("insertHTML", false, "<br></br>");
+          return false;
+        });
+    }
     if (unreadMessage > 0) {
       socket.emit("PREPARING", {
         room: room_id,
