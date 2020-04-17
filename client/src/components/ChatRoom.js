@@ -92,9 +92,39 @@ const ChatRoom = (props) => {
 
   const handleSendChat = (e) => {
     const keyCode = e.keyCode || e.which;
-    if (keyCode === 13 && e.shiftKey) {
-      setVisible(false);
-    } else if (keyCode === 13 && escapeHtml(message) !== "") {
+    if (
+      !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(
+        navigator.userAgent
+      )
+    ) {
+      if (keyCode === 13 && e.shiftKey) {
+        setVisible(false);
+      } else if (keyCode === 13 && escapeHtml(message) !== "") {
+        let date = new Date(Date.now());
+        let data = {
+          room_id: room_id,
+          chat: escapeHtml(message),
+          sender_id: user_id,
+          time: date,
+          status: "unread",
+          user: user,
+          friend_id: friend_id,
+        };
+
+        if (unreadMessage > 0) {
+          setFirstLoad(false);
+        }
+
+        if (scrolling) {
+          setScrolling(false);
+        }
+
+        socket.emit("SEND_MESSAGE", { room: room_id, data }, () => {
+          setMessage("");
+          setVisible(true);
+        });
+      }
+    } else {
       let date = new Date(Date.now());
       let data = {
         room_id: room_id,
@@ -191,6 +221,12 @@ const ChatRoom = (props) => {
   const handleChange = (e) => {
     setMessage(e.target.value.trim());
     console.log(
+      "Rea;value",
+      e.target.value,
+      "valuelength",
+      e.target.value.length
+    );
+    console.log(
       "value",
       escapeHtml(e.target.value),
       "valuelength",
@@ -211,7 +247,9 @@ const ChatRoom = (props) => {
       (escapeHtml(e.target.value).length === 1 &&
         escapeHtml(message).length === 0) ||
       (escapeHtml(e.target.value).length === 0 &&
-        escapeHtml(message).length === 1)
+        escapeHtml(message).length === 1) ||
+      (escapeHtml(e.target.value).length === 0 &&
+        escapeHtml(message).length === 0)
     ) {
       setVisible(true);
     }
