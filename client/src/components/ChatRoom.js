@@ -162,20 +162,14 @@ const ChatRoom = (props) => {
   };
 
   const disableNewLines = (e) => {
+    console.log(e.keyCode, e);
     const keyCode = e.keyCode || e.which;
     if (keyCode === 13 && e.shiftKey) {
       setVisible(false);
     } else if (keyCode === 13) {
-      var ua = navigator.userAgent;
-      if (
-        !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(
-          ua
-        )
-      ) {
-        e.returnValue = false;
-        if (e.preventDefault) {
-          e.preventDefault();
-        }
+      e.returnValue = false;
+      if (e.preventDefault) {
+        e.preventDefault();
       }
     } else {
       e.returnValue = true;
