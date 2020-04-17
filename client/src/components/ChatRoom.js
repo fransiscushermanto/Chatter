@@ -221,13 +221,10 @@ const ChatRoom = (props) => {
           e.preventDefault();
         }
       } else {
-        e.returnValue = false;
-        if (e.preventDefault) {
-          e.preventDefault();
-          document
-            .getElementById("message-bar")
-            .appendChild(document.createElement("br"));
-        }
+        console.log(document.getElementById("message-bar").innerText);
+        document
+          .getElementById("message-bar")
+          .appendChild(document.createElement("br"));
       }
     } else {
       e.returnValue = true;
