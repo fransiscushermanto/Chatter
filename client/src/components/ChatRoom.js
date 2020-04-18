@@ -259,8 +259,8 @@ const ChatRoom = (props) => {
       )
     ) {
       if (
-        escapeHtml(e.target.value).length === 0 &&
-        escapeHtml(message).length === 0
+        escapeHtml(e.target.value).length === 1 &&
+        escapeHtml(message).length === 2
       ) {
         setVisible(true);
       }
