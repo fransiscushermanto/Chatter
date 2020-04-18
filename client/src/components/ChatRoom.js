@@ -202,10 +202,6 @@ const ChatRoom = (props) => {
 
   const disableNewLines = (e) => {
     const keyCode = e.keyCode || e.which;
-    console.log(
-      keyCode,
-      document.getElementById("message-bar").innerText.length
-    );
     if (keyCode === 13 && e.shiftKey) {
       setVisible(false);
     } else if (keyCode === 13) {
@@ -262,7 +258,10 @@ const ChatRoom = (props) => {
         navigator.userAgent
       )
     ) {
-      if (e.target.value.length === 15 && escapeHtml(message).length === 0) {
+      if (
+        escapeHtml(e.target.value).length === 0 &&
+        escapeHtml(message).length === 0
+      ) {
         setVisible(true);
       }
     }
