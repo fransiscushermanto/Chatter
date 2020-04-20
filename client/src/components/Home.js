@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useRouteMatch, Switch, Route, useHistory } from "react-router-dom";
+import Media from "react-media";
 import io from "socket.io-client";
 
 import Modal from "./Modal";
@@ -356,7 +357,6 @@ const Home = () => {
       friend_id: data._id,
       user: dataUser,
     };
-    console.log(create);
     await dispatch(actions.createRoom(create));
     loadRoom();
     setShowProfile(undefined);
@@ -477,7 +477,6 @@ const Home = () => {
               profile: userData,
               status: list.status,
             };
-            console.log(list.status);
             array.push(data);
           });
         });
@@ -667,7 +666,6 @@ const Home = () => {
   useEffect(() => {
     if (socket !== "" && dataUser !== "") {
       socket.on("UNBLOCK", () => {
-        console.log("TES");
         loadFriend();
         loadRoom();
         loadChatHistory();
@@ -686,7 +684,6 @@ const Home = () => {
   useEffect(() => {
     if (socket !== "" && dataUser !== "") {
       socket.on("UPDATE_ROOM", () => {
-        console.log("ROOM IS UPDATED!");
         loadFriend();
         fetchFriend();
         loadRoom();
@@ -694,7 +691,6 @@ const Home = () => {
       });
       return () => {
         socket.off("UPDATE_ROOM", () => {
-          console.log("ROOM IS UPDATED!");
           loadFriend();
           fetchFriend();
           loadRoom();
@@ -751,9 +747,6 @@ const Home = () => {
     fetchUser();
   }, [allUser]);
 
-  useEffect(() => {
-    console.log("CHAT HISTORY", chatHistory);
-  }, [chatHistory]);
   return (
     <div className="main-wrapper">
       <span>
@@ -773,17 +766,14 @@ const Home = () => {
             actionText="BLOCK"
           ></Modal>
         ) : null}
-        {openUnblockModal
-          ? (console.log(chatRoomData),
-            (
-              <Modal
-                text={`Unblock ${chatRoomData.friendName}?`}
-                setOpenModal={setOpenUnblockModal}
-                onAction={onUnblockFriend}
-                actionText="UNBLOCK"
-              ></Modal>
-            ))
-          : null}
+        {openUnblockModal ? (
+          <Modal
+            text={`Unblock ${chatRoomData.friendName}?`}
+            setOpenModal={setOpenUnblockModal}
+            onAction={onUnblockFriend}
+            actionText="UNBLOCK"
+          ></Modal>
+        ) : null}
       </span>
       <div className="wrapper">
         <Header
@@ -792,184 +782,204 @@ const Home = () => {
           socket={socket}
         ></Header>
         <div className="row">
-          <div className="sider">
-            <div className="search-bar">
-              <div className="inner-search-bar">
-                <div className="search-icon">
-                  <svg
-                    aria-hidden="true"
-                    focusable="false"
-                    data-prefix="fas"
-                    data-icon="search"
-                    className="svg-inline--fa fa-search fa-w-16"
-                    role="img"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 512 512"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
-                    ></path>
-                  </svg>
-                </div>
-                <div className="search-bar-wrapper">
-                  <input
-                    className="form-control"
-                    type="search"
-                    autoComplete="off"
-                    placeholder={
-                      showChatHistory ? "Search chat" : "Search friend"
-                    }
-                    value={searchValue}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="pane-side">
-              <div className="inner-pane-side">
-                {showChatHistory && unreadMessage
-                  ? renderChatHistory()
-                  : renderFriendList()}
-              </div>
-            </div>
-            <div className="taskbar-side">
-              <div className="inner-taskbar">
-                <button
-                  id="chat-btn"
-                  className="taskbar-btn chat"
-                  onClick={switchPane}
-                >
-                  <svg
-                    aria-hidden="true"
-                    focusable="false"
-                    data-prefix="fas"
-                    data-icon="comment"
-                    className="svg-inline--fa fa-comment fa-w-16"
-                    role="img"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 512 512"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M256 32C114.6 32 0 125.1 0 240c0 49.6 21.4 95 57 130.7C44.5 421.1 2.7 466 2.2 466.5c-2.2 2.3-2.8 5.7-1.5 8.7S4.8 480 8 480c66.3 0 116-31.8 140.6-51.4 32.7 12.3 69 19.4 107.4 19.4 141.4 0 256-93.1 256-208S397.4 32 256 32z"
-                    ></path>
-                  </svg>
-                </button>
-                <button
-                  id="friend-btn"
-                  className="taskbar-btn friend"
-                  onClick={switchPane}
-                >
-                  <svg
-                    aria-hidden="true"
-                    focusable="false"
-                    data-prefix="fas"
-                    data-icon="user-friends"
-                    className="svg-inline--fa fa-user-friends fa-w-20"
-                    role="img"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 640 512"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M192 256c61.9 0 112-50.1 112-112S253.9 32 192 32 80 82.1 80 144s50.1 112 112 112zm76.8 32h-8.3c-20.8 10-43.9 16-68.5 16s-47.6-6-68.5-16h-8.3C51.6 288 0 339.6 0 403.2V432c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48v-28.8c0-63.6-51.6-115.2-115.2-115.2zM480 256c53 0 96-43 96-96s-43-96-96-96-96 43-96 96 43 96 96 96zm48 32h-3.8c-13.9 4.8-28.6 8-44.2 8s-30.3-3.2-44.2-8H432c-20.4 0-39.2 5.9-55.7 15.4 24.4 26.3 39.7 61.2 39.7 99.8v38.4c0 2.2-.5 4.3-.6 6.4H592c26.5 0 48-21.5 48-48 0-61.9-50.1-112-112-112z"
-                    ></path>
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-          <div className="main-page">
-            {showChatRoom ? (
-              <ChatRoom
-                key={chatItem.room_id}
-                displayName={chatItem.fullName}
-                user_id={chatItem.user_id}
-                room_id={chatItem.room_id}
-                status={
-                  roomStatus.filter((data) =>
-                    data.room_id.includes(chatItem.room_id)
-                  ).length > 0
-                    ? roomStatus.filter((data) =>
-                        data.room_id.includes(chatItem.room_id)
-                      )[0].status
-                    : ""
-                }
-                friend_id={chatItem.friend_id}
-                user={dataUser}
-                unreadMessage={
-                  unreadMessage.filter((item) =>
-                    item.room_id.includes(chatItem.room_id)
-                  ).length > 0
-                    ? unreadMessage.filter((item) =>
-                        item.room_id.includes(chatItem.room_id)
-                      )[0].unread
-                    : 0
-                }
-                read={
-                  unreadMessage.filter((item) =>
-                    item.room_id.includes(chatItem.room_id)
-                  ).length > 0
-                    ? unreadMessage.filter((item) =>
-                        item.room_id.includes(chatItem.room_id)
-                      )[0].read
-                    : true
-                }
-                openUserInfo={openUserInfo}
-                socket={socket}
-                userName={chatItem.userName}
-                chats={allChatState}
-                friend={chatItem.friend}
-                setChatRoomData={setChatRoomData}
-                setOpenBlockModal={setOpenBlockModal}
-                data={chatItem}
-                onOpenUserInfo={onOpenUserInfo}
-              />
-            ) : null}
-          </div>
-          {openUserInfo ? (
-            userInfo.data ? (
-              <div className="user-info">
-                <div className="user-info-wrapper">
-                  <div className="header-user-info">
-                    <div className="button-close">
+          <Media
+            queries={{
+              large: "(max-width: 1441px)",
+            }}
+          >
+            {(matches) => (
+              <>
+                <div className="sider">
+                  <div className="search-bar">
+                    <div className="inner-search-bar">
+                      <div className="search-icon">
+                        <svg
+                          aria-hidden="true"
+                          focusable="false"
+                          data-prefix="fas"
+                          data-icon="search"
+                          className="svg-inline--fa fa-search fa-w-16"
+                          role="img"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 512 512"
+                        >
+                          <path
+                            fill="currentColor"
+                            d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
+                          ></path>
+                        </svg>
+                      </div>
+                      <div className="search-bar-wrapper">
+                        <input
+                          className="form-control"
+                          type="search"
+                          autoComplete="off"
+                          placeholder={
+                            showChatHistory ? "Search chat" : "Search friend"
+                          }
+                          value={searchValue}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="pane-side">
+                    <div className="inner-pane-side">
+                      {showChatHistory && unreadMessage
+                        ? renderChatHistory()
+                        : renderFriendList()}
+                    </div>
+                  </div>
+                  <div className="taskbar-side">
+                    <div className="inner-taskbar">
                       <button
-                        onClick={() => setOpenUserInfo(false)}
-                        className="close"
+                        id="chat-btn"
+                        className="taskbar-btn chat"
+                        onClick={switchPane}
                       >
-                        <span data-icon="x">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            width="24"
-                            height="24"
-                          >
-                            <path
-                              fill="currentColor"
-                              d="M19.1 17.2l-5.3-5.3 5.3-5.3-1.8-1.8-5.3 5.4-5.3-5.3-1.8 1.7 5.3 5.3-5.3 5.3L6.7 19l5.3-5.3 5.3 5.3 1.8-1.8z"
-                            ></path>
-                          </svg>
-                        </span>
+                        <svg
+                          aria-hidden="true"
+                          focusable="false"
+                          data-prefix="fas"
+                          data-icon="comment"
+                          className="svg-inline--fa fa-comment fa-w-16"
+                          role="img"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 512 512"
+                        >
+                          <path
+                            fill="currentColor"
+                            d="M256 32C114.6 32 0 125.1 0 240c0 49.6 21.4 95 57 130.7C44.5 421.1 2.7 466 2.2 466.5c-2.2 2.3-2.8 5.7-1.5 8.7S4.8 480 8 480c66.3 0 116-31.8 140.6-51.4 32.7 12.3 69 19.4 107.4 19.4 141.4 0 256-93.1 256-208S397.4 32 256 32z"
+                          ></path>
+                        </svg>
+                      </button>
+                      <button
+                        id="friend-btn"
+                        className="taskbar-btn friend"
+                        onClick={switchPane}
+                      >
+                        <svg
+                          aria-hidden="true"
+                          focusable="false"
+                          data-prefix="fas"
+                          data-icon="user-friends"
+                          className="svg-inline--fa fa-user-friends fa-w-20"
+                          role="img"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 640 512"
+                        >
+                          <path
+                            fill="currentColor"
+                            d="M192 256c61.9 0 112-50.1 112-112S253.9 32 192 32 80 82.1 80 144s50.1 112 112 112zm76.8 32h-8.3c-20.8 10-43.9 16-68.5 16s-47.6-6-68.5-16h-8.3C51.6 288 0 339.6 0 403.2V432c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48v-28.8c0-63.6-51.6-115.2-115.2-115.2zM480 256c53 0 96-43 96-96s-43-96-96-96-96 43-96 96 43 96 96 96zm48 32h-3.8c-13.9 4.8-28.6 8-44.2 8s-30.3-3.2-44.2-8H432c-20.4 0-39.2 5.9-55.7 15.4 24.4 26.3 39.7 61.2 39.7 99.8v38.4c0 2.2-.5 4.3-.6 6.4H592c26.5 0 48-21.5 48-48 0-61.9-50.1-112-112-112z"
+                          ></path>
+                        </svg>
                       </button>
                     </div>
-                    <div className="title">User Information</div>
-                  </div>
-                  <div className="footer-user-info">
-                    <UserInfo
-                      setChatRoomData={setChatRoomData}
-                      setOpenUnblockModal={setOpenUnblockModal}
-                      setOpenBlockModal={setOpenBlockModal}
-                      setOpenDeleteRoomModal={setOpenDeleteRoomModal}
-                      userInfo={userInfo}
-                      socket={socket}
-                      user={dataUser}
-                    ></UserInfo>
                   </div>
                 </div>
-              </div>
-            ) : null
-          ) : null}
+                <div
+                  style={
+                    matches.large && openUserInfo ? { display: "none" } : null
+                  }
+                  className="main-page"
+                >
+                  {showChatRoom ? (
+                    <ChatRoom
+                      key={chatItem.room_id}
+                      displayName={chatItem.fullName}
+                      user_id={chatItem.user_id}
+                      room_id={chatItem.room_id}
+                      status={
+                        roomStatus.filter((data) =>
+                          data.room_id.includes(chatItem.room_id)
+                        ).length > 0
+                          ? roomStatus.filter((data) =>
+                              data.room_id.includes(chatItem.room_id)
+                            )[0].status
+                          : ""
+                      }
+                      friend_id={chatItem.friend_id}
+                      user={dataUser}
+                      unreadMessage={
+                        unreadMessage.filter((item) =>
+                          item.room_id.includes(chatItem.room_id)
+                        ).length > 0
+                          ? unreadMessage.filter((item) =>
+                              item.room_id.includes(chatItem.room_id)
+                            )[0].unread
+                          : 0
+                      }
+                      read={
+                        unreadMessage.filter((item) =>
+                          item.room_id.includes(chatItem.room_id)
+                        ).length > 0
+                          ? unreadMessage.filter((item) =>
+                              item.room_id.includes(chatItem.room_id)
+                            )[0].read
+                          : true
+                      }
+                      openUserInfo={openUserInfo}
+                      socket={socket}
+                      userName={chatItem.userName}
+                      chats={allChatState}
+                      friend={chatItem.friend}
+                      setChatRoomData={setChatRoomData}
+                      setOpenBlockModal={setOpenBlockModal}
+                      data={chatItem}
+                      onOpenUserInfo={onOpenUserInfo}
+                    />
+                  ) : null}
+                </div>
+                {openUserInfo ? (
+                  userInfo.data ? (
+                    <div
+                      style={
+                        matches.large && openUserInfo ? { flex: "70%" } : null
+                      }
+                      className="user-info"
+                    >
+                      <div className="user-info-wrapper">
+                        <div className="header-user-info">
+                          <div className="button-close">
+                            <button
+                              onClick={() => setOpenUserInfo(false)}
+                              className="close"
+                            >
+                              <span data-icon="x">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 24 24"
+                                  width="24"
+                                  height="24"
+                                >
+                                  <path
+                                    fill="currentColor"
+                                    d="M19.1 17.2l-5.3-5.3 5.3-5.3-1.8-1.8-5.3 5.4-5.3-5.3-1.8 1.7 5.3 5.3-5.3 5.3L6.7 19l5.3-5.3 5.3 5.3 1.8-1.8z"
+                                  ></path>
+                                </svg>
+                              </span>
+                            </button>
+                          </div>
+                          <div className="title">User Information</div>
+                        </div>
+                        <div className="footer-user-info">
+                          <UserInfo
+                            setChatRoomData={setChatRoomData}
+                            setOpenUnblockModal={setOpenUnblockModal}
+                            setOpenBlockModal={setOpenBlockModal}
+                            setOpenDeleteRoomModal={setOpenDeleteRoomModal}
+                            userInfo={userInfo}
+                            socket={socket}
+                            user={dataUser}
+                          ></UserInfo>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null
+                ) : null}
+              </>
+            )}
+          </Media>
         </div>
         <Switch>
           <Route path={`${path}/addFriend`}>
