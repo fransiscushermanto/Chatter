@@ -3,15 +3,15 @@ const Schema = mongoose.Schema;
 
 const friendSchema = new Schema({
   user_id: {
-    type: String
+    type: String,
   },
   friend_id: {
-    type: String
+    type: String,
   },
   status: {
     type: String,
-    enum: ["friend", "blocked"]
-  }
+    enum: ["friend", "block", "none"],
+  },
 });
 
 const Friend = mongoose.model("friend", friendSchema);

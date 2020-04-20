@@ -177,6 +177,57 @@
   overflow: hidden;
 }
 
+.main-wrapper .wrapper .row .user-info {
+  min-width: 400px;
+  border: 1px solid var(--thin-black-background);
+}
+
+.user-info .user-info-wrapper {
+  height: 100%;
+  width: 100%;
+}
+
+.user-info .user-info-wrapper .header-user-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 71px;
+  min-height: 71px;
+
+  padding-right: 20px;
+  padding-left: 25px;
+  border-bottom: 1px solid var(--thin-black-background);
+  background: rgba(194, 189, 189, 0.16);
+}
+
+.user-info .user-info-wrapper .header-user-info .button-close {
+  width: 54px;
+}
+
+.button-close button {
+  position: relative;
+  float: left;
+}
+
+.user-info .user-info-wrapper .header-user-info .title {
+  flex: 1;
+  font-size: 16px;
+  line-height: normal;
+  font-weight: 400;
+}
+
+.user-info .user-info-wrapper .footer-user-info {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+  flex: 1;
+  opacity: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: relative;
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 10px;
@@ -245,4 +296,94 @@
   .main-wrapper .wrapper .row .main-page {
     min-width: 382px;
   }
+}
+
+.delete-modal-popup {
+  z-index: 1000;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: var(--wrapper-background);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-modal-popup .delete-modal-wrapper {
+  width: 400px;
+  max-width: 400px;
+  min-width: 300px;
+  background-color: var(--modal-background);
+  border-radius: 3px;
+  box-shadow: 0 17px 50px 0 rgba(0, 0, 0, 0.19),
+    0 12px 15px 0 rgba(0, 0, 0, 0.24);
+  padding: 22px 24px 20px 24px;
+
+  display: flex;
+  flex-direction: column;
+  flex: none;
+}
+
+.delete-modal-popup .delete-modal-wrapper:hover {
+  box-shadow: 0 17px 50px 0 rgba(0, 0, 0, 0.19),
+    0 12px 15px 0 rgba(0, 0, 0, 0.24) !important;
+}
+
+.delete-modal-popup .delete-modal-wrapper .inner-wrapper {
+  flex: 1 1 100%;
+}
+
+.delete-modal-popup .delete-modal-wrapper .inner-wrapper .notif-title {
+  font-size: 14.2px;
+  line-height: 20px;
+}
+
+.delete-modal-popup .delete-modal-wrapper .inner-wrapper .action-button {
+  display: flex;
+  flex-wrap: wrap-reverse;
+  justify-content: flex-end;
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: right;
+
+  padding: 50px 5px 0px 5px;
+}
+
+.delete-modal-popup .delete-modal-wrapper .inner-wrapper .action-button div {
+  cursor: pointer;
+
+  padding: 10px 24px;
+  border-radius: 3px;
+  margin-bottom: 5px;
+
+  font-size: 14px;
+
+  transition: all ease 0.2s;
+}
+
+.delete-modal-popup
+  .delete-modal-wrapper
+  .inner-wrapper
+  .action-button
+  div.cancel {
+  color: var(--button-primary-background);
+}
+
+.delete-modal-popup
+  .delete-modal-wrapper
+  .inner-wrapper
+  .action-button
+  div.delete {
+  color: white;
+  background-color: var(--button-primary-background);
+  margin-left: 4px;
+}
+
+.delete-modal-popup
+  .delete-modal-wrapper
+  .inner-wrapper
+  .action-button
+  div:hover {
+  box-shadow: 0px 2px 3px 1px rgba(0, 0, 0, 0.19) !important;
 }

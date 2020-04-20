@@ -128,6 +128,43 @@
   text-align: center;
 }
 
+.context-menu {
+  position: fixed;
+  background-color: var(--dropdown-background);
+  border-radius: 3px;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26), 0 2px 10px 0 rgba(0, 0, 0, 0.16);
+  padding: 9px 0px;
+  max-width: 340px;
+  overflow: hidden;
+  z-index: 10000;
+}
+
+.context-menu:hover {
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26), 0 2px 10px 0 rgba(0, 0, 0, 0.16) !important;
+}
+
+.context-menu-item {
+  padding-left: 24px;
+  padding-right: 58px;
+
+  cursor: pointer;
+  padding-top: 13px;
+
+  flex-grow: 1;
+  overflow: hidden;
+  position: relative;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  box-sizing: border-box;
+  color: var(--primary);
+  display: block;
+  font-size: 14.5px;
+  height: 40px;
+  line-height: 14.5px;
+  color: black;
+}
+
 @media screen and (max-width: 1300px) and (min-width: 1025px) {
   .cxroom .display-chat .chat-item .inner-chat-item {
     max-width: 250px;

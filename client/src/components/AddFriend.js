@@ -13,6 +13,10 @@ const AddFriend = ({
   loadFriend,
   isFriend,
   renderProfile,
+  setChatRoomData,
+  setOpenUnblockModal,
+  setOpenBlockModal,
+  chatHistory,
 }) => {
   const { register, handleSubmit } = useForm();
   const allUser = useSelector((state) => state.user.data);
@@ -70,6 +74,10 @@ const AddFriend = ({
               socket={socket}
               isFriend={isFriend}
               renderProfile={renderProfile}
+              setChatRoomData={setChatRoomData}
+              setOpenUnblockModal={setOpenUnblockModal}
+              setOpenBlockModal={setOpenBlockModal}
+              chatHistory={chatHistory}
             />
           );
         });

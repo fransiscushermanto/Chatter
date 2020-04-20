@@ -3,34 +3,34 @@ const Schema = mongoose.Schema;
 
 const ChatRoomSchema = new Schema({
   room_id: {
-    type: String
+    type: String,
   },
   user_id: {
-    type: String
+    type: String,
   },
   friend_id: {
-    type: String
+    type: String,
   },
   lastchat: {
     sender_id: {
-      type: String
+      type: String,
     },
     chat: {
-      type: String
+      type: String,
     },
     time: {
       type: Date,
-      default: Date.now
+      default: Date.now,
     },
     status: {
       type: String,
-      enum: ["read", "unread"]
-    }
+      enum: ["read", "unread"],
+    },
   },
   status: {
     type: String,
-    enum: ["on", "off"]
-  }
+    enum: ["on", "off", "block"],
+  },
 });
 
 const ChatRoom = mongoose.model("ChatRoom", ChatRoomSchema);

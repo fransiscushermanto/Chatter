@@ -32,8 +32,11 @@ div.selectable-text span {
   --unread-message-background: rgba(194, 189, 189, 0.12);
   --main-page-background: rgba(194, 189, 189, 0.16);
   --incoming-background: #fff;
+  --dropdown-background: #fff;
   --shadow-rgb: rgb(0, 0, 0);
   --unread-marker-background: #06d755;
+  --modal-background: #fff;
+  --button-primary-background: #05cd51;
 }
 
 body {
@@ -71,6 +74,13 @@ body {
 * {
   font-family: "Muli", sans-serif !important;
   box-sizing: border-box !important;
+}
+
+ul,
+ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 input:-webkit-autofill,

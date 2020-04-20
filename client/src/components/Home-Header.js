@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { Link, useRouteMatch } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import Avatar from "react-avatar";
+
+import { detectOnBlur } from "./Factories";
 import "../css/Home-Header.css";
 import * as actions from "../actions";
 
@@ -15,19 +17,8 @@ const HomeHeader = ({ profileName, renderProfile, socket }) => {
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
 
-  function detectOnBlur(ref) {
-    function handleClickOutside(event) {
-      if (ref.current && !ref.current.contains(event.target)) {
-        if (open === true) {
-          handleClick();
-        }
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-  }
-
   useEffect(() => {
-    detectOnBlur(wrapperRef);
+    detectOnBlur(wrapperRef, open, setOpen);
   }, [wrapperRef, open]);
 
   const signOut = () => {

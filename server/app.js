@@ -18,6 +18,7 @@ if (process.env.NODE_ENV !== "test") {
     console.log("ERROR CONNECT");
   });
   mongoose.connection.on("connected", function () {
+    mongoose.set("useFindAndModify", false);
     console.log("Connected");
   });
 } else {
@@ -26,6 +27,7 @@ if (process.env.NODE_ENV !== "test") {
     useUnifiedTopology: true,
   });
   mongoose.connection.on("connected", function () {
+    mongoose.set("useFindAndModify", false);
     console.log("Connected");
   });
 }

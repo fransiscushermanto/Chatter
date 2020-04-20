@@ -100,6 +100,10 @@
   color: white;
 }
 
+.alert-status-wrapper .inner-alert-status .action-btn .block:hover {
+  background-color: rgba(230, 0, 57, 1) !important;
+}
+
 .alert-status-wrapper .inner-alert-status .action-btn button:hover {
   background-color: rgba(0, 0, 0, 0.6);
 }
@@ -432,8 +436,12 @@
   height: fit-content;
 }
 
-.chat-room .footer .footer-wrapper .icon-wrapper svg {
+.chat-room .footer .footer-wrapper .icon-wrapper svg.paper-plane {
   width: 25px;
+}
+
+.chat-room .footer .footer-wrapper .icon-wrapper svg {
+  width: 35px;
 }
 
 .chat-room .footer .footer-wrapper .icon-wrapper svg path {

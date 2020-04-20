@@ -6,25 +6,27 @@ const ChatRoomFooter = ({
   handleChange,
   disableNewLines,
   pastePlainText,
+  handleTyping,
   message,
   visible,
+  friend,
 }) => {
-  return (
+  return friend === "block" ? (
+    <div className="footer-wrapper" style={{ justifyContent: "center" }}>
+      <span>Can't Send Message to Blocked User</span>
+    </div>
+  ) : (
     <div className="footer-wrapper">
       <div className="icon-wrapper">
         <svg
-          aria-hidden="true"
-          focusable="false"
-          data-prefix="far"
-          data-icon="smile"
-          className="svg-inline--fa fa-smile fa-w-16"
-          role="img"
           xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 496 512"
+          viewBox="0 0 24 24"
+          width="30"
+          height="30"
         >
           <path
             fill="currentColor"
-            d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm0 448c-110.3 0-200-89.7-200-200S137.7 56 248 56s200 89.7 200 200-89.7 200-200 200zm-80-216c17.7 0 32-14.3 32-32s-14.3-32-32-32-32 14.3-32 32 14.3 32 32 32zm160 0c17.7 0 32-14.3 32-32s-14.3-32-32-32-32 14.3-32 32 14.3 32 32 32zm4 72.6c-20.8 25-51.5 39.4-84 39.4s-63.2-14.3-84-39.4c-8.5-10.2-23.7-11.5-33.8-3.1-10.2 8.5-11.5 23.6-3.1 33.8 30 36 74.1 56.6 120.9 56.6s90.9-20.6 120.9-56.6c8.5-10.2 7.1-25.3-3.1-33.8-10.1-8.4-25.3-7.1-33.8 3.1z"
+            d="M9.153 11.603c.795 0 1.439-.879 1.439-1.962s-.644-1.962-1.439-1.962-1.439.879-1.439 1.962.644 1.962 1.439 1.962zm-3.204 1.362c-.026-.307-.131 5.218 6.063 5.551 6.066-.25 6.066-5.551 6.066-5.551-6.078 1.416-12.129 0-12.129 0zm11.363 1.108s-.669 1.959-5.051 1.959c-3.505 0-5.388-1.164-5.607-1.959 0 0 5.912 1.055 10.658 0zM11.804 1.011C5.609 1.011.978 6.033.978 12.228s4.826 10.761 11.021 10.761S23.02 18.423 23.02 12.228c.001-6.195-5.021-11.217-11.216-11.217zM12 21.354c-5.273 0-9.381-3.886-9.381-9.159s3.942-9.548 9.215-9.548 9.548 4.275 9.548 9.548c-.001 5.272-4.109 9.159-9.382 9.159zm3.108-9.751c.795 0 1.439-.879 1.439-1.962s-.644-1.962-1.439-1.962-1.439.879-1.439 1.962.644 1.962 1.439 1.962z"
           ></path>
         </svg>
       </div>
@@ -47,9 +49,11 @@ const ChatRoomFooter = ({
             Type a message
           </div>
           <ContentEditable
+            disabled={friend === "block" ? true : false}
             className="input-bar"
             id="message-bar"
             spellCheck="true"
+            onKeyUp={handleTyping}
             onKeyPress={disableNewLines}
             html={message}
             onPaste={pastePlainText}
@@ -64,7 +68,7 @@ const ChatRoomFooter = ({
             focusable="false"
             data-prefix="fas"
             data-icon="paper-plane"
-            className="svg-inline--fa fa-paper-plane fa-w-16"
+            className="paper-plane"
             role="img"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 512 512"

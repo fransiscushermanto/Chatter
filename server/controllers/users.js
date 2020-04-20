@@ -125,23 +125,22 @@ module.exports = {
   addFriend: async (req, res, next) => {
     const { friendId, userId, user } = req.body;
     try {
-      const exist = await ChatRoom.findOne({
-        $and: [{ user_id: userId }, { friend_id: friendId }],
-      });
-
-      if (exist) {
-        await ChatRoom.findOneAndUpdate(
-          { $and: [{ user_id: userId }, { friend_id: friendId }] },
-          { status: "on" },
-          { new: true }
-        );
-      }
+      await ChatRoom.findOneAndUpdate(
+        { $and: [{ user_id: userId }, { friend_id: friendId }] },
+        { status: "on" },
+        { new: true }
+      ).exec();
 
       const existFriend = await Friend.findOne({
         $and: [{ user_id: userId }, { friend_id: friendId }],
       });
 
       if (existFriend) {
+        await Friend.findOneAndUpdate(
+          { $and: [{ user_id: userId }, { friend_id: friendId }] },
+          { status: "friend" }
+        );
+
         const token = signToken(user);
         return res.status(400).json({ existFriend, token });
       }
@@ -171,6 +170,7 @@ module.exports = {
           user_id: {
             $toString: "$user_id",
           },
+          status: "$status",
         },
       },
       {

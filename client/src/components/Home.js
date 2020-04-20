@@ -3,12 +3,14 @@ import { useSelector, useDispatch } from "react-redux";
 import { useRouteMatch, Switch, Route, useHistory } from "react-router-dom";
 import io from "socket.io-client";
 
+import Modal from "./Modal";
 import Header from "./Home-Header";
 import ChatDisplay from "./ChatDisplay";
 import ChatRoom from "./ChatRoom";
 import AddFriend from "./AddFriend";
 import FriendDisplay from "./FriendDisplay";
 import UserProfile from "./UserProfile";
+import UserInfo from "./UserInfo";
 import * as actions from "../actions";
 
 import "../css/Home.css";
@@ -27,6 +29,12 @@ const Home = () => {
   const listFriend = useSelector((state) => state.friend.data);
   const dataUser = useSelector((state) => state.decode.user);
   const allUser = useSelector((state) => state.user.data);
+  const [openUserInfo, setOpenUserInfo] = useState(false);
+  const [userInfo, setUserInfo] = useState({});
+  const [openDeleteRoomModal, setOpenDeleteRoomModal] = useState(false);
+  const [openBlockModal, setOpenBlockModal] = useState(false);
+  const [openUnblockModal, setOpenUnblockModal] = useState(false);
+  const [chatRoomData, setChatRoomData] = useState({});
   const [showChatHistory, setShowChatHistory] = useState(true);
   const [unreadMessage, setUnreadMessage] = useState([]);
   const [searchValue, setSearchValue] = useState("");
@@ -41,11 +49,13 @@ const Home = () => {
   const [socket, setSocket] = useState("");
   const [roomStatus, setRoomStatus] = useState([]);
   const [chatItem, setChatItem] = useState({
-    friendName: "",
+    fullName: "",
     userName: "",
     room_id: "",
     friend_id: "",
     user_id: "",
+    friend: "",
+    email: "",
   });
 
   //CONNECT SOCKET.IO-ClIENT
@@ -98,27 +108,21 @@ const Home = () => {
         arr = [],
         room = [];
       chatList.map((data) => {
-        arr[data.room_id] = 0;
-        room[data.room_id] = data.status;
         const friend = friendList.filter((friend) =>
           friend._id.includes(data.friend_id)
         );
         const user = userList.filter((user) =>
           user.user_id.includes(data.friend_id)
         );
-        socket.emit("JOIN_CHAT_ROOM", data.room_id);
-        if (friend.length === 1) {
-          chats.push({
-            room_id: data.room_id,
-            friendName: friend[0].profile.fullname,
-            chat: data.lastchat.chat,
-            time: data.lastchat.time,
-            status: data.status,
-            friend_id: data.friend_id,
-            read: data.lastchat.status,
-            userName: profileName,
-          });
-        } else if (user.length === 1) {
+        if (friend.length > 0) {
+          if (friend[0].status === "block") {
+            socket.emit("LEAVE_CHAT_ROOM", { room: data.room_id });
+          } else {
+            socket.emit("JOIN_CHAT_ROOM", { room: data.room_id });
+          }
+        }
+
+        if (user.length === 1) {
           chats.push({
             room_id: data.room_id,
             friendName: user[0].user.fullname,
@@ -128,27 +132,59 @@ const Home = () => {
             friend_id: data.friend_id,
             read: data.lastchat.status,
             userName: profileName,
+            email: user[0].user.email,
+            friend: friend.length > 0 ? friend[0].status : null,
+          });
+          arr.push({
+            room_id: data.room_id,
+            read:
+              data.lastchat.sender_id === dataUser._id
+                ? true
+                : data.lastchat.status === "read"
+                ? true
+                : false,
+            unread: 0,
+          });
+          room.push({ room_id: data.room_id, status: data.status });
+        } else if (friend.length === 1) {
+          chats.push({
+            room_id: data.room_id,
+            friendName: friend[0].profile.fullname,
+            chat: data.lastchat.chat,
+            time: data.lastchat.time,
+            status: data.status,
+            friend_id: data.friend_id,
+            read: data.lastchat.status,
+            userName: profileName,
+            email: user.length > 0 ? user[0].user.email : null,
+            friend: friend.length > 0 ? friend[0].status : null,
           });
         }
       });
-      setRoomStatus(room);
       handleUnreadMessage(arr);
+      setRoomStatus(room);
       setChatHistory(chats);
+    } else {
+      setChatHistory([]);
     }
   };
 
   //LOAD CHAT ITEM TO CHAT ROOM
   const onClickDisplayChat = (e) => {
+    // console.log(e);
     const data = {
       user_id: dataUser._id,
-      friendName: e.friendName,
+      fullName: e.friendName,
       room_id: e.room_id,
       status: e.status,
       friend_id: e.friend_id,
       userName: e.userName,
+      friend: e.friend,
+      email: e.email,
     };
     setChatItem(data);
-    setShowChatRoom(!showChatRoom);
+    setShowChatRoom(false);
+    setShowChatRoom(true);
   };
 
   //GET ALL USER DATA FROM DATABASE
@@ -173,10 +209,15 @@ const Home = () => {
             unreadMessage={unreadMessage}
             onClick={onClickDisplayChat}
             displayName={data.friendName}
+            setUnreadMessage={setUnreadMessage}
             chat={data.chat}
             time={data.time}
             read={data.read}
             data={data}
+            socket={socket}
+            setOpenDeleteRoomModal={setOpenDeleteRoomModal}
+            setChatRoomData={setChatRoomData}
+            showChatRoom={showChatRoom}
           />
         );
       });
@@ -201,6 +242,7 @@ const Home = () => {
       );
     } else {
       return chatHistory.map((data) => {
+        // console.log("RENDER", data.friend === null);
         return (
           <ChatDisplay
             key={data.room_id}
@@ -208,10 +250,15 @@ const Home = () => {
             unreadMessage={unreadMessage}
             onClick={onClickDisplayChat}
             displayName={data.friendName}
+            setUnreadMessage={setUnreadMessage}
             chat={data.chat}
             time={data.time}
             read={data.read}
             data={data}
+            socket={socket}
+            setOpenDeleteRoomModal={setOpenDeleteRoomModal}
+            setChatRoomData={setChatRoomData}
+            showChatRoom={showChatRoom}
           />
         );
       });
@@ -222,14 +269,18 @@ const Home = () => {
   const renderFriendList = () => {
     if (searchResult.length > 0) {
       return searchResult.map((friend, index) => {
-        return (
+        return friend.status === "friend" ? (
           <FriendDisplay
             key={index}
-            displayName={friend.fullname}
-            data={{ fullname: friend.fullname, email: friend.email }}
+            displayName={friend.profile.fullname}
+            data={{
+              _id: friend._id,
+              fullname: friend.profile.fullname,
+              email: friend.profile.email,
+            }}
             onClick={renderProfile}
           />
-        );
+        ) : null;
       });
     } else if (searchValue !== "" && searchResult.length === 0) {
       return (
@@ -253,7 +304,7 @@ const Home = () => {
     } else {
       if (friendList.length > 0) {
         return friendList.map((friend, index) => {
-          return (
+          return friend.status === "friend" ? (
             <FriendDisplay
               key={index}
               displayName={friend.profile.fullname}
@@ -264,7 +315,7 @@ const Home = () => {
               }}
               onClick={renderProfile}
             />
-          );
+          ) : null;
         });
       } else {
         return (
@@ -305,11 +356,65 @@ const Home = () => {
       friend_id: data._id,
       user: dataUser,
     };
+    console.log(create);
     await dispatch(actions.createRoom(create));
     loadRoom();
     setShowProfile(undefined);
     setShowChatHistory(true);
+    socket.emit("OPEN_CHAT_ROOM", { friend_id: data._id });
     history.push("/home");
+  };
+
+  //DELETE CHAT ROOM FUNCTION
+  const onDeleteChatRoom = () => {
+    if (chatRoomData.room_id === chatItem.room_id) {
+      setUserInfo({});
+      setChatItem({ friendName: "" });
+      setShowChatRoom(false);
+    }
+    setOpenDeleteRoomModal(false);
+    socket.emit("DELETE_CHAT_ROOM", {
+      data: {
+        room_id: chatRoomData.room_id,
+        user_id: dataUser._id,
+        friend_id: chatRoomData.friend_id,
+      },
+    });
+  };
+
+  //BLOCK FRIEND
+  const onBlockFriend = () => {
+    if (chatRoomData.room_id === chatItem.room_id) {
+      setUserInfo({});
+      setChatItem({ friendName: "" });
+      setShowChatRoom(false);
+    }
+    socket.emit("BLOCK", {
+      data: {
+        user_id: dataUser._id,
+        friend_id: chatRoomData.friend_id,
+        room_id: chatRoomData.room_id,
+      },
+    });
+    setOpenBlockModal(false);
+  };
+
+  //UNBLOCK FRIEND
+  const onUnblockFriend = () => {
+    socket.emit("UNBLOCK", {
+      data: {
+        room_id: chatRoomData.room_id,
+        user_id: dataUser._id,
+        friend_id: chatRoomData.friend_id,
+      },
+    });
+    setOpenUnblockModal(false);
+  };
+
+  //OPEN USER INFO
+  const onOpenUserInfo = (e) => {
+    setUserInfo(e);
+    setOpenUserInfo(true);
   };
 
   //HANDLE SEARCH VALUE FUNCTION
@@ -322,7 +427,15 @@ const Home = () => {
     if (allChatState.length > 0) {
       allChatState.map((data) => {
         if (data.status === "unread" && data.sender_id !== dataUser._id) {
-          listRoom[data.room_id] = listRoom[data.room_id] + 1;
+          const pos = listRoom.filter((list) =>
+            list.room_id.includes(data.room_id)
+          )[0];
+          const index = listRoom.indexOf(pos);
+          listRoom[index] = { ...pos };
+          listRoom[index].unread++;
+          if (listRoom[index].read) {
+            listRoom[index].read = !listRoom[index].read;
+          }
         }
       });
       setUnreadMessage(listRoom);
@@ -362,11 +475,16 @@ const Home = () => {
             const data = {
               _id: friend._id,
               profile: userData,
+              status: list.status,
             };
+            console.log(list.status);
             array.push(data);
           });
         });
+
         setFriendList([...array]);
+      } else {
+        setFriendList([]);
       }
     } else {
       setFriendList([]);
@@ -435,8 +553,8 @@ const Home = () => {
   useEffect(() => {
     if (dataUser !== "") {
       loadAllChat();
-      loadFriend();
       loadRoom();
+      loadFriend();
       getAllUser();
       const data = dataUser;
       var fullname;
@@ -513,14 +631,12 @@ const Home = () => {
   useEffect(() => {
     if (socket !== "" && dataUser !== "") {
       socket.on("RELOAD_MESSAGE", () => {
-        console.log("RELOADING MESSAGE");
         loadAllChat();
         loadRoom();
         loadChatHistory();
       });
       return () => {
-        socket.on("RELOAD_MESSAGE", () => {
-          console.log("RELOADING MESSAGE");
+        socket.off("RELOAD_MESSAGE", () => {
           loadAllChat();
           loadRoom();
           loadChatHistory();
@@ -529,9 +645,86 @@ const Home = () => {
     }
   }, [socket, dataUser]);
 
+  //SOCKET FRIEND BLOCKED
+  useEffect(() => {
+    if (socket !== "" && dataUser !== "") {
+      socket.on("BLOCK", () => {
+        loadFriend();
+        loadRoom();
+        loadChatHistory();
+      });
+      return () => {
+        socket.off("BLOCK", () => {
+          loadFriend();
+          loadRoom();
+          loadChatHistory();
+        });
+      };
+    }
+  }, [socket, dataUser]);
+
+  //SOCKET FRIEND UNBLOCKED
+  useEffect(() => {
+    if (socket !== "" && dataUser !== "") {
+      socket.on("UNBLOCK", () => {
+        console.log("TES");
+        loadFriend();
+        loadRoom();
+        loadChatHistory();
+      });
+      return () => {
+        socket.off("UNBLOCK", () => {
+          loadFriend();
+          loadRoom();
+          loadChatHistory();
+        });
+      };
+    }
+  }, [socket, dataUser]);
+
+  //SOCKET ROOM STATUS UPDATE
+  useEffect(() => {
+    if (socket !== "" && dataUser !== "") {
+      socket.on("UPDATE_ROOM", () => {
+        console.log("ROOM IS UPDATED!");
+        loadFriend();
+        fetchFriend();
+        loadRoom();
+        loadChatHistory();
+      });
+      return () => {
+        socket.off("UPDATE_ROOM", () => {
+          console.log("ROOM IS UPDATED!");
+          loadFriend();
+          fetchFriend();
+          loadRoom();
+          loadChatHistory();
+        });
+      };
+    }
+  }, [socket, dataUser]);
+
+  //SOCKET ROOM DELETED
+  useEffect(() => {
+    if (socket !== "" && dataUser !== "") {
+      socket.on("DELETE_CHAT_ROOM", () => {
+        loadRoom();
+        loadAllChat();
+        loadChatHistory();
+      });
+      return () => {
+        socket.off("DELETE_CHAT_ROOM", () => {
+          loadRoom();
+          loadAllChat();
+          loadChatHistory();
+        });
+      };
+    }
+  }, [socket, dataUser]);
+
   //SHOWCHAT ROOM STATE HANDLER
   useEffect(() => {
-    if (showChatRoom == false && chatItem.friendName !== "") {
+    if (showChatRoom == false && chatItem.fullName !== "") {
       setShowChatRoom(true);
     }
   }, [showChatRoom]);
@@ -558,12 +751,40 @@ const Home = () => {
     fetchUser();
   }, [allUser]);
 
-  // useEffect(() => {
-  //   console.log(roomStatus);
-  // }, [roomStatus]);
-
+  useEffect(() => {
+    console.log("CHAT HISTORY", chatHistory);
+  }, [chatHistory]);
   return (
     <div className="main-wrapper">
+      <span>
+        {openDeleteRoomModal ? (
+          <Modal
+            text={`Delete chat with ${chatRoomData.friendName}?`}
+            setOpenModal={setOpenDeleteRoomModal}
+            onAction={onDeleteChatRoom}
+            actionText="DELETE"
+          ></Modal>
+        ) : null}
+        {openBlockModal ? (
+          <Modal
+            text={`Block ${chatRoomData.friendName}? Blocked contacts will no longer be able to send you messages`}
+            setOpenModal={setOpenBlockModal}
+            onAction={onBlockFriend}
+            actionText="BLOCK"
+          ></Modal>
+        ) : null}
+        {openUnblockModal
+          ? (console.log(chatRoomData),
+            (
+              <Modal
+                text={`Unblock ${chatRoomData.friendName}?`}
+                setOpenModal={setOpenUnblockModal}
+                onAction={onUnblockFriend}
+                actionText="UNBLOCK"
+              ></Modal>
+            ))
+          : null}
+      </span>
       <div className="wrapper">
         <Header
           profileName={profileName}
@@ -663,19 +884,92 @@ const Home = () => {
             {showChatRoom ? (
               <ChatRoom
                 key={chatItem.room_id}
-                displayName={chatItem.friendName}
+                displayName={chatItem.fullName}
                 user_id={chatItem.user_id}
                 room_id={chatItem.room_id}
-                status={roomStatus[chatItem.room_id]}
+                status={
+                  roomStatus.filter((data) =>
+                    data.room_id.includes(chatItem.room_id)
+                  ).length > 0
+                    ? roomStatus.filter((data) =>
+                        data.room_id.includes(chatItem.room_id)
+                      )[0].status
+                    : ""
+                }
                 friend_id={chatItem.friend_id}
                 user={dataUser}
-                unreadMessage={unreadMessage[chatItem.room_id]}
+                unreadMessage={
+                  unreadMessage.filter((item) =>
+                    item.room_id.includes(chatItem.room_id)
+                  ).length > 0
+                    ? unreadMessage.filter((item) =>
+                        item.room_id.includes(chatItem.room_id)
+                      )[0].unread
+                    : 0
+                }
+                read={
+                  unreadMessage.filter((item) =>
+                    item.room_id.includes(chatItem.room_id)
+                  ).length > 0
+                    ? unreadMessage.filter((item) =>
+                        item.room_id.includes(chatItem.room_id)
+                      )[0].read
+                    : true
+                }
+                openUserInfo={openUserInfo}
                 socket={socket}
                 userName={chatItem.userName}
                 chats={allChatState}
+                friend={chatItem.friend}
+                setChatRoomData={setChatRoomData}
+                setOpenBlockModal={setOpenBlockModal}
+                data={chatItem}
+                onOpenUserInfo={onOpenUserInfo}
               />
             ) : null}
           </div>
+          {openUserInfo ? (
+            userInfo.data ? (
+              <div className="user-info">
+                <div className="user-info-wrapper">
+                  <div className="header-user-info">
+                    <div className="button-close">
+                      <button
+                        onClick={() => setOpenUserInfo(false)}
+                        className="close"
+                      >
+                        <span data-icon="x">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            width="24"
+                            height="24"
+                          >
+                            <path
+                              fill="currentColor"
+                              d="M19.1 17.2l-5.3-5.3 5.3-5.3-1.8-1.8-5.3 5.4-5.3-5.3-1.8 1.7 5.3 5.3-5.3 5.3L6.7 19l5.3-5.3 5.3 5.3 1.8-1.8z"
+                            ></path>
+                          </svg>
+                        </span>
+                      </button>
+                    </div>
+                    <div className="title">User Information</div>
+                  </div>
+                  <div className="footer-user-info">
+                    <UserInfo
+                      setChatRoomData={setChatRoomData}
+                      setOpenUnblockModal={setOpenUnblockModal}
+                      setOpenBlockModal={setOpenBlockModal}
+                      setOpenDeleteRoomModal={setOpenDeleteRoomModal}
+                      userInfo={userInfo}
+                      socket={socket}
+                      user={dataUser}
+                    ></UserInfo>
+                  </div>
+                </div>
+              </div>
+            ) : null
+          ) : null}
         </div>
         <Switch>
           <Route path={`${path}/addFriend`}>
@@ -685,6 +979,10 @@ const Home = () => {
               loadFriend={loadFriend}
               socket={socket}
               renderProfile={renderProfile}
+              setChatRoomData={setChatRoomData}
+              setOpenUnblockModal={setOpenUnblockModal}
+              setOpenBlockModal={setOpenBlockModal}
+              chatHistory={chatHistory}
             />
           </Route>
         </Switch>

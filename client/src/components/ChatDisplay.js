@@ -1,8 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import PropTypes from "prop-types";
 
 import Avatar from "./CustomAvatar";
+import ContextMenu from "./ContextMenu";
 import "../css/ChatDisplay.css";
+
 const ChatDisplay = (props) => {
   const {
     onClick,
@@ -12,7 +14,18 @@ const ChatDisplay = (props) => {
     data,
     unreadMessage,
     room_id,
+    socket,
+    setUnreadMessage,
+    showChatRoom,
+    setChatRoomData,
+    setOpenDeleteRoomModal,
   } = props;
+
+  const [openContextMenu, setOpenContextMenu] = useState(false);
+  const [unread, setUnread] = useState({ read: true, unread: 0 });
+  const root = useRef(null);
+
+  //DATE TIME FORMATTER
   const temp = new Date(time);
   var now = `${
     temp.getHours().toString().length > 1 ? "" : 0
@@ -57,11 +70,54 @@ const ChatDisplay = (props) => {
   };
 
   useEffect(() => {
-    data["unreadMessage"] = unreadMessage[room_id];
+    if (unreadMessage.length > 0) {
+      const thisRoomUnread = unreadMessage.filter((item) =>
+        item.room_id.includes(room_id)
+      )[0];
+
+      data["unreadMessage"] = thisRoomUnread.unread;
+      setUnread({ read: thisRoomUnread.read, unread: thisRoomUnread.unread });
+    }
   }, [unreadMessage]);
 
+  useEffect(() => {
+    if (showChatRoom) {
+      if (
+        data.friend === "block" ||
+        data.friend === "none" ||
+        data.friend === null
+      ) {
+        onClick(data);
+      }
+    }
+
+    socket.on("OPEN_CHAT_ROOM", (friend) => {
+      if (data.friend_id === friend.friend_id) {
+        console.log("TES");
+        onClick(data);
+      }
+    });
+    return () =>
+      socket.off("OPEN_CHAT_ROOM", (friend) => {
+        if (data.friend_id === friend.friend_id) {
+          onClick(data);
+        }
+      });
+  }, [data]);
+
   return (
-    <div className="cxroom" onClick={() => onClick(data)}>
+    <div
+      className="cxroom"
+      id="cxroom"
+      ref={root}
+      onClick={() => {
+        if (openContextMenu) {
+          setOpenContextMenu(false);
+        } else {
+          onClick(data);
+        }
+      }}
+    >
       <div className="avatar-wrapper">
         <Avatar size="40px" displayName={displayName} />
       </div>
@@ -78,28 +134,38 @@ const ChatDisplay = (props) => {
         </div>
         <div className="display-chat">
           <div className="chat-item">
-            <div className="inner-chat-item">
+            <div className="inner-chat-item" title={chat}>
               <span>{chat}</span>
             </div>
           </div>
           <div className="notif">
             <span>
-              {unreadMessage[room_id] > 0 ? (
+              {!unread.read ? (
                 <div
                   className="inner-notif"
                   style={
-                    unreadMessage[room_id] > 0
-                      ? { transform: "scaleX(1) scaleY(1)" }
-                      : null
+                    !unread.read ? { transform: "scaleX(1) scaleY(1)" } : null
                   }
                 >
-                  <span className="sum-notif">{unreadMessage[room_id]}</span>
+                  <span className="sum-notif">
+                    {unread.unread === 0 ? "" : unread.unread}
+                  </span>
                 </div>
               ) : null}
             </span>
           </div>
         </div>
       </div>
+
+      <ContextMenu
+        visible={openContextMenu}
+        setVisibility={setOpenContextMenu}
+        rootRef={root}
+        data={data}
+        read={unread.read}
+        setOpenDeleteRoomModal={setOpenDeleteRoomModal}
+        setChatRoomData={setChatRoomData}
+      ></ContextMenu>
     </div>
   );
 };

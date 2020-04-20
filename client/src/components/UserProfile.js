@@ -8,7 +8,7 @@ const UserProfile = ({ profile, onClick, checkFriend, createChatRoom }) => {
   let query = new URLSearchParams(useLocation().search);
   const displayName = query.get("name") === "You" ? profile : query.get("name");
 
-  return (
+  return displayName ? (
     <div className="userProfile-container">
       <div className="userProfile-wrapper">
         <div className="closebutton">
@@ -77,7 +77,7 @@ const UserProfile = ({ profile, onClick, checkFriend, createChatRoom }) => {
         </div>
       </div>
     </div>
-  );
+  ) : null;
 };
 
 export default UserProfile;

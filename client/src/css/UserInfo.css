@@ -1,0 +1,94 @@
+.wrapper-footer-user-info {
+  height: 100%;
+
+  background: rgba(194, 189, 189, 0.16);
+}
+
+.user-info-pane {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+
+  background-color: white;
+
+  transition: all ease 0.3s;
+}
+
+.pane-1 {
+  padding: 28px 30px 19px 30px;
+}
+
+.pane-1 .avatar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  height: auto;
+}
+
+.pane-1 .displayInfo {
+  width: 100%;
+  height: auto;
+}
+
+.pane-1 .displayInfo .displayName {
+  font-size: 19px;
+  line-height: 28px;
+}
+
+.pane-2 {
+  padding: 19px 30px;
+}
+
+.pane-2 .title {
+  font-size: 19px;
+  line-height: 28px;
+  margin-bottom: 5px;
+}
+
+.pane-2 .user-email a {
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.button-pane .action-button {
+  display: flex;
+  flex-direction: row;
+  height: 60px;
+
+  cursor: pointer;
+}
+
+.button-pane .action-button .icon,
+.button-pane .action-button .text {
+  display: flex;
+  align-items: center;
+}
+
+.button-pane .action-button .icon {
+  width: 74px;
+  justify-content: center;
+}
+
+.button-pane:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.pane-3 .action-button .icon svg path {
+  fill: rgba(0, 0, 0, 0.5);
+}
+
+.pane-3 .block .icon svg path,
+.pane-3 .block .text {
+  fill: #07bc4c;
+  color: #07bc4c;
+}
+
+.pane-4 .action-button .text {
+  color: rgba(255, 0, 0, 0.9);
+}
+
+.pane-4 .action-button .icon svg path {
+  fill: rgba(255, 0, 0, 0.9);
+}

@@ -326,6 +326,13 @@ label.close {
 }
 
 .user-info-wrapper .action-button-wrapper .addFriend-icon-button:disabled svg {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.user-info-wrapper
+  .action-button-wrapper
+  .addFriend-icon-button.friend:disabled
+  svg {
   color: rgb(15, 157, 88);
 }
 

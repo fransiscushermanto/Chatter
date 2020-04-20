@@ -42,6 +42,7 @@ module.exports = {
               lastchat: {
                 sender_id: "",
                 chat: "",
+                status: "read",
               },
               status: "on",
             });
@@ -61,6 +62,14 @@ module.exports = {
 
       const room_id = md5(user_id + friend_id);
 
+      const blocked = await Friend.findOne({
+        $and: [
+          { user_id: user_id },
+          { friend_id: friend_id },
+          { status: "block" },
+        ],
+      });
+
       const newChatRoom = new ChatRoom({
         room_id: room_id,
         user_id: user_id,
@@ -68,8 +77,9 @@ module.exports = {
         lastchat: {
           sender_id: "",
           chat: "",
+          status: "read",
         },
-        status: "on",
+        status: blocked ? "block" : "on",
       });
 
       await newChatRoom.save((error) => {
@@ -133,26 +143,42 @@ module.exports = {
     }
   },
   updateChatStatus: async (req, res, next) => {
-    const { room_id, sender_id } = req.body;
+    const { room_id, friend_id, user_id } = req.body;
     const unreadExist = await ChatHistory.find({
       $and: [
         { room_id: room_id },
         { status: "unread" },
-        { sender_id: sender_id },
+        { sender_id: friend_id },
+        {
+          $or: [{ "backup.person_1": user_id }, { "backup.person_2": user_id }],
+        },
       ],
-    }).exec();
-
+    });
     if (unreadExist.length > 0) {
       await ChatHistory.updateMany(
         {
           $and: [
             { room_id: room_id },
             { status: "unread" },
-            { sender_id: sender_id },
+            { sender_id: friend_id },
+            {
+              $or: [
+                { "backup.person_1": user_id },
+                { "backup.person_2": user_id },
+              ],
+            },
           ],
         },
         {
           status: "read",
+        }
+      );
+      await ChatRoom.updateMany(
+        {
+          room_id: room_id,
+        },
+        {
+          "lastchat.status": "read",
         }
       );
       return res.status(200).send({ message: true });

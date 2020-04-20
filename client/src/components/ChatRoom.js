@@ -29,7 +29,7 @@ const ChatRoom = (props) => {
   const [message, setMessage] = useState("");
   const [scrolling, setScrolling] = useState(false);
   const [firstLoad, setFirstLoad] = useState(true);
-
+  const [typing, setTyping] = useState(false);
   const {
     displayName,
     room_id,
@@ -40,13 +40,20 @@ const ChatRoom = (props) => {
     unreadMessage,
     user_id,
     chats,
+    friend,
+    setOpenBlockModal,
+    setChatRoomData,
+    data,
+    onOpenUserInfo,
+    openUserInfo,
+    read,
   } = props;
 
   const position = useRef(0);
+  const timeout = useRef(null);
   const dispatch = useDispatch();
   const setStatetoChatContainer = () => {
     const res = chats.filter((data) => data.room_id.includes(room_id));
-
     if (chatContainer.length === 0) {
       setChatContainer(...chatContainer, res);
     } else {
@@ -71,10 +78,10 @@ const ChatRoom = (props) => {
   };
 
   const updateChat = async (data) => {
-    console.log("UPDATING");
     const sent = {
       room_id,
-      sender_id: data,
+      friend_id: data.friend_id,
+      user_id: data.user_id,
     };
     await axios.post("/chats/updateChatReadStatus", sent);
   };
@@ -89,8 +96,29 @@ const ChatRoom = (props) => {
       .replace(/<div><br><\/div>/g, "\n")
       .replace(/<div>/g, "\n")
       .replace(/<\/div>/g, "")
-      .replace(/<br>/g, "");
+      .replace(/<br>/g, "\n");
   }
+
+  //DETECT START TYPING
+  const handleTyping = (e) => {
+    if (e.key !== "Enter") {
+      socket.emit("TYPING", { room: room_id });
+      clearTimeout(timeout.current);
+      timeout.current = setTimeout(function () {
+        socket.emit("STOP_TYPING", { room: room_id });
+      }, 1000);
+    }
+  };
+
+  //HANDLE START TYPING
+  const handleStartTyping = () => {
+    setTyping(true);
+  };
+
+  //HANDLE STOP TYPING
+  const handleStopTyping = () => {
+    setTyping(false);
+  };
 
   const handleSendChat = (e) => {
     const keyCode = e.keyCode || e.which;
@@ -113,14 +141,19 @@ const ChatRoom = (props) => {
           friend_id: friend_id,
         };
 
-        if (unreadMessage > 0) {
+        if (unreadMessage > 0 && scrolling) {
           setFirstLoad(false);
-        }
-
-        if (scrolling) {
           setScrolling(false);
         }
-
+        socket.emit("STOP_TYPING", { room: room_id });
+        if (
+          position.current === 0 &&
+          firstLoad === true &&
+          read === false &&
+          scrolling === false
+        ) {
+          setFirstLoad(false);
+        }
         socket.emit("SEND_MESSAGE", { room: room_id, data }, () => {
           setMessage("");
           setVisible(true);
@@ -139,13 +172,12 @@ const ChatRoom = (props) => {
           friend_id: friend_id,
         };
 
-        if (unreadMessage > 0) {
+        if (unreadMessage > 0 && scrolling) {
           setFirstLoad(false);
-        }
-
-        if (scrolling) {
           setScrolling(false);
         }
+
+        socket.emit("STOP_TYPING", { room: room_id });
 
         socket.emit("SEND_MESSAGE", { room: room_id, data }, () => {
           setMessage("");
@@ -154,6 +186,7 @@ const ChatRoom = (props) => {
       }
     }
   };
+
   const dateSeperator = (date) => {
     date = date.split(",");
 
@@ -223,25 +256,6 @@ const ChatRoom = (props) => {
 
   const handleChange = (e) => {
     setMessage(e.target.value.trim());
-    console.log(
-      "Rea;value",
-      e.target.value,
-      "valuelength",
-      e.target.value.length
-    );
-    console.log(
-      "value",
-      escapeHtml(e.target.value),
-      "valuelength",
-      escapeHtml(e.target.value).length
-    );
-    console.log(
-      "mesage",
-      escapeHtml(message),
-      "mesageLength",
-      escapeHtml(message).length
-    );
-    console.log("===============");
 
     if (escapeHtml(e.target.value).trim().length > 0) {
       setVisible(false);
@@ -250,19 +264,6 @@ const ChatRoom = (props) => {
     if (escapeHtml(message).length === 0) {
       if (e.target.value === " ") {
         document.getElementById("message-bar").innerText = "";
-      }
-    }
-
-    if (
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(
-        navigator.userAgent
-      )
-    ) {
-      if (
-        escapeHtml(e.target.value).length === 1 &&
-        escapeHtml(message).length === 2
-      ) {
-        setVisible(true);
       }
     }
 
@@ -441,7 +442,20 @@ const ChatRoom = (props) => {
   };
 
   const MessageHandler = (message) => {
-    if (!scrolling) {
+    if (
+      position.current === 0 &&
+      firstLoad === true &&
+      read === true &&
+      scrolling === false
+    ) {
+      setFirstLoad(false);
+    } else if (
+      position.current === 0 &&
+      firstLoad === true &&
+      read === false &&
+      scrolling === false
+    ) {
+      console.log("TRUE FALSE FALSE");
       setFirstLoad(false);
     }
 
@@ -449,11 +463,10 @@ const ChatRoom = (props) => {
       (!scrolling && position.current === undefined) ||
       (!scrolling && position.current === 0)
     ) {
-      console.log("MES UP");
       socket.emit(
-        "INROOM_UPDATE_MESSAGE",
+        "ALL_USER_UPDATE_MESSAGE",
         { room: room_id },
-        async () => await updateChat(friend_id)
+        async () => await updateChat({ friend_id, user_id })
       );
     }
     setChatContainer([...chatContainer, message.data]);
@@ -463,53 +476,101 @@ const ChatRoom = (props) => {
     socket.emit(
       "UPDATE_MESSAGE",
       { room: room_id },
-      async () => await updateChat(friend_id)
+      async () => await updateChat({ friend_id, user_id })
     );
   };
 
   const scrollBottom = () => {
     var windows = document.getElementById("chat-window");
-    if (!scrolling) {
-      windows.scrollTop = windows.scrollHeight;
-    }
+    if (windows !== null) {
+      if (
+        position.current === -1 &&
+        firstLoad === false &&
+        read === true &&
+        scrolling === true
+      ) {
+        setFirstLoad(true);
+        position.current = 0;
+      }
 
-    if (unreadMessage > 0 && position !== undefined && firstLoad) {
-      console.log("NO UP");
-      socket.emit(
-        "UPDATE_MESSAGE",
-        { room: room_id },
-        async () => await updateChat(friend_id)
-      );
-    } else if (unreadMessage === 1 && !scrolling && !firstLoad) {
-      console.log("MES 12UP");
-      socket.emit(
-        "INROOM_UPDATE_MESSAGE",
-        { room: room_id },
-        async () => await updateChat(friend_id)
-      );
+      if (!scrolling) {
+        windows.scrollTop = windows.scrollHeight;
+        position.current = 0;
+      }
+
+      if (read === false && position.current === 0 && firstLoad) {
+        position.current = 0;
+        socket.emit(
+          "UPDATE_MESSAGE",
+          { room: room_id },
+          async () => await updateChat({ friend_id, user_id })
+        );
+      } else if (read === false && position.current === 0 && !firstLoad) {
+        console.log("INCLUDE ME");
+        socket.emit(
+          "ALL_USER_UPDATE_MESSAGE",
+          { room: room_id },
+          async () => await updateChat({ friend_id, user_id })
+        );
+      }
     }
   };
 
   const detectScroll = () => {
     var windows = document.getElementById("chat-window");
+    if (windows !== null) {
+      windows.addEventListener("scroll", function () {
+        if (
+          /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(
+            navigator.userAgent
+          )
+        ) {
+          if (
+            Math.floor(this.scrollTop + this.offsetHeight) ===
+              this.scrollHeight ||
+            Math.floor(this.scrollTop + this.offsetHeight) ===
+              this.scrollHeight - 1 ||
+            Math.floor(this.scrollTop + this.offsetHeight) ===
+              this.scrollHeight - 2
+          ) {
+            setScrolling(false);
+            if (firstLoad) {
+              position.current = 0;
+            } else {
+              position.current = -1;
+            }
+          }
+        }
+        setTimeout(() => {
+          if (
+            Math.floor(this.scrollTop + this.offsetHeight) ===
+              this.scrollHeight ||
+            Math.floor(this.scrollTop + this.offsetHeight) ===
+              this.scrollHeight - 1
+          ) {
+            {
+              setScrolling(false);
+              if (firstLoad) {
+                position.current = 0;
+              } else {
+                position.current = -1;
+              }
+            }
+          } else {
+            setScrolling(true);
+            position.current = -1;
+          }
+        }, 200);
 
-    windows.addEventListener("scroll", function () {
-      console.log(
-        Math.floor(this.scrollTop + this.offsetHeight),
-        this.scrollHeight
-      );
-      if (
-        Math.floor(this.scrollTop + this.offsetHeight) === this.scrollHeight ||
-        Math.floor(this.scrollTop + this.offsetHeight) === this.scrollHeight - 1
-      ) {
-        setScrolling(false);
-        position.current =
-          Math.floor(this.scrollTop + this.offsetHeight) - this.scrollHeight;
-      } else {
-        setScrolling(true);
-        position.current = Math.floor(this.scrollTop + this.offsetHeight);
-      }
-    });
+        // if (
+        //   position.current === 0 &&
+        //   scrolling === false &&
+        //   firstLoad === false
+        // ) {
+        //   setFirstLoad(true);
+        // }
+      });
+    }
   };
 
   const onAddFriend = async () => {
@@ -520,11 +581,33 @@ const ChatRoom = (props) => {
     };
     await dispatch(actions.addFriend(addFriendData));
     socket.emit("UPDATE_ROOM");
+    socket.emit("GET_FRIEND");
+  };
+
+  const onIgnore = () => {
+    socket.emit("IGNORE_CHAT_ROOM", {
+      data: { user_id: user_id, friend_id: friend_id },
+    });
+  };
+
+  const onBlock = () => {
+    setChatRoomData({
+      friendName: displayName,
+      room_id: room_id,
+      friend_id: friend_id,
+    });
+    setOpenBlockModal(true);
   };
 
   useEffect(() => {
-    console.log(unreadMessage);
-  }, [unreadMessage]);
+    socket.on("TYPING", handleStartTyping);
+    return () => socket.off("TYPING", handleStartTyping);
+  }, [typing]);
+
+  useEffect(() => {
+    socket.on("STOP_TYPING", handleStopTyping);
+    return () => socket.off("STOP_TYPING", handleStopTyping);
+  }, [typing]);
 
   useEffect(() => {
     // document
@@ -545,12 +628,29 @@ const ChatRoom = (props) => {
   }, []);
 
   useEffect(() => {
+    if (friend === "block") {
+      socket.emit("LEAVE_CHAT_ROOM", { room: data.room_id });
+      if (openUserInfo) {
+        onOpenUserInfo({ data, friend });
+      }
+    } else if (friend === "none") {
+      if (openUserInfo) {
+        onOpenUserInfo({ data, friend });
+      }
+    }
+    if (status === "on") {
+      if (openUserInfo) {
+        onOpenUserInfo({ data, friend });
+      }
+    }
+  }, [status, friend]);
+
+  useEffect(() => {
     setStatetoChatContainer();
     // console.log(chats.filter((data) => data.room_id.includes(room_id)));
   }, [chats]);
 
   useEffect(() => {
-    console.log(scrolling);
     detectScroll();
     scrollBottom();
     return () => {
@@ -582,21 +682,40 @@ const ChatRoom = (props) => {
     };
   }, [chatContainer]);
 
-  return (
+  return displayName ? (
     <div className="chat-room">
       <div className="header">
-        <ChatRoomHeader displayName={displayName}></ChatRoomHeader>
-        {status === "off" ? (
-          <div className="alert-status-wrapper">
-            <div className="inner-alert-status">
-              <div className="action-btn">
-                <button onClick={onAddFriend}>ADD</button>
-                <div className="line"></div>
-                <button>BLOCK</button>
+        <ChatRoomHeader
+          onClick={onOpenUserInfo}
+          data={data}
+          friend={friend}
+          displayName={displayName}
+          typing={typing}
+        ></ChatRoomHeader>
+        {friend === "block"
+          ? null
+          : status === "off" || friend === "none"
+          ? (console.log("TA", status, friend),
+            (
+              <div className="alert-status-wrapper">
+                <div className="inner-alert-status">
+                  <div className="action-btn">
+                    <button onClick={onAddFriend}>ADD</button>
+                    <div className="line"></div>
+                    <button
+                      className="block"
+                      onClick={onBlock}
+                      style={{ backgroundColor: "rgba(199, 0, 57, 1)" }}
+                    >
+                      BLOCK
+                    </button>
+                    <div className="line"></div>
+                    <button onClick={onIgnore}>IGNORE</button>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        ) : null}
+            ))
+          : null}
       </div>
       <div className="main-chat-room">
         <ChatRoomMain renderAllChat={renderAllChat}></ChatRoomMain>
@@ -631,16 +750,18 @@ const ChatRoom = (props) => {
       </div>
       <footer className="footer">
         <ChatRoomFooter
+          friend={friend}
           handleChange={handleChange}
           handleSendChat={handleSendChat}
           message={message}
           visible={visible}
           pastePlainText={pastePlainText}
           disableNewLines={disableNewLines}
+          handleTyping={handleTyping}
         ></ChatRoomFooter>
       </footer>
     </div>
-  );
+  ) : null;
 };
 
 export default ChatRoom;

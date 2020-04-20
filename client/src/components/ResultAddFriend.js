@@ -11,9 +11,14 @@ const ResultAddFriend = ({
   socket,
   isFriend,
   renderProfile,
+  setChatRoomData,
+  setOpenUnblockModal,
+  setOpenBlockModal,
+  chatHistory,
 }) => {
   const dispatch = useDispatch();
   const [friend, setFriend] = useState(false);
+  const [room_id, setRoom_id] = useState("");
   const onAddFriend = async () => {
     setFriend(true);
     const addFriendData = {
@@ -25,9 +30,43 @@ const ResultAddFriend = ({
     socket.emit("GET_FRIEND");
   };
 
+  const onBlock = () => {
+    setChatRoomData({
+      friendName: data.data.fullname,
+      friend_id: data._id,
+      room_id: room_id,
+    });
+    setOpenBlockModal(true);
+  };
+
+  const onUnBlock = () => {
+    setChatRoomData({
+      friendName: data.data.fullname,
+      friend_id: data._id,
+      room_id: room_id,
+    });
+    setOpenUnblockModal(true);
+  };
+
   useEffect(() => {
+    // console.log(data._id, data);
+    setRoom_id(
+      chatHistory.filter((history) => history.friend_id.includes(data._id))
+        .length > 0
+        ? chatHistory.filter((history) =>
+            history.friend_id.includes(data._id)
+          )[0].room_id
+        : ""
+    );
     if (isFriend(data._id).length === 1) {
-      setFriend(true);
+      if (
+        isFriend(data._id)[0].status === "block" ||
+        isFriend(data._id)[0].status === "none"
+      ) {
+        setFriend(false);
+      } else {
+        setFriend(true);
+      }
     }
   }, []);
 
@@ -45,9 +84,20 @@ const ResultAddFriend = ({
           </div>
           <div className="action-button-wrapper">
             <button
-              className="addFriend-icon-button"
+              className={
+                friend
+                  ? "addFriend-icon-button friend"
+                  : "addFriend-icon-button"
+              }
               onClick={() => onAddFriend()}
-              disabled={friend}
+              disabled={
+                isFriend(data._id).length > 0
+                  ? isFriend(data._id)[0].status === "block" || friend
+                    ? true
+                    : false
+                  : friend
+              }
+              title="Add Friend"
             >
               {friend ? (
                 <svg
@@ -83,6 +133,42 @@ const ResultAddFriend = ({
                   ></path>
                 </svg>
               )}
+            </button>
+            <button
+              className="addFriend-icon-button"
+              style={{ marginLeft: "3px" }}
+              onClick={
+                isFriend(data._id).length > 0
+                  ? isFriend(data._id)[0].status === "block"
+                    ? onUnBlock
+                    : onBlock
+                  : onBlock
+              }
+              title={
+                isFriend(data._id).length > 0
+                  ? isFriend(data._id)[0].status === "block"
+                    ? "Unblock"
+                    : "Block"
+                  : "Block"
+              }
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+              >
+                <path
+                  style={
+                    isFriend(data._id).length > 0
+                      ? isFriend(data._id)[0].status !== "block"
+                        ? { fill: "rgba(255,0,0,0.9)" }
+                        : { fill: "rgba(15, 157, 88, 1)" }
+                      : { fill: "rgba(255,0,0,0.9)" }
+                  }
+                  d="M12 2.8c-5.3 0-9.7 4.3-9.7 9.7s4.3 9.7 9.7 9.7 9.7-4.3 9.7-9.7-4.4-9.7-9.7-9.7zm-7.3 9.7c0-4 3.3-7.3 7.3-7.3 1.6 0 3.1.5 4.3 1.4L6.1 16.8c-.9-1.2-1.4-2.7-1.4-4.3zm7.3 7.3c-1.6 0-3-.5-4.2-1.4L17.9 8.3c.9 1.2 1.4 2.6 1.4 4.2 0 4-3.3 7.3-7.3 7.3z"
+                ></path>
+              </svg>
             </button>
           </div>
         </div>
