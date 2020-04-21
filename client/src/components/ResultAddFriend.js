@@ -19,6 +19,7 @@ const ResultAddFriend = ({
   const dispatch = useDispatch();
   const [friend, setFriend] = useState(false);
   const [room_id, setRoom_id] = useState("");
+  //ADD FRIEND FUNCTION
   const onAddFriend = async () => {
     setFriend(true);
     const addFriendData = {
@@ -30,6 +31,7 @@ const ResultAddFriend = ({
     socket.emit("GET_FRIEND");
   };
 
+  //BLOCK FUNCTION
   const onBlock = () => {
     setChatRoomData({
       friendName: data.data.fullname,
@@ -39,6 +41,7 @@ const ResultAddFriend = ({
     setOpenBlockModal(true);
   };
 
+  //UNBLOCK FUNCTION
   const onUnBlock = () => {
     setChatRoomData({
       friendName: data.data.fullname,
@@ -48,6 +51,7 @@ const ResultAddFriend = ({
     setOpenUnblockModal(true);
   };
 
+  //FIRST LOAD SET ROOM ID TO ROOM_ID STATE AND CHECK FRIEND STATUS
   useEffect(() => {
     // console.log(data._id, data);
     setRoom_id(

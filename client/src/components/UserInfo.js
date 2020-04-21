@@ -15,6 +15,7 @@ const UserInfo = ({
 }) => {
   const dispatch = useDispatch();
 
+  //BLOCK FUNCTION
   const onBlock = () => {
     setChatRoomData({
       friendName: userInfo.data.fullName,
@@ -24,6 +25,7 @@ const UserInfo = ({
     setOpenBlockModal(true);
   };
 
+  //UNBLOCK FUNCTION
   const onUnBlock = () => {
     setChatRoomData({
       friendName: userInfo.data.fullName,
@@ -33,6 +35,7 @@ const UserInfo = ({
     setOpenUnblockModal(true);
   };
 
+  //DELETE ROOM & CHAT FUNCTION
   const onDelete = () => {
     setChatRoomData({
       friendName: userInfo.data.fullName,
@@ -42,6 +45,7 @@ const UserInfo = ({
     setOpenDeleteRoomModal(true);
   };
 
+  //ADD FRIEND FUNCTION
   const onAddFriend = async () => {
     const addFriendData = {
       friendId: userInfo.data.friend_id,

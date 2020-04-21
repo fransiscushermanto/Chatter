@@ -11,6 +11,7 @@ import {
   CREATE_ROOM,
   ROOM_ERROR,
   LOAD_ALL_CHAT,
+  CHECK_EMAIL,
 } from "../actions/types";
 
 export const signUp = (data) => {
@@ -42,7 +43,6 @@ export const signUp = (data) => {
 export const signIn = (data) => {
   return async (dispatch) => {
     try {
-      console.log("[ActionCreator] signIn dispatch");
       const res = await axios.post("/users/signin", data);
       decodeJWT(res.data.token);
       dispatch({
@@ -75,6 +75,43 @@ export const signOut = (data) => {
       type: AUTH_SIGN_OUT,
       payload: "",
     });
+  };
+};
+
+export const checkEmail = (data) => {
+  return async (dispatch) => {
+    try {
+      const res = await axios.post("/users/checkEmail", data);
+      console.log(res.data.error);
+      dispatch({
+        type: AUTH_ERROR,
+        payload: res.data.error,
+      });
+    } catch (error) {
+      dispatch({
+        type: AUTH_ERROR,
+        payload: "Email is not Registered",
+      });
+    }
+  };
+};
+
+export const resetUserPassword = (data) => {
+  return async (dispatch) => {
+    try {
+      console.log(data);
+      const res = await axios.post("/users/resetPassword", data);
+      console.log(res);
+      dispatch({
+        type: AUTH_ERROR,
+        payload: res.data.error,
+      });
+    } catch (error) {
+      dispatch({
+        type: AUTH_ERROR,
+        payload: "Invalid",
+      });
+    }
   };
 };
 

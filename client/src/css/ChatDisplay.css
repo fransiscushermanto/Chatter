@@ -117,7 +117,9 @@
   display: inline-block;
   font-size: 12px;
   font-weight: 600;
-  line-height: 1.1em;
+  line-height: 0.9em;
+  width: 20px;
+  height: 20px;
   min-height: 1em;
   min-width: 0.9em;
   vertical-align: top;

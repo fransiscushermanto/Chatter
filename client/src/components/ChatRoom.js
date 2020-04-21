@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState, useReducer } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Picker } from "emoji-mart";
 
-import { detectOnBlur } from "./Factories";
+import { detectOnBlur, escapeHtml } from "./Factories";
 import ChatRoomFooter from "./ChatRoomFooter";
 import ChatRoomHeader from "./ChatRoomHeader";
 import ChatRoomMain from "./ChatRoomMain";
@@ -11,21 +11,21 @@ import * as actions from "../actions";
 import axios from "../instance";
 import "../css/ChatRoom.css";
 import "../css/Emoji.css";
-const initialState = {
-  chat: [],
-};
+// const initialState = {
+//   chat: [],
+// };
 
-const reducer = (state, action) => {
-  switch (action.type) {
-    case "LOAD":
-      return { ...state, chat: action.payload };
-    default:
-      return state;
-  }
-};
+// const reducer = (state, action) => {
+//   switch (action.type) {
+//     case "LOAD":
+//       return { ...state, chat: action.payload };
+//     default:
+//       return state;
+//   }
+// };
 
 const ChatRoom = (props) => {
-  const [state, dispatcher] = useReducer(reducer, initialState);
+  // const [state, dispatcher] = useReducer(reducer, initialState);
   const [visible, setVisible] = useState(true);
   const [chatContainer, setChatContainer] = useState([]);
   const [message, setMessage] = useState("");
@@ -57,6 +57,7 @@ const ChatRoom = (props) => {
   const dispatch = useDispatch();
   const emoji = useRef(null);
 
+  //SET DATA TO STATE
   const setStatetoChatContainer = () => {
     const res = chats.filter((data) => data.room_id.includes(room_id));
     if (chatContainer.length === 0) {
@@ -66,22 +67,7 @@ const ChatRoom = (props) => {
     }
   };
 
-  const loadChat = async () => {
-    const data = {
-      room_id,
-      user,
-      skip: 0,
-    };
-    const res = await axios.post("/chats/loadAllChat", data);
-
-    dispatcher({
-      type: "LOAD",
-      payload: res.data.chat,
-    });
-    console.log("Loading...");
-    localStorage.setItem("JWT_TOKEN", res.data.token);
-  };
-
+  //UPDATE CHAT FUNCTION
   const updateChat = async (data) => {
     const sent = {
       room_id,
@@ -90,19 +76,6 @@ const ChatRoom = (props) => {
     };
     await axios.post("/chats/updateChatReadStatus", sent);
   };
-
-  function escapeHtml(text) {
-    return text
-      .replace(/&amp;/g, "&")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&quot;/g, '"')
-      .replace(/&#039;/g, "'")
-      .replace(/<div><br><\/div>/g, "\n")
-      .replace(/<div>/g, "\n")
-      .replace(/<\/div>/g, "")
-      .replace(/<br>/g, "\n");
-  }
 
   //DETECT START TYPING
   const handleTyping = (e) => {
@@ -115,16 +88,17 @@ const ChatRoom = (props) => {
     }
   };
 
-  //HANDLE START TYPING
+  //SEND START TYPING STATUS TO SOCKET
   const handleStartTyping = () => {
     setTyping(true);
   };
 
-  //HANDLE STOP TYPING
+  //SEND STOP TYPING STATUS TO SOCKET
   const handleStopTyping = () => {
     setTyping(false);
   };
 
+  //HANDLE SEND CHAT TO DATABASE & SOCKET
   const handleSendChat = (e) => {
     const keyCode = e.keyCode || e.which;
     console.log(e.keyCode);
@@ -196,6 +170,7 @@ const ChatRoom = (props) => {
     }
   };
 
+  //DATE CUSTOM FORMAT FUNCTION
   const dateSeperator = (date) => {
     date = date.split(",");
 
@@ -236,12 +211,28 @@ const ChatRoom = (props) => {
     }
   };
 
+  //TIME CUSTOM FORMAT FUNCTION
+  const tConvert = (time) => {
+    // Check correct time format and split into components
+    time = time.toString().match(/^([01]\d|2[0-3])(:)([0-5]\d)?$/) || [time];
+
+    if (time.length > 1) {
+      // If time format correct
+      time = time.slice(1); // Remove full string match value
+      time[5] = +time[0] < 12 ? " AM" : " PM"; // Set AM/PM
+      time[0] = +time[0] % 12 || 12; // Adjust hours
+    }
+    return time.join(""); // return adjusted time or original string
+  };
+
+  //HANDLE PASTE TEXT ON DIV CONTENTEDITABLE
   const pastePlainText = (e) => {
     e.preventDefault();
     const text = e.clipboardData.getData("text/plain");
     document.execCommand("inserttext", false, text);
   };
 
+  //HANDLE DIV CONTENTEDITABLE MAKE NEW LINE ON MOBILE & DESKTOP
   const disableNewLines = (e) => {
     const keyCode = e.keyCode || e.which;
     if (keyCode === 13 && e.shiftKey) {
@@ -263,6 +254,7 @@ const ChatRoom = (props) => {
     }
   };
 
+  //HANDLE ONCHANGE ON DIV CONTENTEDITABLE
   const handleChange = (e) => {
     setMessage(e.target.value.trim());
 
@@ -288,6 +280,7 @@ const ChatRoom = (props) => {
     }
   };
 
+  //SET SELECTED EMOJI TO STATE & CONTENTEDITABLE
   const onEmojiClick = (emojiObject) => {
     setMessage(message.concat(emojiObject.native));
     document.getElementById("message-bar").innerHTML = document
@@ -295,19 +288,7 @@ const ChatRoom = (props) => {
       .innerHTML.concat(emojiObject.native);
   };
 
-  const tConvert = (time) => {
-    // Check correct time format and split into components
-    time = time.toString().match(/^([01]\d|2[0-3])(:)([0-5]\d)?$/) || [time];
-
-    if (time.length > 1) {
-      // If time format correct
-      time = time.slice(1); // Remove full string match value
-      time[5] = +time[0] < 12 ? " AM" : " PM"; // Set AM/PM
-      time[0] = +time[0] % 12 || 12; // Adjust hours
-    }
-    return time.join(""); // return adjusted time or original string
-  };
-
+  //RENDER CHAT
   const renderAllChat = () => {
     let currentStatus,
       newMessageStatus = true;
@@ -402,6 +383,7 @@ const ChatRoom = (props) => {
       });
   };
 
+  //COMPONENT FOR FRIEND MESSAGE
   const ChatInComp = (item, index, status, time) => {
     return (
       <div
@@ -429,6 +411,7 @@ const ChatRoom = (props) => {
     );
   };
 
+  //COMPONENT FOR USER MESSAGE
   const ChatOutComp = (item, index, status, time, read) => {
     return (
       <div
@@ -457,6 +440,7 @@ const ChatRoom = (props) => {
     );
   };
 
+  //HANDLE RECEIVE MESSAGE & UPDATE MESSAGE
   const MessageHandler = (message) => {
     if (
       position.current === 0 &&
@@ -488,6 +472,7 @@ const ChatRoom = (props) => {
     setChatContainer([...chatContainer, message.data]);
   };
 
+  //HANDLE UPDATE MESSAGE
   const UpdateHandler = () => {
     socket.emit(
       "UPDATE_MESSAGE",
@@ -496,6 +481,7 @@ const ChatRoom = (props) => {
     );
   };
 
+  //AUTO SCROLL BOTTOM FUNCTION
   const scrollBottom = () => {
     var windows = document.getElementById("chat-window");
     if (windows !== null) {
@@ -532,6 +518,7 @@ const ChatRoom = (props) => {
     }
   };
 
+  //DETECT SCROLLING
   const detectScroll = () => {
     var windows = document.getElementById("chat-window");
     if (windows !== null) {
@@ -589,6 +576,7 @@ const ChatRoom = (props) => {
     }
   };
 
+  //HANDLE ADD FRIEND ON CHAT ROOM
   const onAddFriend = async () => {
     const addFriendData = {
       friendId: friend_id,
@@ -600,12 +588,14 @@ const ChatRoom = (props) => {
     socket.emit("GET_FRIEND");
   };
 
+  //HANDLE IGNORE FRIEND STATUS
   const onIgnore = () => {
     socket.emit("IGNORE_CHAT_ROOM", {
       data: { user_id: user_id, friend_id: friend_id },
     });
   };
 
+  //HANDLE BLOCK FUNCTION
   const onBlock = () => {
     setChatRoomData({
       friendName: displayName,
@@ -615,38 +605,38 @@ const ChatRoom = (props) => {
     setOpenBlockModal(true);
   };
 
+  //HANDLE UPDATE MESSAGE ON FIRST LOAD IF NEW MESSAGE EXIST
   useEffect(() => {
-    detectOnBlur(emoji, showEmoji, setShowEmoji);
-  }, [showEmoji, emoji]);
-
-  useEffect(() => {
-    socket.on("TYPING", handleStartTyping);
-    return () => socket.off("TYPING", handleStartTyping);
-  }, [typing]);
-
-  useEffect(() => {
-    socket.on("STOP_TYPING", handleStopTyping);
-    return () => socket.off("STOP_TYPING", handleStopTyping);
-  }, [typing]);
-
-  useEffect(() => {
-    // document
-    //   .getElementById("chat-window")
-    //   .addEventListener("scroll", function () {
-    //     if (this.scrollTop === 0) {
-    //       // if (chatContainerRef.current.length >= 30) {
-    //       //   loadChat(30);
-    //       // }
-    //     }
-    //   });
-
     if (unreadMessage > 0) {
       socket.emit("PREPARING", {
         room: room_id,
       });
     }
+
+    socket.on("REPREPARE_ROOM", UpdateHandler);
+    return () => {
+      socket.off("REPREPARE_ROOM", UpdateHandler);
+    };
   }, []);
 
+  //HANDLE ON BLUR FUNCTION ON EVERY SHOWEMOJI & EMOJI STATE CHANGE
+  useEffect(() => {
+    detectOnBlur(emoji, showEmoji, setShowEmoji);
+  }, [showEmoji, emoji]);
+
+  //HANDLE ON TYPING FUNCTION ON EVERY TYPING STATE CHANGE
+  useEffect(() => {
+    socket.on("TYPING", handleStartTyping);
+    return () => socket.off("TYPING", handleStartTyping);
+  }, [typing]);
+
+  //HANDLE ON STOP TYPING FUNCTION ON EVERY TYPING STATE CHANGE
+  useEffect(() => {
+    socket.on("STOP_TYPING", handleStopTyping);
+    return () => socket.off("STOP_TYPING", handleStopTyping);
+  }, [typing]);
+
+  //HANDLE STATE CHANGE WHEN USER INFO OPEN
   useEffect(() => {
     if (friend === "block") {
       socket.emit("LEAVE_CHAT_ROOM", { room: data.room_id });
@@ -665,11 +655,12 @@ const ChatRoom = (props) => {
     }
   }, [status, friend]);
 
+  //SET MESSAGE DATA TO STATE ON EVERY CHATS STATE CHANGE
   useEffect(() => {
     setStatetoChatContainer();
-    // console.log(chats.filter((data) => data.room_id.includes(room_id)));
   }, [chats]);
 
+  //KEEP DETECT SCROLL ALIVE ON EVERY SCROLLING STATE CHANGE
   useEffect(() => {
     detectScroll();
     scrollBottom();
@@ -678,8 +669,8 @@ const ChatRoom = (props) => {
     };
   }, [scrolling]);
 
+  //HANDLE BUGS ON CONTENTEDITABLE CUSTOM PLACEHOLDER VISIBLE OR HIDDEN ON EVERY MESSAGE CHANGE
   useEffect(() => {
-    console.log(message);
     if (escapeHtml(message) === "") {
       setVisible(true);
     } else {
@@ -687,13 +678,7 @@ const ChatRoom = (props) => {
     }
   }, [message]);
 
-  useEffect(() => {
-    socket.on("REPREPARE_ROOM", UpdateHandler);
-    return () => {
-      socket.off("REPREPARE_ROOM", UpdateHandler);
-    };
-  }, []);
-
+  //KEEP SOCKET ON RECEIVE MESSAGE ALIVE ON CHATCONTAINER CHANGE
   useEffect(() => {
     socket.on("RECEIVE_MESSAGE", MessageHandler);
     scrollBottom();
@@ -794,3 +779,19 @@ const ChatRoom = (props) => {
 };
 
 export default ChatRoom;
+
+// const loadChat = async () => {
+//   const data = {
+//     room_id,
+//     user,
+//     skip: 0,
+//   };
+//   const res = await axios.post("/chats/loadAllChat", data);
+
+//   dispatcher({
+//     type: "LOAD",
+//     payload: res.data.chat,
+//   });
+//   console.log("Loading...");
+//   localStorage.setItem("JWT_TOKEN", res.data.token);
+// };

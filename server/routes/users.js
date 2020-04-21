@@ -9,7 +9,7 @@ const passportSignIn = passport.authenticate("signin", { session: false });
 const passportJWT = passport.authenticate("jwt", { session: false });
 const passportGoogle = passport.authenticate("googleToken", { session: false });
 const passportFacebook = passport.authenticate("facebookToken", {
-  session: false
+  session: false,
 });
 
 router
@@ -23,6 +23,10 @@ router
     passportSignIn,
     UsersController.signIn
   );
+
+router.route("/checkEmail").post(UsersController.checkEmail);
+
+router.route("/resetPassword").post(UsersController.resetPassword);
 
 router
   .route("/update")

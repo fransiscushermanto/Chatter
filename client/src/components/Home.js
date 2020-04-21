@@ -98,6 +98,7 @@ const Home = () => {
     const data = {
       room_id: "all",
       user: dataUser,
+      skip: 0,
     };
     await dispatch(actions.loadAllChat(data));
   };
@@ -219,6 +220,7 @@ const Home = () => {
             setOpenDeleteRoomModal={setOpenDeleteRoomModal}
             setChatRoomData={setChatRoomData}
             showChatRoom={showChatRoom}
+            chatItem={chatItem}
           />
         );
       });
@@ -260,6 +262,7 @@ const Home = () => {
             setOpenDeleteRoomModal={setOpenDeleteRoomModal}
             setChatRoomData={setChatRoomData}
             showChatRoom={showChatRoom}
+            chatItem={chatItem}
           />
         );
       });
@@ -567,6 +570,24 @@ const Home = () => {
       setProfileName(fullname);
     }
   }, [dataUser]);
+
+  //SOCKET OPEN CHAT ROOM
+  useEffect(() => {
+    if (socket !== "" && dataUser !== "") {
+      socket.on("OPEN_CHAT_ROOM", () => {
+        loadAllChat();
+        loadRoom();
+        loadChatHistory();
+      });
+      return () => {
+        socket.off("OPEN_CHAT_ROOM", () => {
+          loadAllChat();
+          loadRoom();
+          loadChatHistory();
+        });
+      };
+    }
+  }, [socket, dataUser]);
 
   //SOCKET LOAD USER
   useEffect(() => {

@@ -16,6 +16,7 @@ import Home from "./components/Home";
 import SignUp from "./components/Signup";
 import SignIn from "./components/Signin";
 import CompleteData from "./components/CompleteData";
+import ForgetPassword from "./components/ForgetPassword";
 
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "../node_modules/bootstrap/dist/css/bootstrap.css";
@@ -35,8 +36,8 @@ ReactDOM.render(
         auth: {
           token: jwtToken,
           isAuthenticated: jwtToken ? true : false,
-          authType: authType
-        }
+          authType: authType,
+        },
       },
       applyMiddleware(reduxThunk)
     )}
@@ -52,6 +53,11 @@ ReactDOM.render(
             exact
             path="/personalData"
             component={oauthGuard(CompleteData)}
+          />
+          <Route
+            exact
+            path="/resetPassword"
+            component={pageAuthGuard(ForgetPassword)}
           />
         </App>
       </Router>

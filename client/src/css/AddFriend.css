@@ -358,7 +358,14 @@ label.close {
     margin-right: 20px;
   }
   .addFriend-comp-wrapper .inner-addFriend-comp-wrapper .main-addFriend {
-    height: 500px;
-    max-height: 500px;
+    height: 400px;
+    max-height: 400px;
+    width: 300px;
+    max-width: 300px;
+    min-width: 300px;
+  }
+
+  .resultPane {
+    padding: 10px 0;
   }
 }

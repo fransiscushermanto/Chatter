@@ -11,7 +11,7 @@ import { AuthInput as Field } from "./ReactHookForm";
 
 import "../css/Authuser.css";
 
-let SignUp = props => {
+let SignUp = (props) => {
   const schema = yup.object().shape({
     fullname: yup
       .string()
@@ -28,20 +28,21 @@ let SignUp = props => {
       .matches(
         /^(?=.*\d)(?=.*[A-Z])(?=.*[a-z]).{6,}$/,
         "Password length must be at least 6 include uppercase, lowercase, number "
-      )
+      ),
   });
   const { register, errors, handleSubmit } = useForm({
-    validationSchema: schema
+    validationSchema: schema,
   });
   const { history } = props;
   const dispatch = useDispatch();
-  const errorMessage = useSelector(state => state.auth.errorMessage);
+  const errorMessage = useSelector((state) => state.auth.errorMessage);
 
   useEffect(() => {
     document.getElementsByClassName("app-wrapper")[0].style.cssText =
       "overflow: auto";
   }, []);
 
+  //AUTHENTICATION
   useEffect(() => {
     const checkUserMethod = () => {
       console.log("current signup", localStorage.getItem("AUTH_TYPE"));
@@ -62,7 +63,9 @@ let SignUp = props => {
 
     checkUserMethod();
   }, [history, dispatch, errorMessage]);
-  const onSubmit = async formData => {
+
+  //REGISTER FUNCTION
+  const onSubmit = async (formData) => {
     await dispatch(actions.signUp(formData));
     if (errorMessage) {
       history.push("/signup");
@@ -71,14 +74,17 @@ let SignUp = props => {
       history.push("/home");
     }
   };
-  const responseFacebook = async res => {
+
+  //GET FACEBOOK SIGNUP RESPONSE
+  const responseFacebook = async (res) => {
     await dispatch(actions.oauthFacebook(res.accessToken));
     if (!errorMessage) {
       history.push("/personalData");
     }
   };
 
-  const responseGoogle = async res => {
+  //GET GOOGLE SIGNUP RESPONSE
+  const responseGoogle = async (res) => {
     console.log(res.accessToken);
     await dispatch(actions.oauthGoogle(res.accessToken));
     if (!errorMessage) {
@@ -196,7 +202,7 @@ let SignUp = props => {
                   textButton="Facebook"
                   fields="name, email, picture"
                   callback={responseFacebook}
-                  render={renderProps => (
+                  render={(renderProps) => (
                     <button
                       onClick={renderProps.onClick}
                       disabled={renderProps.disabled}
@@ -222,7 +228,7 @@ let SignUp = props => {
                 />
                 <GoogleLogin
                   clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
-                  render={renderProps => (
+                  render={(renderProps) => (
                     <button
                       onClick={renderProps.onClick}
                       disabled={renderProps.disabled}

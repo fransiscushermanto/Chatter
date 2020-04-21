@@ -9,3 +9,4 @@ export const GET_LIST_FRIEND = "GET_LIST_FRIEND";
 export const CREATE_ROOM = "CREATE_ROOM";
 export const ROOM_ERROR = "ROOM_ERROR";
 export const LOAD_ALL_CHAT = "LOAD_ALL_CHAT";
+export const CHECK_EMAIL = "CHECK_EMAIL";

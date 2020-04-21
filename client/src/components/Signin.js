@@ -11,22 +11,24 @@ import { AuthInput as Field } from "./ReactHookForm";
 
 import "../css/Authuser.css";
 
-let SignIn = props => {
+let SignIn = (props) => {
   const schema = yup.object().shape({
     email: yup
       .string()
       .email("Email is Invalid")
       .required("This field is required"),
-    password: yup.string().required("This field is required")
+    password: yup.string().required("This field is required"),
   });
 
   const { register, errors, handleSubmit } = useForm({
-    validationSchema: schema
+    validationSchema: schema,
   });
   const { history } = props;
-  const errorMessage = useSelector(state => state.auth.errorMessage);
+  const errorMessage = useSelector((state) => state.auth.errorMessage);
   const dispatch = useDispatch();
-  const onSubmit = async formData => {
+
+  //SEND LOGIN INFORMATION
+  const onSubmit = async (formData) => {
     await dispatch(actions.signIn(formData));
 
     if (!errorMessage) {
@@ -34,11 +36,13 @@ let SignIn = props => {
     }
   };
 
-  const responseFacebook = async res => {
+  //GET RESPONSE FROM FACEBOOK LOGIN
+  const responseFacebook = async (res) => {
     await dispatch(actions.oauthFacebook(res.accessToken));
   };
 
-  const responseGoogle = async res => {
+  //GET RESPONSE FROM GOOGLE LOGIN
+  const responseGoogle = async (res) => {
     await dispatch(actions.oauthGoogle(res.accessToken));
   };
 
@@ -47,6 +51,7 @@ let SignIn = props => {
       "overflow: auto";
   }, []);
 
+  //AUTHENTICATION
   useEffect(() => {
     const checkUserMethod = () => {
       const data = localStorage.getItem("AUTH_TYPE");
@@ -91,7 +96,8 @@ let SignIn = props => {
               <form onSubmit={handleSubmit(onSubmit)}>
                 <p className="title">Login</p>
                 {errorMessage ? (
-                  errorMessage !== "Invalid" ? (
+                  errorMessage !== "Invalid" &&
+                  errorMessage !== "Email is not Registered" ? (
                     <div style={{ width: "100%" }}>
                       <p className="bg-danger error-message">{errorMessage}</p>
                     </div>
@@ -106,7 +112,8 @@ let SignIn = props => {
                     autoComplete="username"
                     style={
                       errors.email || errorMessage
-                        ? errorMessage !== "Invalid"
+                        ? errorMessage !== "Invalid" &&
+                          errorMessage !== "Email is not Registered"
                           ? { border: "1px red solid" }
                           : null
                         : null
@@ -131,7 +138,8 @@ let SignIn = props => {
                     autoComplete="current-password"
                     style={
                       errors.password || errorMessage
-                        ? errorMessage !== "Invalid"
+                        ? errorMessage !== "Invalid" &&
+                          errorMessage !== "Email is not Registered"
                           ? { border: "1px red solid" }
                           : null
                         : null
@@ -149,7 +157,12 @@ let SignIn = props => {
                 </fieldset>
 
                 <div className="btnsubmit-wrapper">
-                  <Link to="/resetPassword">Forgot Password?</Link>
+                  <Link
+                    to="/resetPassword"
+                    onClick={() => dispatch(actions.resetState())}
+                  >
+                    Forgot Password?
+                  </Link>
                   <button className="btn btn-primary" type="submit">
                     Login
                   </button>
@@ -164,7 +177,7 @@ let SignIn = props => {
                   fields="name, email, picture"
                   disableMobileRedirect={true}
                   callback={responseFacebook}
-                  render={renderProps => (
+                  render={(renderProps) => (
                     <button
                       onClick={renderProps.onClick}
                       disabled={renderProps.disabled}
@@ -190,7 +203,7 @@ let SignIn = props => {
                 />
                 <GoogleLogin
                   clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
-                  render={renderProps => (
+                  render={(renderProps) => (
                     <button
                       onClick={renderProps.onClick}
                       disabled={renderProps.disabled}

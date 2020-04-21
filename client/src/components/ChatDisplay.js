@@ -19,6 +19,7 @@ const ChatDisplay = (props) => {
     showChatRoom,
     setChatRoomData,
     setOpenDeleteRoomModal,
+    chatItem,
   } = props;
 
   const [openContextMenu, setOpenContextMenu] = useState(false);
@@ -69,6 +70,7 @@ const ChatDisplay = (props) => {
     return time.join(""); // return adjusted time or original string
   };
 
+  //SET UNREAD MESSAGE TOTAL TO UNREAD STATE ON EVERY UNREAD MESSAGE CHANGE
   useEffect(() => {
     if (unreadMessage.length > 0) {
       const thisRoomUnread = unreadMessage.filter((item) =>
@@ -80,14 +82,17 @@ const ChatDisplay = (props) => {
     }
   }, [unreadMessage]);
 
+  //HANDLE DATA CHANGE PASS TO CHATROOM
   useEffect(() => {
     if (showChatRoom) {
-      if (
-        data.friend === "block" ||
-        data.friend === "none" ||
-        data.friend === null
-      ) {
-        onClick(data);
+      if (data.room_id === chatItem.room_id) {
+        if (
+          data.friend === "block" ||
+          data.friend === "none" ||
+          data.friend === null
+        ) {
+          onClick(data);
+        }
       }
     }
 

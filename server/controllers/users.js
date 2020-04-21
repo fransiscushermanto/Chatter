@@ -2,6 +2,7 @@ const JWT = require("jsonwebtoken");
 const User = require("../models/user");
 const Friend = require("../models/friend");
 const ChatRoom = require("../models/chatRoom");
+const bcrypt = require("bcrypt");
 
 signToken = (user) => {
   console.log(user);
@@ -81,7 +82,6 @@ module.exports = {
   signIn: async (req, res, next) => {
     const token = signToken(req.user);
     res.status(200).json({ token });
-    console.log("Logged in");
   },
   googleOAuth: async (req, res, next) => {
     const token = signToken(req.user);
@@ -185,5 +185,37 @@ module.exports = {
 
     const token = signToken(req.body.user);
     res.status(200).json({ friends, token });
+  },
+  checkEmail: async (req, res, next) => {
+    try {
+      const { email } = req.body;
+      const exist = await User.findOne({ "local.email": email });
+      if (exist !== null) {
+        return res.status(200).send({ error: "none" });
+      } else {
+        return res.status(400).send({ error: "Email is not Registered" });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  },
+  resetPassword: async (req, res, next) => {
+    try {
+      const { email, password } = req.body;
+
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+      const newPassword = hashedPassword;
+
+      await User.findOneAndUpdate(
+        { "local.email": email },
+        { "local.password": newPassword },
+        { new: true }
+      );
+      return res.status(200).send({ error: "" });
+    } catch (error) {
+      console.log(error);
+      return res.status(400);
+    }
   },
 };
