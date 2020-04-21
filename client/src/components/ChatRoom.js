@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState, useReducer } from "react";
 import { useDispatch } from "react-redux";
+import { Picker } from "emoji-mart";
 
+import { detectOnBlur } from "./Factories";
 import ChatRoomFooter from "./ChatRoomFooter";
 import ChatRoomHeader from "./ChatRoomHeader";
 import ChatRoomMain from "./ChatRoomMain";
@@ -8,7 +10,7 @@ import ChatRoomMain from "./ChatRoomMain";
 import * as actions from "../actions";
 import axios from "../instance";
 import "../css/ChatRoom.css";
-
+import "../css/Emoji.css";
 const initialState = {
   chat: [],
 };
@@ -30,6 +32,7 @@ const ChatRoom = (props) => {
   const [scrolling, setScrolling] = useState(false);
   const [firstLoad, setFirstLoad] = useState(true);
   const [typing, setTyping] = useState(false);
+  const [showEmoji, setShowEmoji] = useState(false);
   const {
     displayName,
     room_id,
@@ -52,6 +55,8 @@ const ChatRoom = (props) => {
   const position = useRef(0);
   const timeout = useRef(null);
   const dispatch = useDispatch();
+  const emoji = useRef(null);
+
   const setStatetoChatContainer = () => {
     const res = chats.filter((data) => data.room_id.includes(room_id));
     if (chatContainer.length === 0) {
@@ -122,6 +127,7 @@ const ChatRoom = (props) => {
 
   const handleSendChat = (e) => {
     const keyCode = e.keyCode || e.which;
+    console.log(e.keyCode);
     if (
       !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(
         navigator.userAgent
@@ -129,7 +135,10 @@ const ChatRoom = (props) => {
     ) {
       if (keyCode === 13 && e.shiftKey) {
         setVisible(false);
-      } else if (keyCode === 13 && escapeHtml(message) !== "") {
+      } else if (
+        (keyCode === 13 || keyCode === undefined) &&
+        escapeHtml(message) !== ""
+      ) {
         let date = new Date(Date.now());
         let data = {
           room_id: room_id,
@@ -230,7 +239,7 @@ const ChatRoom = (props) => {
   const pastePlainText = (e) => {
     e.preventDefault();
     const text = e.clipboardData.getData("text/plain");
-    document.execCommand("insertHTML", false, text);
+    document.execCommand("inserttext", false, text);
   };
 
   const disableNewLines = (e) => {
@@ -277,6 +286,13 @@ const ChatRoom = (props) => {
     ) {
       setVisible(true);
     }
+  };
+
+  const onEmojiClick = (emojiObject) => {
+    setMessage(message.concat(emojiObject.native));
+    document.getElementById("message-bar").innerHTML = document
+      .getElementById("message-bar")
+      .innerHTML.concat(emojiObject.native);
   };
 
   const tConvert = (time) => {
@@ -600,6 +616,10 @@ const ChatRoom = (props) => {
   };
 
   useEffect(() => {
+    detectOnBlur(emoji, showEmoji, setShowEmoji);
+  }, [showEmoji, emoji]);
+
+  useEffect(() => {
     socket.on("TYPING", handleStartTyping);
     return () => socket.off("TYPING", handleStartTyping);
   }, [typing]);
@@ -659,6 +679,7 @@ const ChatRoom = (props) => {
   }, [scrolling]);
 
   useEffect(() => {
+    console.log(message);
     if (escapeHtml(message) === "") {
       setVisible(true);
     } else {
@@ -749,6 +770,11 @@ const ChatRoom = (props) => {
         </span>
       </div>
       <footer className="footer">
+        <div className="emoji-wrapper" ref={emoji}>
+          {showEmoji ? (
+            <Picker onSelect={onEmojiClick} style={{ width: "100%" }} />
+          ) : null}
+        </div>
         <ChatRoomFooter
           friend={friend}
           handleChange={handleChange}
@@ -758,6 +784,9 @@ const ChatRoom = (props) => {
           pastePlainText={pastePlainText}
           disableNewLines={disableNewLines}
           handleTyping={handleTyping}
+          setMessage={setMessage}
+          setShowEmoji={setShowEmoji}
+          showEmoji={showEmoji}
         ></ChatRoomFooter>
       </footer>
     </div>
