@@ -836,6 +836,63 @@ const Home = () => {
     }
   }, [socket, dataUser]);
 
+  ////HANDLE SOCKET MARK AS READ
+  useEffect(() => {
+    if (socket !== "" && dataUser !== "") {
+      socket.on("MARK_AS_READ", (room_id) => {
+        if (allChatState.length > 0) {
+          const data = [
+            ...allChatState.filter((data) => data.room_id === room_id),
+          ];
+          const temp = data.filter((item) => item.status === "unread");
+          temp.map((data) => (data.status = "read"));
+          const fix = data.filter((item) => item.status !== "unread");
+          temp.map((data) => {
+            if (fix.filter((item) => item === data).length === 0) {
+              fix.push(data);
+            }
+          });
+          const join = [
+            ...allChatState.filter((data) => data.room_id !== room_id),
+          ];
+          fix.map((item) => {
+            if (join.filter((x) => x === item).length === 0) {
+              join.push(item);
+            }
+          });
+          setAllChatState(join);
+          loadRoom();
+          loadChatHistory();
+        }
+      });
+      return () =>
+        socket.off("MARK_AS_READ", (room_id) => {
+          if (allChatState.length > 0) {
+            const data = [
+              ...allChatState.filter((data) => data.room_id === room_id),
+            ];
+            const temp = data.filter((item) => item.status === "unread");
+            temp.map((data) => (data.status = "read"));
+            const fix = data.filter((item) => item.status !== "unread");
+            temp.map((data) => {
+              if (fix.filter((item) => item === data).length === 0) {
+                fix.push(data);
+              }
+            });
+            const join = [
+              ...allChatState.filter((data) => data.room_id !== room_id),
+            ];
+            fix.map((item) => {
+              if (join.filter((x) => x === item).length === 0) {
+                join.push(item);
+              }
+            });
+            setAllChatState(join);
+          }
+        });
+    }
+  }, [allChatState]);
+
   //SHOWCHAT ROOM STATE HANDLER
   useEffect(() => {
     if (showChatRoom == false && chatItem.fullName !== "") {
@@ -864,6 +921,10 @@ const Home = () => {
   useEffect(() => {
     fetchUser();
   }, [allUser]);
+
+  useEffect(() => {
+    console.log(chatHistory);
+  }, [chatHistory]);
 
   return (
     <div className="main-wrapper">

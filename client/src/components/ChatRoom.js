@@ -667,6 +667,26 @@ const ChatRoom = (props) => {
     detectOnBlur(emoji, showEmoji, setShowEmoji);
   }, [showEmoji, emoji]);
 
+  //HANDLE SOCKET MARK AS READ TO RECEIVER
+  useEffect(() => {
+    socket.on("MARK_AS_READ", () => {
+      if (chatContainer.length > 0) {
+        const data = [...chatContainer];
+        const temp = data.filter((item) => item.status === "unread");
+        temp.map((data) => (data.status = "read"));
+        const fix = data.filter((item) => item.status !== "unread");
+
+        temp.map((data) => {
+          if (fix.filter((item) => item === data).length === 0) {
+            fix.push(data);
+          }
+        });
+
+        setChatContainer(fix);
+      }
+    });
+  }, [chatContainer]);
+
   //HANDLE ON TYPING FUNCTION ON EVERY TYPING STATE CHANGE
   useEffect(() => {
     socket.on("TYPING", handleStartTyping);

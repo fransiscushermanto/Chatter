@@ -473,19 +473,49 @@ module.exports = function (socket) {
 
   socket.on("MARK_AS_READ", async ({ data }) => {
     try {
-      await ChatRoom.findOneAndUpdate(
+      await ChatRoom.updateMany(
         {
-          $and: [
-            { room_id: data.room_id },
-            { user_id: data.user_id },
-            { friend_id: data.friend_id },
-          ],
+          room_id: data.room_id,
         },
         {
           "lastchat.status": "read",
         }
       );
-      socket.emit("MARK_AS_READ", data.room_id);
+
+      const exist = await ChatHistory.find({
+        $and: [
+          { room_id: data.room_id },
+          { status: "unread" },
+          { sender_id: data.friend_id },
+          {
+            $or: [
+              { "backup.person_1": data.user_id },
+              { "backup.person_2": data.user_id },
+            ],
+          },
+        ],
+      });
+      if (exist.length > 0) {
+        await ChatHistory.updateMany(
+          {
+            $and: [
+              { room_id: data.room_id },
+              { status: "unread" },
+              { sender_id: data.friend_id },
+              {
+                $or: [
+                  { "backup.person_1": data.user_id },
+                  { "backup.person_2": data.user_id },
+                ],
+              },
+            ],
+          },
+          {
+            status: "read",
+          }
+        );
+      }
+      io.to(data.room_id).emit("MARK_AS_READ", data.room_id);
     } catch (error) {
       console.log(error);
     }

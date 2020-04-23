@@ -76,6 +76,7 @@ const ChatDisplay = (props) => {
       )[0];
 
       data["unreadMessage"] = thisRoomUnread.unread;
+
       if (showChatRoom) {
         if (unread.read !== true) {
           setUnread({
@@ -114,12 +115,33 @@ const ChatDisplay = (props) => {
       }
     });
 
+    return () =>
+      socket.off("MARK_AS_UNREAD", (room_id) => {
+        if (data.room_id === room_id) {
+          setUnread({ ...unread, read: false });
+        }
+      });
+  }, [unread]);
+  //HANDLE MARK AS READ
+  useEffect(() => {
+    let mounted = true;
     socket.on("MARK_AS_READ", (room_id) => {
-      if (data.room_id === room_id) {
-        setUnread({ ...unread, read: true, unread: 0 });
+      if (mounted) {
+        if (data.room_id === room_id) {
+          setUnread({ ...unread, read: true, unread: 0 });
+        }
       }
     });
-  }, [unreadMessage]);
+
+    return () => {
+      mounted = false;
+      socket.off("MARK_AS_READ", (room_id) => {
+        if (data.room_id === room_id) {
+          setUnread({ ...unread, read: true, unread: 0 });
+        }
+      });
+    };
+  }, [unread]);
 
   return (
     <div
