@@ -922,10 +922,6 @@ const Home = () => {
     fetchUser();
   }, [allUser]);
 
-  useEffect(() => {
-    console.log(chatHistory);
-  }, [chatHistory]);
-
   return (
     <div className="main-wrapper">
       <span>
