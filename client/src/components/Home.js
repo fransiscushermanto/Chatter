@@ -30,6 +30,7 @@ const Home = () => {
   const listFriend = useSelector((state) => state.friend.data);
   const dataUser = useSelector((state) => state.decode.user);
   const allUser = useSelector((state) => state.user.data);
+  const [profile, setProfile] = useState({});
   const [openUserInfo, setOpenUserInfo] = useState(false);
   const [userInfo, setUserInfo] = useState({});
   const [openDeleteRoomModal, setOpenDeleteRoomModal] = useState(false);
@@ -64,9 +65,10 @@ const Home = () => {
 
   //LOAD FRIEND FUNCTION
   const loadFriend = async () => {
+    console.log(profile);
     const loadFriendData = {
-      user_id: dataUser._id,
-      user: dataUser,
+      user_id: profile._id,
+      user: profile,
     };
     await dispatch(actions.getCurrentFriend(loadFriendData));
   };
@@ -171,7 +173,13 @@ const Home = () => {
       friend: e.friend,
       email: e.email,
     };
-    setChatItem(data);
+    if (chatItem.friend_id !== e.friend_id) {
+      setChatItem(data);
+    } else {
+      if (chatItem.friend !== "friend") {
+        setChatItem(data);
+      }
+    }
     setShowChatRoom(false);
     setShowChatRoom(true);
   };
@@ -379,6 +387,7 @@ const Home = () => {
       setUserInfo({});
       setChatItem({ friendName: "" });
       setShowChatRoom(false);
+      setOpenUserInfo(false);
     }
     setOpenDeleteRoomModal(false);
     socket.emit("DELETE_CHAT_ROOM", {
@@ -394,6 +403,7 @@ const Home = () => {
   const onBlockFriend = () => {
     setUserInfo({ ...userInfo, friend: "block" });
     setChatItem({ ...chatItem, friend: "block" });
+
     socket.emit("BLOCK", {
       data: {
         user_id: dataUser._id,
@@ -584,11 +594,11 @@ const Home = () => {
       });
       setSocket(sockets);
     };
-    if (dataUser !== "") {
+    if (dataUser !== "" && profile !== {}) {
       initSocket();
       return () => initSocket();
     }
-  }, [socketUrl, dataUser]);
+  }, [socketUrl, dataUser, profile]);
 
   //FIRST RENDER LOAD ALL
   useEffect(() => {
@@ -608,12 +618,16 @@ const Home = () => {
       var fullname;
       if (data.method === "local") {
         fullname = data.local.fullname;
+        delete data.local.password;
       } else if (data.method === "facebook") {
         fullname = data.facebook.fullname;
+        delete data.facebook.password;
       } else {
         fullname = data.google.fullname;
+        delete data.google.password;
       }
       setProfileName(fullname);
+      setProfile(data);
     }
   }, [dataUser]);
 
@@ -649,10 +663,18 @@ const Home = () => {
   //SOCKET LOAD FRIEND
   useEffect(() => {
     if (dataUser !== "" && socket !== "") {
-      socket.on("LOAD_FRIEND", () => loadFriend());
+      socket.on("LOAD_FRIEND", () => {
+        loadFriend();
+        fetchFriend();
+        loadChatHistory();
+      });
 
       return () => {
-        socket.off("LOAD_FRIEND", () => loadFriend());
+        socket.off("LOAD_FRIEND", () => {
+          loadFriend();
+          fetchFriend();
+          loadChatHistory();
+        });
       };
     }
   }, [socket, dataUser]);
@@ -1001,24 +1023,15 @@ const Home = () => {
                           : ""
                       }
                       friend_id={chatItem.friend_id}
-                      user={dataUser}
+                      user={profileName}
                       unreadMessage={
                         unreadMessage.filter((item) =>
                           item.room_id.includes(chatItem.room_id)
                         ).length > 0
                           ? unreadMessage.filter((item) =>
                               item.room_id.includes(chatItem.room_id)
-                            )[0].unread
-                          : 0
-                      }
-                      read={
-                        unreadMessage.filter((item) =>
-                          item.room_id.includes(chatItem.room_id)
-                        ).length > 0
-                          ? unreadMessage.filter((item) =>
-                              item.room_id.includes(chatItem.room_id)
-                            )[0].read
-                          : true
+                            )[0]
+                          : { read: true, unread: 0 }
                       }
                       openUserInfo={openUserInfo}
                       socket={socket}
@@ -1031,6 +1044,8 @@ const Home = () => {
                       setOpenDeleteRoomModal={setOpenDeleteRoomModal}
                       data={chatItem}
                       onOpenUserInfo={onOpenUserInfo}
+                      setUnreadMessage={setUnreadMessage}
+                      unreadMessageState={unreadMessage}
                     />
                   ) : null}
                 </div>
@@ -1074,7 +1089,7 @@ const Home = () => {
                             setOpenDeleteRoomModal={setOpenDeleteRoomModal}
                             userInfo={userInfo}
                             socket={socket}
-                            user={dataUser}
+                            user={profileName}
                             setUserInfo={setUserInfo}
                             chatItem={chatItem}
                             setChatItem={setChatItem}
@@ -1092,7 +1107,7 @@ const Home = () => {
           <Route path={`${path}/addFriend`}>
             <AddFriend
               isFriend={isFriend}
-              dataUser={dataUser}
+              dataUser={profileName}
               loadFriend={loadFriend}
               socket={socket}
               renderProfile={renderProfile}

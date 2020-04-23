@@ -61,7 +61,7 @@ const UserInfo = ({
     socket.emit("GET_FRIEND");
   };
 
-  return userInfo.data.fullname ? (
+  return (
     <div className="wrapper-footer-user-info">
       <div className="user-info-pane pane-1 ">
         <div className="avatar">
@@ -183,7 +183,7 @@ const UserInfo = ({
         </div>
       </div>
     </div>
-  ) : null;
+  );
 };
 
 export default UserInfo;

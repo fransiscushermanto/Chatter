@@ -15,14 +15,12 @@ const ChatDisplay = (props) => {
     unreadMessage,
     room_id,
     socket,
-    setUnreadMessage,
     showChatRoom,
     setChatRoomData,
     setOpenDeleteRoomModal,
-    chatItem,
     openUserInfo,
   } = props;
-
+  const cryptr = require("simple-encryptor")(process.env.REACT_APP_CRYPTO_KEY);
   const [openContextMenu, setOpenContextMenu] = useState(false);
   const [unread, setUnread] = useState({ read: true, unread: 0 });
   const root = useRef(null);
@@ -71,14 +69,22 @@ const ChatDisplay = (props) => {
 
   //SET UNREAD MESSAGE TOTAL TO UNREAD STATE ON EVERY UNREAD MESSAGE CHANGE
   useEffect(() => {
-    console.log(data);
     if (unreadMessage.length > 0) {
       const thisRoomUnread = unreadMessage.filter((item) =>
         item.room_id.includes(room_id)
       )[0];
 
       data["unreadMessage"] = thisRoomUnread.unread;
-      setUnread({ read: thisRoomUnread.read, unread: thisRoomUnread.unread });
+      if (showChatRoom) {
+        if (unread.read !== true) {
+          setUnread({
+            read: thisRoomUnread.read,
+            unread: thisRoomUnread.unread,
+          });
+        }
+      } else {
+        setUnread({ read: thisRoomUnread.read, unread: thisRoomUnread.unread });
+      }
     }
   }, [unreadMessage]);
 
@@ -133,10 +139,10 @@ const ChatDisplay = (props) => {
           <div className="chat-item">
             <div
               className="inner-chat-item"
-              title={chat}
+              title={cryptr.decrypt(chat)}
               style={openUserInfo === true ? { maxWidth: "200px" } : null}
             >
-              <span>{chat}</span>
+              <span>{cryptr.decrypt(chat)}</span>
             </div>
           </div>
           <div className="notif">

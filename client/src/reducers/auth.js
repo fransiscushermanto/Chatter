@@ -51,7 +51,6 @@ export default (state = DEFAULT_STATE, action) => {
       };
 
     case AUTH_ERROR:
-      console.log("EEOE", "'", action.payload, "'");
       return { ...state, errorMessage: action.payload };
     default:
       return state;

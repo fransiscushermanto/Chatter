@@ -26,7 +26,6 @@ module.exports = function (socket) {
   });
 
   socket.on("ALL_USER_UPDATE_MESSAGE", ({ room }, callback) => {
-    console.log("INROOM");
     callback();
     io.to(room).emit("RELOAD_MESSAGE");
   });
@@ -45,7 +44,6 @@ module.exports = function (socket) {
 
   socket.on("UPDATE_MESSAGE", ({ room }, callback) => {
     callback();
-    console.log("OUTSIDE");
     socket.to(room).emit("RELOAD_MESSAGE");
   });
 
@@ -68,11 +66,57 @@ module.exports = function (socket) {
         ],
       });
 
+      await ChatRoom.findOneAndUpdate(
+        {
+          $and: [
+            { room_id: data.room_id },
+            { user_id: data.user_id },
+            { friend_id: data.friend_id },
+          ],
+        },
+        {
+          lastchat: {
+            sender_id: "",
+            chat: "",
+            status: "read",
+          },
+        }
+      );
+
       if (chatHistoryExist.length > 0) {
+        await ChatHistory.deleteMany({
+          $and: [
+            { room_id: data.room_id },
+            {
+              $and: [
+                { "backup.person_1": data.user_id },
+                { "backup.person_2": "" },
+              ],
+            },
+          ],
+        });
         if (chatHistoryFriend.length > 0) {
           await ChatHistory.updateMany(
             {
-              $and: [{ room_id: data.room_id }],
+              $and: [
+                { room_id: data.room_id },
+                {
+                  $or: [
+                    {
+                      $and: [
+                        { "backup.person_1": data.user_id },
+                        { "backup.person_2": data.friend_id },
+                      ],
+                    },
+                    {
+                      $and: [
+                        { "backup.person_1": data.friend_id },
+                        { "backup.person_2": data.user_id },
+                      ],
+                    },
+                  ],
+                },
+              ],
             },
             {
               backup: {
@@ -157,7 +201,6 @@ module.exports = function (socket) {
   });
 
   socket.on("LEAVE_CHAT_ROOM", ({ room }) => {
-    console.log("LEAVING", room);
     socket.leave(room);
   });
 
@@ -188,10 +231,39 @@ module.exports = function (socket) {
       });
 
       if (chatHistoryExist.length > 0) {
+        await ChatHistory.deleteMany({
+          $and: [
+            { room_id: data.room_id },
+            {
+              $and: [
+                { "backup.person_1": data.user_id },
+                { "backup.person_2": "" },
+              ],
+            },
+          ],
+        });
         if (chatHistoryFriend.length > 0) {
           await ChatHistory.updateMany(
             {
-              $and: [{ room_id: data.room_id }],
+              $and: [
+                { room_id: data.room_id },
+                {
+                  $or: [
+                    {
+                      $and: [
+                        { "backup.person_1": data.user_id },
+                        { "backup.person_2": data.friend_id },
+                      ],
+                    },
+                    {
+                      $and: [
+                        { "backup.person_1": data.friend_id },
+                        { "backup.person_2": data.user_id },
+                      ],
+                    },
+                  ],
+                },
+              ],
             },
             {
               backup: {

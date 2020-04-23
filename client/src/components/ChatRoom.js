@@ -26,6 +26,7 @@ import "../css/Emoji.css";
 
 const ChatRoom = (props) => {
   // const [state, dispatcher] = useReducer(reducer, initialState);
+  const cryptr = require("simple-encryptor")(process.env.REACT_APP_CRYPTO_KEY);
   const [visible, setVisible] = useState(true);
   const [chatContainer, setChatContainer] = useState([]);
   const [message, setMessage] = useState("");
@@ -47,11 +48,11 @@ const ChatRoom = (props) => {
     setOpenBlockModal,
     setChatRoomData,
     setOpenClearMessagesModal,
-    setOpenDeleteRoomModal,
     data,
     onOpenUserInfo,
     openUserInfo,
-    read,
+    unreadMessageState,
+    setUnreadMessage,
   } = props;
 
   const position = useRef(0);
@@ -119,7 +120,7 @@ const ChatRoom = (props) => {
         let date = new Date(Date.now());
         let data = {
           room_id: room_id,
-          chat: escapeHtml(message),
+          chat: cryptr.encrypt(escapeHtml(message)),
           sender_id: user_id,
           time: date,
           status: "unread",
@@ -127,7 +128,7 @@ const ChatRoom = (props) => {
           friend_id: friend_id,
         };
 
-        if (unreadMessage > 0 && scrolling) {
+        if (unreadMessage.unread > 0 && scrolling) {
           setFirstLoad(false);
           setScrolling(false);
         }
@@ -135,7 +136,7 @@ const ChatRoom = (props) => {
         if (
           position.current === 0 &&
           firstLoad === true &&
-          read === false &&
+          unreadMessage.read === false &&
           scrolling === false
         ) {
           setFirstLoad(false);
@@ -150,7 +151,7 @@ const ChatRoom = (props) => {
         let date = new Date(Date.now());
         let data = {
           room_id: room_id,
-          chat: escapeHtml(message),
+          chat: cryptr.encrypt(escapeHtml(message)),
           sender_id: user_id,
           time: date,
           status: "unread",
@@ -158,7 +159,7 @@ const ChatRoom = (props) => {
           friend_id: friend_id,
         };
 
-        if (unreadMessage > 0 && scrolling) {
+        if (unreadMessage.unread > 0 && scrolling) {
           setFirstLoad(false);
           setScrolling(false);
         }
@@ -348,17 +349,22 @@ const ChatRoom = (props) => {
                 ) : null}
                 {scrolling === false && firstLoad === true ? (
                   item.status === "unread" ? (
-                    unreadMessage > 0 ? (
+                    unreadMessage.unread > 0 ? (
                       newMessageStatus ? (
                         <div className="unread-notif">
                           {(newMessageStatus = false)}
-                          <span>{unreadMessage} UNREAD MESSAGES</span>
+                          <span>{unreadMessage.unread} UNREAD MESSAGES</span>
                         </div>
                       ) : null
                     ) : null
                   ) : null
                 ) : null}
-                {ChatInComp(item.chat, index, changeStatus, chatTime)}
+                {ChatInComp(
+                  cryptr.decrypt(item.chat),
+                  index,
+                  changeStatus,
+                  chatTime
+                )}
               </div>
             );
           } else {
@@ -373,7 +379,7 @@ const ChatRoom = (props) => {
                   </div>
                 ) : null}
                 {ChatOutComp(
-                  item.chat,
+                  cryptr.decrypt(item.chat),
                   index,
                   changeStatus,
                   chatTime,
@@ -460,17 +466,16 @@ const ChatRoom = (props) => {
     if (
       position.current === 0 &&
       firstLoad === true &&
-      read === true &&
+      unreadMessage.read === true &&
       scrolling === false
     ) {
       setFirstLoad(false);
     } else if (
       position.current === 0 &&
       firstLoad === true &&
-      read === false &&
+      unreadMessage.read === false &&
       scrolling === false
     ) {
-      console.log("TRUE FALSE FALSE");
       setFirstLoad(false);
     }
 
@@ -503,7 +508,7 @@ const ChatRoom = (props) => {
       if (
         position.current === -1 &&
         firstLoad === false &&
-        read === true &&
+        unreadMessage.read === true &&
         scrolling === true
       ) {
         setFirstLoad(true);
@@ -515,15 +520,18 @@ const ChatRoom = (props) => {
         position.current = 0;
       }
 
-      if (read === false && position.current === 0 && firstLoad) {
+      if (unreadMessage.read === false && position.current === 0 && firstLoad) {
         position.current = 0;
         socket.emit(
           "UPDATE_MESSAGE",
           { room: room_id },
           async () => await updateChat({ friend_id, user_id })
         );
-      } else if (read === false && position.current === 0 && !firstLoad) {
-        console.log("INCLUDE ME");
+      } else if (
+        unreadMessage.read === false &&
+        position.current === 0 &&
+        !firstLoad
+      ) {
         socket.emit(
           "ALL_USER_UPDATE_MESSAGE",
           { room: room_id },
@@ -631,9 +639,18 @@ const ChatRoom = (props) => {
     setOpenClearMessagesModal(true);
   };
 
+  //HANDLE CLEAR NOTIF ON CHAT LIST
+  const clearNotif = () => {
+    const temp = [...unreadMessageState];
+    const index = unreadMessageState.indexOf(unreadMessage);
+    temp[index].read = true;
+    setUnreadMessage(temp);
+  };
+
   //HANDLE UPDATE MESSAGE ON FIRST LOAD IF NEW MESSAGE EXIST
   useEffect(() => {
-    if (unreadMessage > 0) {
+    if (unreadMessage.unread > 0) {
+      clearNotif();
       socket.emit("PREPARING", {
         room: room_id,
       });
@@ -762,8 +779,8 @@ const ChatRoom = (props) => {
               onClick={() => setScrolling(false)}
             >
               <span className="unread">
-                {unreadMessage > 0 ? (
-                  <span className="unread-marker">{unreadMessage}</span>
+                {unreadMessage.unread > 0 ? (
+                  <span className="unread-marker">{unreadMessage.unread}</span>
                 ) : null}
               </span>
               <span className="arrow-down">
