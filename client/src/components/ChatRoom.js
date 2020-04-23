@@ -335,7 +335,6 @@ const ChatRoom = (props) => {
             datestatus = chatDate;
             changeDate = false;
           }
-          console.log(item.sender_id, user_id);
           if (item.sender_id !== user_id) {
             currentStatus = item.sender_id;
 
