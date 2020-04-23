@@ -1,26 +1,93 @@
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 
-const ChatRoomMain = ({ renderAllChat, scrolling }) => {
+import { detectOnBlur } from "./Factories";
+const ChatRoomMain = ({
+  renderAllChat,
+  onClearMessages,
+  onClick,
+  data,
+  friend,
+}) => {
+  const rootRef = useRef(null);
+  const [x, setX] = useState(0);
+  const [y, setY] = useState(0);
+  const [visible, setVisibility] = useState(false);
+
+  useEffect(() => {
+    const parent = rootRef.current;
+
+    if (!parent) {
+      return;
+    }
+
+    const showMenu = (event) => {
+      if (
+        event.target.offsetParent.classList.value !==
+          "inner-m-wrapper selectable-text tail" &&
+        event.target.className !== "inner-m-wrapper selectable-text tail" &&
+        event.target.className !== "inner-m-wrapper selectable-text " &&
+        event.target.offsetParent.className !==
+          "inner-m-wrapper selectable-text " &&
+        event.target.className !== "selectable-text"
+      ) {
+        event.preventDefault();
+        setVisibility(true);
+        setX(event.clientX);
+        setY(event.clientY);
+      } else {
+        setVisibility(false);
+      }
+    };
+
+    parent.addEventListener("contextmenu", showMenu);
+
+    return function cleanup() {
+      parent.removeEventListener("contextmenu", showMenu);
+    };
+  }, []);
+
+  useEffect(() => {
+    detectOnBlur(rootRef, visible, setVisibility);
+  }, [visible, rootRef]);
+
+  const style = {
+    top: y,
+    left: x,
+  };
+
   return (
-    <div className="chat-display-wrapper" id="chat-window">
+    <div
+      className="chat-display-wrapper"
+      id="chat-window"
+      onClick={() => setVisibility(false)}
+      ref={rootRef}
+    >
       {renderAllChat()}
       <span>
-        {scrolling ? (
-          <div role="button" className="scrollBottom">
-            <span className="unread"></span>
-            <span className="arrow-down">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 21 21"
-                width="21"
-                height="21"
-              >
-                <path
-                  fill="currentColor"
-                  d="M4.8 6.1l5.7 5.7 5.7-5.7 1.6 1.6-7.3 7.2-7.3-7.2 1.6-1.6z"
-                ></path>
-              </svg>
-            </span>
+        {visible ? (
+          <div id="context-menu" className="context-menu" style={style}>
+            <ul className="context-menu-wrapper">
+              <li className="context-menu-li">
+                <div
+                  className="context-menu-item"
+                  onClick={() => onClick({ data, friend })}
+                  role="button"
+                  title="User Info"
+                >
+                  User Info
+                </div>
+              </li>
+              <li className="context-menu-li">
+                <div
+                  className="context-menu-item"
+                  role="button"
+                  onClick={() => onClearMessages()}
+                  title="Clear Messages"
+                >
+                  Clear Messages
+                </div>
+              </li>
+            </ul>
           </div>
         ) : null}
       </span>

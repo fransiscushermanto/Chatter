@@ -6,15 +6,17 @@ import * as actions from "../actions";
 import "../css/UserInfo.css";
 const UserInfo = ({
   userInfo,
+  setUserInfo,
   setChatRoomData,
   setOpenUnblockModal,
   setOpenBlockModal,
   setOpenDeleteRoomModal,
   socket,
   user,
+  chatItem,
+  setChatItem,
 }) => {
   const dispatch = useDispatch();
-
   //BLOCK FUNCTION
   const onBlock = () => {
     setChatRoomData({
@@ -47,6 +49,8 @@ const UserInfo = ({
 
   //ADD FRIEND FUNCTION
   const onAddFriend = async () => {
+    setUserInfo({ ...userInfo, friend: "on" });
+    setChatItem({ ...chatItem, friend: "on" });
     const addFriendData = {
       friendId: userInfo.data.friend_id,
       userId: userInfo.data.user_id,
@@ -57,7 +61,7 @@ const UserInfo = ({
     socket.emit("GET_FRIEND");
   };
 
-  return (
+  return userInfo.data.fullname ? (
     <div className="wrapper-footer-user-info">
       <div className="user-info-pane pane-1 ">
         <div className="avatar">
@@ -179,7 +183,7 @@ const UserInfo = ({
         </div>
       </div>
     </div>
-  );
+  ) : null;
 };
 
 export default UserInfo;

@@ -136,7 +136,6 @@ module.exports = {
         .limit(limit)
         .skip(skip)
         .sort({ time: -1 });
-      console.log(chatHistory);
       const token = signToken(user);
       return res.status(200).send({ token, chat: chatHistory });
     } catch (error) {

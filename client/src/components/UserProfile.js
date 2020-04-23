@@ -1,13 +1,35 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
 
 import Avatar from "./CustomAvatar";
 
 import "../css/UserProfile.css";
-const UserProfile = ({ profile, onClick, checkFriend, createChatRoom }) => {
+const UserProfile = ({
+  profile,
+  onClick,
+  createChatRoom,
+  setOpenUnblockModal,
+  setOpenBlockModal,
+  isFriend,
+}) => {
   let query = new URLSearchParams(useLocation().search);
   const displayName = query.get("name") === "You" ? profile : query.get("name");
+  const [friend, setFriend] = useState("");
+  useEffect(() => {
+    setFriend(
+      isFriend(profile._id).length > 0 ? isFriend(profile._id)[0].status : null
+    );
+  }, []);
 
+  const onBlock = () => {
+    setFriend("block");
+    setOpenBlockModal(true);
+  };
+
+  const onUnBlock = () => {
+    setFriend("none");
+    setOpenUnblockModal(true);
+  };
   return displayName ? (
     <div className="userProfile-container">
       <div className="userProfile-wrapper">
@@ -37,39 +59,65 @@ const UserProfile = ({ profile, onClick, checkFriend, createChatRoom }) => {
                   onClick={() => createChatRoom(profile)}
                 >
                   <svg
-                    aria-hidden="true"
-                    focusable="false"
-                    data-prefix="fas"
-                    data-icon="comment"
-                    className="svg-inline--fa fa-comment fa-w-16"
-                    role="img"
+                    id="Layer_1"
+                    data-name="Layer 1"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 512 512"
                   >
+                    <defs></defs>
+
                     <path
-                      fill="currentColor"
-                      d="M256 32C114.6 32 0 125.1 0 240c0 49.6 21.4 95 57 130.7C44.5 421.1 2.7 466 2.2 466.5c-2.2 2.3-2.8 5.7-1.5 8.7S4.8 480 8 480c66.3 0 116-31.8 140.6-51.4 32.7 12.3 69 19.4 107.4 19.4 141.4 0 256-93.1 256-208S397.4 32 256 32z"
-                    ></path>
+                      style={{ fill: "#141f38" }}
+                      className="cls-1"
+                      d="M275.69,98.46a6.56,6.56,0,0,0-6.56-6.56H85.33a6.56,6.56,0,0,0,0,13.13H269.13A6.56,6.56,0,0,0,275.69,98.46Z"
+                    />
+                    <path
+                      style={{ fill: "#141f38" }}
+                      className="cls-1"
+                      d="M164.1,144.41H85.33a6.56,6.56,0,0,0,0,13.13H164.1a6.56,6.56,0,1,0,0-13.13Z"
+                    />
+                    <path
+                      style={{ fill: "#141f38" }}
+                      className="cls-1"
+                      d="M426.67,301.95H242.87a6.56,6.56,0,0,0,0,13.13H426.67a6.56,6.56,0,0,0,0-13.13Z"
+                    />
+                    <path
+                      style={{ fill: "#141f38" }}
+                      className="cls-1"
+                      d="M439.79,210H346.56a71.75,71.75,0,0,0,7.9-32.82v-105A72.29,72.29,0,0,0,282.26,0h-210A72.29,72.29,0,0,0,0,72.21v105a72.43,72.43,0,0,0,52.51,69.48v48.67A6.57,6.57,0,0,0,63.72,300l50.59-50.59h51.13a71.78,71.78,0,0,0-7.9,32.82v105a72.29,72.29,0,0,0,72.2,72.21h168l50.59,50.59a6.57,6.57,0,0,0,11.21-4.64V456.76A72.43,72.43,0,0,0,512,387.28v-105A72.29,72.29,0,0,0,439.79,210Zm-328.2,26.26a6.56,6.56,0,0,0-4.64,1.92L65.64,279.54v-38a6.56,6.56,0,0,0-5.26-6.43,59.23,59.23,0,0,1-47.25-57.89v-105A59.14,59.14,0,0,1,72.21,13.13h210a59.14,59.14,0,0,1,59.07,59.08v105a58.71,58.71,0,0,1-10,32.82,59.54,59.54,0,0,1-12,13.13,58.77,58.77,0,0,1-37.08,13.13H111.59Zm387.28,151a59.22,59.22,0,0,1-47.25,57.89,6.57,6.57,0,0,0-5.26,6.44v38L405,448.28a6.56,6.56,0,0,0-4.64-1.92H229.74a59.14,59.14,0,0,1-59.07-59.08v-105a58.71,58.71,0,0,1,10-32.82H282.26a72.07,72.07,0,0,0,55.65-26.26H439.79a59.14,59.14,0,0,1,59.08,59.08Z"
+                    />
+                    <path
+                      style={{ fill: "#141f38" }}
+                      className="cls-1"
+                      d="M321.64,354.46H242.87a6.56,6.56,0,1,0,0,13.13h78.77a6.56,6.56,0,1,0,0-13.13Z"
+                    />
                   </svg>
                   <span className="tooltip-text">Start a chat</span>
                 </button>
-                <button className="block">
+                <button
+                  className="block"
+                  onClick={() => {
+                    friend !== "block" ? onBlock() : onUnBlock();
+                  }}
+                >
                   <svg
-                    aria-hidden="true"
-                    focusable="false"
-                    data-prefix="fas"
-                    data-icon="ban"
-                    className="svg-inline--fa fa-ban fa-w-16"
-                    role="img"
                     xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 512 512"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    height="24"
                   >
                     <path
-                      fill="currentColor"
-                      d="M256 8C119.034 8 8 119.033 8 256s111.034 248 248 248 248-111.034 248-248S392.967 8 256 8zm130.108 117.892c65.448 65.448 70 165.481 20.677 235.637L150.47 105.216c70.204-49.356 170.226-44.735 235.638 20.676zM125.892 386.108c-65.448-65.448-70-165.481-20.677-235.637L361.53 406.784c-70.203 49.356-170.226 44.736-235.638-20.676z"
+                      style={
+                        friend !== "block"
+                          ? { fill: "rgba(255,0,0,0.9)" }
+                          : { fill: "rgba(15, 157, 88, 1)" }
+                      }
+                      d="M12 2.8c-5.3 0-9.7 4.3-9.7 9.7s4.3 9.7 9.7 9.7 9.7-4.3 9.7-9.7-4.4-9.7-9.7-9.7zm-7.3 9.7c0-4 3.3-7.3 7.3-7.3 1.6 0 3.1.5 4.3 1.4L6.1 16.8c-.9-1.2-1.4-2.7-1.4-4.3zm7.3 7.3c-1.6 0-3-.5-4.2-1.4L17.9 8.3c.9 1.2 1.4 2.6 1.4 4.2 0 4-3.3 7.3-7.3 7.3z"
                     ></path>
                   </svg>
-                  <span className="tooltip-text">Block</span>
+                  <span className="tooltip-text">
+                    {friend !== "block" ? "Block" : "Unblock"}
+                  </span>
                 </button>
               </div>
             ) : null}

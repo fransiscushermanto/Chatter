@@ -32,7 +32,7 @@ module.exports = function (socket) {
   });
 
   socket.on("TYPING", ({ room }) => {
-    socket.to(room).emit("TYPING");
+    socket.to(room).emit("TYPING", room);
   });
 
   socket.on("UPDATE_ROOM", () => {
@@ -47,6 +47,48 @@ module.exports = function (socket) {
     callback();
     console.log("OUTSIDE");
     socket.to(room).emit("RELOAD_MESSAGE");
+  });
+
+  socket.on("CLEAR_MESSAGES", async ({ data }) => {
+    try {
+      console.log(data);
+      const chatHistoryExist = await ChatHistory.find({
+        room_id: data.room_id,
+      });
+
+      const chatHistoryFriend = await ChatHistory.find({
+        $and: [
+          { room_id: data.room_id },
+          {
+            $or: [
+              { "backup.person_1": data.friend_id },
+              { "backup.person_2": data.friend_id },
+            ],
+          },
+        ],
+      });
+
+      if (chatHistoryExist.length > 0) {
+        if (chatHistoryFriend.length > 0) {
+          await ChatHistory.updateMany(
+            {
+              $and: [{ room_id: data.room_id }],
+            },
+            {
+              backup: {
+                person_1: data.friend_id,
+                person_2: "",
+              },
+            }
+          );
+        } else {
+          await ChatHistory.deleteMany({ room_id: data.room_id });
+        }
+      }
+      socket.emit("CLEAR_MESSAGES");
+    } catch (error) {
+      console.log(error);
+    }
   });
 
   socket.on("IGNORE_CHAT_ROOM", async ({ data }) => {

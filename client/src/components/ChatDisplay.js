@@ -20,6 +20,7 @@ const ChatDisplay = (props) => {
     setChatRoomData,
     setOpenDeleteRoomModal,
     chatItem,
+    openUserInfo,
   } = props;
 
   const [openContextMenu, setOpenContextMenu] = useState(false);
@@ -43,24 +44,22 @@ const ChatDisplay = (props) => {
     date = date.split(",");
     const now = new Date();
     let interval;
-    if (now.getFullYear() > Number.parseInt(date[2])) {
-      interval = now.getFullYear() - Number.parseInt(date[2]);
-      return `${interval} ${interval > 1 ? "years" : "year"} ago`;
+    if (
+      now.getFullYear() > Number.parseInt(date[2]) ||
+      now.getMonth() + 1 > Number.parseInt(date[1])
+    ) {
+      return `${date[0]}/${date[1]}/${date[2]}`;
     } else {
-      if (now.getMonth() + 1 > Number.parseInt(date[1])) {
-        interval = now.getMonth() + 1 - Number.parseInt(date[1]);
-        return `${interval} ${interval > 1 ? "months" : "month"} ago`;
-      } else {
-        if (now.getDate() > Number.parseInt(date[0])) {
-          interval = now.getDate() - Number.parseInt(date[0]);
-          if (interval > 1) {
-            return `${interval} days ago`;
-          } else {
-            return `Yesterday`;
-          }
+      if (now.getDate() > Number.parseInt(date[0])) {
+        interval = now.getDate() - Number.parseInt(date[0]);
+        if (interval > 1) {
+          return `${interval} days ago`;
+        } else {
+          return `Yesterday`;
         }
       }
     }
+
     if (time.length > 1) {
       // If time format correct
       time = time.slice(1); // Remove full string match value
@@ -72,6 +71,7 @@ const ChatDisplay = (props) => {
 
   //SET UNREAD MESSAGE TOTAL TO UNREAD STATE ON EVERY UNREAD MESSAGE CHANGE
   useEffect(() => {
+    console.log(data);
     if (unreadMessage.length > 0) {
       const thisRoomUnread = unreadMessage.filter((item) =>
         item.room_id.includes(room_id)
@@ -84,28 +84,17 @@ const ChatDisplay = (props) => {
 
   //HANDLE DATA CHANGE PASS TO CHATROOM
   useEffect(() => {
-    if (showChatRoom) {
-      if (data.room_id === chatItem.room_id) {
-        if (
-          data.friend === "block" ||
-          data.friend === "none" ||
-          data.friend === null
-        ) {
-          onClick(data);
-        }
-      }
-    }
-
     socket.on("OPEN_CHAT_ROOM", (friend) => {
       if (data.friend_id === friend.friend_id) {
-        console.log("TES");
         onClick(data);
+        setUnread({ ...unread, read: true });
       }
     });
     return () =>
       socket.off("OPEN_CHAT_ROOM", (friend) => {
         if (data.friend_id === friend.friend_id) {
           onClick(data);
+          setUnread({ ...unread, read: true });
         }
       });
   }, [data]);
@@ -129,17 +118,24 @@ const ChatDisplay = (props) => {
       <div className="displayer">
         <div className="display-name">
           <div className="display-name-wrapper">
-            <div className="inner-displayName">
+            <div
+              className="inner-displayName"
+              style={openUserInfo === true ? { maxWidth: "200px" } : null}
+            >
               <span>{displayName}</span>
             </div>
           </div>
           <div className="display-time">
-            {chat !== "" ? tConvert(now, date) : null}
+            <span>{chat !== "" ? tConvert(now, date) : null}</span>
           </div>
         </div>
         <div className="display-chat">
           <div className="chat-item">
-            <div className="inner-chat-item" title={chat}>
+            <div
+              className="inner-chat-item"
+              title={chat}
+              style={openUserInfo === true ? { maxWidth: "200px" } : null}
+            >
               <span>{chat}</span>
             </div>
           </div>

@@ -41,6 +41,7 @@ export default (state = DEFAULT_STATE, action) => {
         authType: "",
       };
     case OAUTH_SIGN_UP:
+      console.log("SIGNOUT");
       return {
         ...state,
         token: action.payload,

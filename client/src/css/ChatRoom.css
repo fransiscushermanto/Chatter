@@ -454,6 +454,16 @@
   align-items: baseline;
 }
 
+@media screen and (max-width: 985px) {
+  .chat-room .main-chat-room .chat-display-wrapper .m-wrapper .inner-m-wrapper {
+    font-size: 13px;
+    max-width: 400px;
+  }
+  .time-wrapper {
+    min-width: 55px;
+  }
+}
+
 @media screen and (max-width: 648px) {
   .chat-room .header .header-wrapper .inner-header-displayInfo {
     padding: 0px;
@@ -473,11 +483,12 @@
   }
 
   .time-wrapper {
-    min-width: 50px;
+    min-width: 55px;
   }
 
   .chat-room .main-chat-room .chat-display-wrapper .m-wrapper .inner-m-wrapper {
     font-size: 13px;
+    max-width: 400px;
   }
 
   .chatroom-date-sep .inner-date-sep {

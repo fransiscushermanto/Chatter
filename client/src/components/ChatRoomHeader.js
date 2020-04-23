@@ -1,7 +1,26 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Avatar from "./CustomAvatar";
 
-const ChatRoomHeader = ({ displayName, typing, onClick, data, friend }) => {
+import { detectOnBlur } from "./Factories";
+const ChatRoomHeader = ({
+  displayName,
+  typing,
+  onClick,
+  data,
+  friend,
+  onClearMessages,
+}) => {
+  const menu = useRef(null);
+  const [visibleMenu, setVisibleMenu] = useState(false);
+
+  useEffect(() => {
+    detectOnBlur(menu, visibleMenu, setVisibleMenu);
+  }, [visibleMenu, menu]);
+
+  const onVisible = () => {
+    setVisibleMenu(!visibleMenu);
+  };
+
   return (
     <div className="header-wrapper">
       <div className="inner-header-avatar">
@@ -24,21 +43,57 @@ const ChatRoomHeader = ({ displayName, typing, onClick, data, friend }) => {
       <div className="inner-header-button">
         <div
           className="user-info-icon"
-          style={{ cursor: "pointer" }}
-          onClick={() => onClick({ data, friend })}
+          style={{ cursor: "pointer", position: "relative", height: "24px" }}
+          onClick={onVisible}
           role="button"
-          title="User Info"
+          title="Menu"
+          ref={menu}
         >
           <span>
             <svg
-              fill="#000000"
               xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 50 50"
-              width="24px"
-              height="24px"
+              viewBox="0 0 24 24"
+              width="24"
+              height="24"
             >
-              <path d="M 25 2 C 12.309295 2 2 12.309295 2 25 C 2 37.690705 12.309295 48 25 48 C 37.690705 48 48 37.690705 48 25 C 48 12.309295 37.690705 2 25 2 z M 25 4 C 36.609824 4 46 13.390176 46 25 C 46 36.609824 36.609824 46 25 46 C 13.390176 46 4 36.609824 4 25 C 4 13.390176 13.390176 4 25 4 z M 25 11 A 3 3 0 0 0 22 14 A 3 3 0 0 0 25 17 A 3 3 0 0 0 28 14 A 3 3 0 0 0 25 11 z M 21 21 L 21 23 L 22 23 L 23 23 L 23 36 L 22 36 L 21 36 L 21 38 L 22 38 L 23 38 L 27 38 L 28 38 L 29 38 L 29 36 L 28 36 L 27 36 L 27 21 L 26 21 L 22 21 L 21 21 z" />
+              <path
+                fill="currentColor"
+                d="M12 7a2 2 0 1 0-.001-4.001A2 2 0 0 0 12 7zm0 2a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 9zm0 6a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 15z"
+              ></path>
             </svg>
+          </span>
+
+          <span>
+            {visibleMenu ? (
+              <div
+                id="context-menu"
+                className="context-menu"
+                style={{ position: "absolute", right: "10px", top: "30px" }}
+              >
+                <ul className="context-menu-wrapper">
+                  <li className="context-menu-li">
+                    <div
+                      className="context-menu-item"
+                      onClick={() => onClick({ data, friend })}
+                      role="button"
+                      title="User Info"
+                    >
+                      User Info
+                    </div>
+                  </li>
+                  <li className="context-menu-li">
+                    <div
+                      className="context-menu-item"
+                      role="button"
+                      title="Clear Messages"
+                      onClick={() => onClearMessages()}
+                    >
+                      Clear Messages
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            ) : null}
           </span>
         </div>
 

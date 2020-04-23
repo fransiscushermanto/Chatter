@@ -10,7 +10,6 @@ const ResultAddFriend = ({
   dataUser,
   socket,
   isFriend,
-  renderProfile,
   setChatRoomData,
   setOpenUnblockModal,
   setOpenBlockModal,

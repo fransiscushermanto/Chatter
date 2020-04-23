@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Picker } from "emoji-mart";
 
-import { detectOnBlur, escapeHtml } from "./Factories";
+import { detectOnBlur, escapeHtml, validURL } from "./Factories";
 import ChatRoomFooter from "./ChatRoomFooter";
 import ChatRoomHeader from "./ChatRoomHeader";
 import ChatRoomMain from "./ChatRoomMain";
@@ -46,6 +46,8 @@ const ChatRoom = (props) => {
     friend,
     setOpenBlockModal,
     setChatRoomData,
+    setOpenClearMessagesModal,
+    setOpenDeleteRoomModal,
     data,
     onOpenUserInfo,
     openUserInfo,
@@ -89,8 +91,10 @@ const ChatRoom = (props) => {
   };
 
   //SEND START TYPING STATUS TO SOCKET
-  const handleStartTyping = () => {
-    setTyping(true);
+  const handleStartTyping = (room) => {
+    if (room === room_id) {
+      setTyping(true);
+    }
   };
 
   //SEND STOP TYPING STATUS TO SOCKET
@@ -101,7 +105,6 @@ const ChatRoom = (props) => {
   //HANDLE SEND CHAT TO DATABASE & SOCKET
   const handleSendChat = (e) => {
     const keyCode = e.keyCode || e.which;
-    console.log(e.keyCode);
     if (
       !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(
         navigator.userAgent
@@ -398,8 +401,8 @@ const ChatRoom = (props) => {
               : "inner-m-wrapper selectable-text tail"
           }
         >
-          <span className="messageIn">
-            <span>{item}</span>
+          <span className="messageIn selectable-text">
+            <span className="selectable-text">{item}</span>
           </span>
         </div>
         <div className="time-wrapper">
@@ -432,8 +435,20 @@ const ChatRoom = (props) => {
               : "inner-m-wrapper selectable-text tail"
           }
         >
-          <span className="messageOut">
-            <span>{item}</span>
+          <span className="messageOut selectable-text">
+            <span className="selectable-text">
+              {validURL(item) ? (
+                <a
+                  style={{ color: "#add8e6" }}
+                  target="_blank"
+                  href={`https://${item}`}
+                >
+                  {item}
+                </a>
+              ) : (
+                item
+              )}
+            </span>
           </span>
         </div>
       </div>
@@ -584,6 +599,7 @@ const ChatRoom = (props) => {
       user: user,
     };
     await dispatch(actions.addFriend(addFriendData));
+    onOpenUserInfo({ data, friend: "on" });
     socket.emit("UPDATE_ROOM");
     socket.emit("GET_FRIEND");
   };
@@ -603,6 +619,16 @@ const ChatRoom = (props) => {
       friend_id: friend_id,
     });
     setOpenBlockModal(true);
+  };
+
+  //HANDLE CLEAR MESSAGES FUNCTION
+  const onClearMessages = () => {
+    setChatRoomData({
+      friendName: displayName,
+      room_id: room_id,
+      friend_id: friend_id,
+    });
+    setOpenClearMessagesModal(true);
   };
 
   //HANDLE UPDATE MESSAGE ON FIRST LOAD IF NEW MESSAGE EXIST
@@ -638,6 +664,7 @@ const ChatRoom = (props) => {
 
   //HANDLE STATE CHANGE WHEN USER INFO OPEN
   useEffect(() => {
+    console.log(friend, status);
     if (friend === "block") {
       socket.emit("LEAVE_CHAT_ROOM", { room: data.room_id });
       if (openUserInfo) {
@@ -697,34 +724,36 @@ const ChatRoom = (props) => {
           friend={friend}
           displayName={displayName}
           typing={typing}
+          onClearMessages={onClearMessages}
         ></ChatRoomHeader>
-        {friend === "block"
-          ? null
-          : status === "off" || friend === "none"
-          ? (console.log("TA", status, friend),
-            (
-              <div className="alert-status-wrapper">
-                <div className="inner-alert-status">
-                  <div className="action-btn">
-                    <button onClick={onAddFriend}>ADD</button>
-                    <div className="line"></div>
-                    <button
-                      className="block"
-                      onClick={onBlock}
-                      style={{ backgroundColor: "rgba(199, 0, 57, 1)" }}
-                    >
-                      BLOCK
-                    </button>
-                    <div className="line"></div>
-                    <button onClick={onIgnore}>IGNORE</button>
-                  </div>
-                </div>
+        {friend === "block" ? null : status === "off" || friend === "none" ? (
+          <div className="alert-status-wrapper">
+            <div className="inner-alert-status">
+              <div className="action-btn">
+                <button onClick={onAddFriend}>ADD</button>
+                <div className="line"></div>
+                <button
+                  className="block"
+                  onClick={onBlock}
+                  style={{ backgroundColor: "rgba(199, 0, 57, 1)" }}
+                >
+                  BLOCK
+                </button>
+                <div className="line"></div>
+                <button onClick={onIgnore}>IGNORE</button>
               </div>
-            ))
-          : null}
+            </div>
+          </div>
+        ) : null}
       </div>
       <div className="main-chat-room">
-        <ChatRoomMain renderAllChat={renderAllChat}></ChatRoomMain>
+        <ChatRoomMain
+          renderAllChat={renderAllChat}
+          onClick={onOpenUserInfo}
+          data={data}
+          friend={friend}
+          onClearMessages={onClearMessages}
+        ></ChatRoomMain>
         <span>
           {scrolling ? (
             <div

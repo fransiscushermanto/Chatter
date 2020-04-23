@@ -55,7 +55,7 @@ const ContextMenu = ({
             className="context-menu-item"
             onClick={onDeleteCaution}
             role="button"
-            title="Mark as Read"
+            title="Delete Chat"
           >
             Delete Chat
           </div>

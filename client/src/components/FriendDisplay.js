@@ -29,7 +29,7 @@ const FriendDisplay = ({ displayName, data, onClick }) => {
 FriendDisplay.propTypes = {
   displayName: PropTypes.string.isRequired,
   data: PropTypes.object.isRequired,
-  onClick: PropTypes.func.isRequired
+  onClick: PropTypes.func.isRequired,
 };
 
 export default FriendDisplay;

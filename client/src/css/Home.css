@@ -290,12 +290,14 @@
   }
 }
 
-@media screen and (max-width: 648px) {
+@media screen and (max-width: 800px) {
   .main-wrapper .wrapper .row {
     padding: 0px !important;
     overflow-x: scroll;
   }
+}
 
+@media screen and (max-width: 648px) {
   .sider .search-bar {
     padding: 15px 8px;
   }
