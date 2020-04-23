@@ -335,7 +335,8 @@ const ChatRoom = (props) => {
             datestatus = chatDate;
             changeDate = false;
           }
-          if (item.sender_id !== user._id) {
+          console.log(item.sender_id, user_id);
+          if (item.sender_id !== user_id) {
             currentStatus = item.sender_id;
 
             return (
@@ -681,7 +682,6 @@ const ChatRoom = (props) => {
 
   //HANDLE STATE CHANGE WHEN USER INFO OPEN
   useEffect(() => {
-    console.log(friend, status);
     if (friend === "block") {
       socket.emit("LEAVE_CHAT_ROOM", { room: data.room_id });
       if (openUserInfo) {
