@@ -65,7 +65,6 @@ const Home = () => {
 
   //LOAD FRIEND FUNCTION
   const loadFriend = async () => {
-    console.log(profile);
     const loadFriendData = {
       user_id: profile._id,
       user: profile,
@@ -664,6 +663,7 @@ const Home = () => {
   useEffect(() => {
     if (dataUser !== "" && socket !== "") {
       socket.on("LOAD_FRIEND", () => {
+        getAllUser();
         loadFriend();
         fetchFriend();
         loadChatHistory();
@@ -671,6 +671,7 @@ const Home = () => {
 
       return () => {
         socket.off("LOAD_FRIEND", () => {
+          getAllUser();
           loadFriend();
           fetchFriend();
           loadChatHistory();
@@ -1107,7 +1108,7 @@ const Home = () => {
           <Route path={`${path}/addFriend`}>
             <AddFriend
               isFriend={isFriend}
-              dataUser={profileName}
+              dataUser={profile}
               loadFriend={loadFriend}
               socket={socket}
               renderProfile={renderProfile}
