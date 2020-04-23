@@ -7,9 +7,10 @@ You can visit the app on [https://chatter-xite.herokuapp.com] to try the apps.
 To run the app in localhost:
 
 1. Setup MongoDB in your local. Please use lastest version or 3+.
-2. To run server directly run "npm run dev" for development uses.
-3. To run Client server you have to move to ./client directory.
-4. On ./client directory simply run "npm start".
+2. Run npm init to download all packages.
+3. To run server directly run "npm run dev" for development uses.
+4. To run Client server you have to move to ./client directory.
+5. On ./client directory simply run "npm start".
 
 # Notes:
 
