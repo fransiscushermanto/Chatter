@@ -19,6 +19,7 @@ const ChatDisplay = (props) => {
     setChatRoomData,
     setOpenDeleteRoomModal,
     openUserInfo,
+    user_id,
   } = props;
   const cryptr = require("simple-encryptor")(process.env.REACT_APP_CRYPTO_KEY);
   const [openContextMenu, setOpenContextMenu] = useState(false);
@@ -105,6 +106,21 @@ const ChatDisplay = (props) => {
       });
   }, [data]);
 
+  //HANDLE MARK AS UNREAD
+  useEffect(() => {
+    socket.on("MARK_AS_UNREAD", (room_id) => {
+      if (data.room_id === room_id) {
+        setUnread({ ...unread, read: false });
+      }
+    });
+
+    socket.on("MARK_AS_READ", (room_id) => {
+      if (data.room_id === room_id) {
+        setUnread({ ...unread, read: true, unread: 0 });
+      }
+    });
+  }, [unreadMessage]);
+
   return (
     <div
       className="cxroom"
@@ -165,6 +181,7 @@ const ChatDisplay = (props) => {
       </div>
 
       <ContextMenu
+        socket={socket}
         visible={openContextMenu}
         setVisibility={setOpenContextMenu}
         rootRef={root}
@@ -172,6 +189,8 @@ const ChatDisplay = (props) => {
         read={unread.read}
         setOpenDeleteRoomModal={setOpenDeleteRoomModal}
         setChatRoomData={setChatRoomData}
+        user_id={user_id}
+        room_id={room_id}
       ></ContextMenu>
     </div>
   );

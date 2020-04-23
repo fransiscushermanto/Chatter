@@ -450,4 +450,44 @@ module.exports = function (socket) {
       console.log(error);
     }
   });
+
+  socket.on("MARK_AS_UNREAD", async ({ data }) => {
+    try {
+      await ChatRoom.findOneAndUpdate(
+        {
+          $and: [
+            { room_id: data.room_id },
+            { user_id: data.user_id },
+            { friend_id: data.friend_id },
+          ],
+        },
+        {
+          "lastchat.status": "unread",
+        }
+      );
+      socket.emit("MARK_AS_UNREAD", data.room_id);
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+  socket.on("MARK_AS_READ", async ({ data }) => {
+    try {
+      await ChatRoom.findOneAndUpdate(
+        {
+          $and: [
+            { room_id: data.room_id },
+            { user_id: data.user_id },
+            { friend_id: data.friend_id },
+          ],
+        },
+        {
+          "lastchat.status": "read",
+        }
+      );
+      socket.emit("MARK_AS_READ", data.room_id);
+    } catch (error) {
+      console.log(error);
+    }
+  });
 };

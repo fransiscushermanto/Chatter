@@ -216,6 +216,7 @@ const Home = () => {
             showChatRoom={showChatRoom}
             chatItem={chatItem}
             openUserInfo={openUserInfo}
+            user_id={dataUser._id}
           />
         );
       });
@@ -250,7 +251,6 @@ const Home = () => {
             setUnreadMessage={setUnreadMessage}
             chat={data.chat}
             time={data.time}
-            read={data.read}
             data={data}
             socket={socket}
             setOpenDeleteRoomModal={setOpenDeleteRoomModal}
@@ -258,6 +258,7 @@ const Home = () => {
             showChatRoom={showChatRoom}
             chatItem={chatItem}
             openUserInfo={openUserInfo}
+            user_id={dataUser._id}
           />
         );
       });

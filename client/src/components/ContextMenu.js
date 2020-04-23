@@ -10,6 +10,9 @@ const ContextMenu = ({
   setVisibility,
   setOpenDeleteRoomModal,
   setChatRoomData,
+  socket,
+  room_id,
+  user_id,
 }) => {
   const [x, setX] = useState(0);
   const [y, setY] = useState(0);
@@ -21,7 +24,6 @@ const ContextMenu = ({
 
     const showMenu = (event) => {
       event.preventDefault();
-      console.log(data);
       setVisibility(true);
       setX(event.clientX);
       setY(event.clientY);
@@ -41,6 +43,26 @@ const ContextMenu = ({
   const onDeleteCaution = () => {
     setChatRoomData(data);
     setOpenDeleteRoomModal(true);
+  };
+
+  const onMarkasRead = () => {
+    socket.emit("MARK_AS_READ", {
+      data: {
+        room_id: room_id,
+        user_id: user_id,
+        friend_id: data.friend_id,
+      },
+    });
+  };
+
+  const onMarkasUnRead = () => {
+    socket.emit("MARK_AS_UNREAD", {
+      data: {
+        room_id: room_id,
+        user_id: user_id,
+        friend_id: data.friend_id,
+      },
+    });
   };
 
   const style = {
@@ -66,6 +88,7 @@ const ContextMenu = ({
               className="context-menu-item"
               role="button"
               title="Mark as Unread"
+              onClick={onMarkasUnRead}
             >
               Mark as Unread
             </div>
@@ -74,6 +97,7 @@ const ContextMenu = ({
               className="context-menu-item"
               role="button"
               title="Mark as Read"
+              onClick={onMarkasRead}
             >
               Mark as Read
             </div>
